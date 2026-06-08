@@ -432,7 +432,6 @@ function PlotView({ plot, proj, ctx }) {
     sold:     { bg:"var(--rose-dim)",    color:"var(--rose)",    border:"rgba(244,63,94,0.3)" },
   };
   const c = colors[plot.status]||colors.available;
-  const buyer  = plot.buyerId  ? db.users.find(u=>u.id===plot.buyerId)  : null;
   const seller = plot.sellerId ? db.users.find(u=>u.id===plot.sellerId) : null;
 
   return (
