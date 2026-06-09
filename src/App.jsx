@@ -1,3 +1,6 @@
+import { supabase } from "./supabase";
+
+console.log("Supabase Connected:", supabase);
 import { useState, useEffect, useRef, useCallback } from "react";
 import * as XLSX from "xlsx";
 import "./styles.css";
