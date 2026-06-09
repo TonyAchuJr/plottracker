@@ -160,6 +160,8 @@ supabase
     }
   ])
   .then(({ data, error }) => {
+    console.log("SUPABASE DATA:", data);
+  console.log("SUPABASE ERROR:", error);
   });
 
 // Existing localStorage save
