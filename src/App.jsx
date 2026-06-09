@@ -153,7 +153,6 @@ supabase
   .from("profiles")
   .insert([
     {
-      id: u.id,
       name: u.name,
       phone: u.phone,
       role: u.role
