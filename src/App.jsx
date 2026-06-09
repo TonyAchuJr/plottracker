@@ -147,6 +147,8 @@ function RegisterPage({ ctx }) {
 };
 
 // Save to Supabase
+console.log("REGISTER BUTTON CLICKED", u);
+
 supabase
   .from("profiles")
   .insert([
