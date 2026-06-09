@@ -1,9 +1,15 @@
 import { supabase } from "./supabase";
+<<<<<<< HEAD
 
 console.log("Supabase Connected:", supabase);
+=======
+>>>>>>> b862cb31 (Connect Supabase and update registration)
 import { useState, useEffect, useRef, useCallback } from "react";
 import * as XLSX from "xlsx";
 import "./styles.css";
+
+console.log("Supabase Connected:", supabase);
+console.log("URL:", process.env.REACT_APP_SUPABASE_URL);
 
 /* ─── DB ─────────────────────────────────────────────────────────────────── */
 const DB_KEY = "plottracker_v4";
@@ -137,9 +143,37 @@ function RegisterPage({ ctx }) {
   const go = () => {
     if(!name.trim()||!email.trim()||!pass.trim()){setErr("All fields required.");return;}
     if(db.users.find(u=>u.email===email.trim().toLowerCase())){setErr("Email already registered.");return;}
-    const u={id:uid(),name:name.trim(),email:email.trim().toLowerCase(),phone:phone.trim(),password:pass,role,createdAt:Date.now()};
-    persist(d=>({...d,users:[...d.users,u]}));
-    setUser(u); setView("dashboard"); toast$("Account created! Welcome to PlotTracker.");
+    const u={
+  id:uid(),
+  name:name.trim(),
+  email:email.trim().toLowerCase(),
+  phone:phone.trim(),
+  password:pass,
+  role,
+  createdAt:Date.now()
+};
+
+// Save to Supabase
+supabase
+  .from("profiles")
+  .insert([
+    {
+      name: u.name,
+      phone: u.phone,
+      role: u.role
+    }
+  ])
+  .then(({ data, error }) => {
+    console.log("SUPABASE DATA:", data);
+    console.log("SUPABASE ERROR:", JSON.stringify(error, null, 2));
+  });
+
+// Existing localStorage save
+persist(d=>({...d,users:[...d.users,u]}));
+
+setUser(u);
+setView("dashboard");
+toast$("Account created! Welcome to PlotTracker.");
   };
   return (
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:"1.5rem",background:"var(--bg)"}}>
