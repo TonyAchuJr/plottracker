@@ -1,15 +1,8 @@
 import { supabase } from "./supabase";
-<<<<<<< HEAD
-
-console.log("Supabase Connected:", supabase);
-=======
->>>>>>> b862cb31 (Connect Supabase and update registration)
 import { useState, useEffect, useRef, useCallback } from "react";
 import * as XLSX from "xlsx";
 import "./styles.css";
 
-console.log("Supabase Connected:", supabase);
-console.log("URL:", process.env.REACT_APP_SUPABASE_URL);
 
 /* ─── DB ─────────────────────────────────────────────────────────────────── */
 const DB_KEY = "plottracker_v4";
@@ -164,8 +157,6 @@ supabase
     }
   ])
   .then(({ data, error }) => {
-    console.log("SUPABASE DATA:", data);
-    console.log("SUPABASE ERROR:", JSON.stringify(error, null, 2));
   });
 
 // Existing localStorage save
