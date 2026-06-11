@@ -224,13 +224,13 @@ function AuthTop({ ctx, title, sub }) {
 }
 
 function LoginPage({ ctx }) {
-  const { setView, toast$ } = ctx;
+  const { setView } = ctx;
   const [email, setEmail] = useState(""); const [pass, setPass] = useState("");
   const [err, setErr] = useState(""); const [busy, setBusy] = useState(false);
   const go = async () => {
     if (!email || !pass) { setErr("All fields required."); return; }
     setBusy(true); setErr("");
-    const { data, error } = await authSignIn({ email: email.trim().toLowerCase(), password: pass });
+    const { error } = await authSignIn({ email: email.trim().toLowerCase(), password: pass });
     setBusy(false);
     if (error) {
       const msg = error.message || "";
@@ -375,7 +375,7 @@ function Shell({ ctx, children }) {
    DASHBOARD
 ════════════════════════════════════════════════════════════════ */
 function Dashboard({ ctx }) {
-  const { profile, authUser, projects, plots, openProject, setModal, busy } = ctx;
+  const { profile, authUser, projects, openProject, setModal, busy } = ctx;
   const isOwner = profile?.role === "owner";
   const allPlots = projects.flatMap(p => p._plots || []);
   return (
@@ -653,7 +653,7 @@ function ModalShell({ modal, ctx, proj, plot }) {
 }
 
 function CreateProjectModal({ ctx }) {
-  const { authUser, toast$, setModal, setView, openProject, setProjects, projects } = ctx;
+  const { authUser, toast$, setModal, openProject, setProjects } = ctx;
   const [name,setName]=useState(""); const [loc,setLoc]=useState("");
   const [mapUrl,setMapUrl]=useState(""); const [desc,setDesc]=useState("");
   const [err,setErr]=useState(""); const [busy,setBusy]=useState(false);
@@ -679,7 +679,7 @@ function CreateProjectModal({ ctx }) {
 }
 
 function AddPlotsModal({ ctx, proj }) {
-  const { authUser, toast$, setModal, setPlots } = ctx;
+  const { toast$, setModal, setPlots } = ctx;
   const [mode,setMode]=useState("range");
   const [prefix,setPrefix]=useState(""); const [from,setFrom]=useState("1"); const [to,setTo]=useState("10");
   const [singles,setSingles]=useState(""); const [area,setArea]=useState(""); const [price,setPrice]=useState("");
@@ -880,7 +880,7 @@ function ViewFilesModal({ ctx, proj }) {
 ════════════════════════════════════════════════════════════════ */
 function ReportBtn({ projects=[], allPlots=[], profiles=[], single=false }) {
   const [open,setOpen]=useState(false);
-  const umap=Object.fromEntries(profiles.map(u=>[u.id,u]));
+  // profiles available for future use
   const rows=()=>{const out=[];for(const p of projects){const pl=single?allPlots:(p._plots||[]);for(const x of pl){out.push({"Project":p.name,"Location":p.location||"","Plot No.":x.number,"Status":(x.status||"").charAt(0).toUpperCase()+(x.status||"").slice(1),"Area":x.area||"","Price (₹)":x.price||"","Contact Name":x.contact_name||"","Contact Phone":x.contact_phone||"","Advance Paid":x.advance_paid===true?"Yes":x.advance_paid===false?"No":"","Notes":x.transaction_notes||""});}}return out;};
   const summ=()=>projects.map(p=>{const pl=single?allPlots:(p._plots||[]);const s=pl.filter(x=>x.status==="sold"),b=pl.filter(x=>x.status==="booked"),a=pl.filter(x=>x.status==="available");return{"Project":p.name,"Location":p.location||"","Total":pl.length,"Sold":s.length,"Booked":b.length,"Available":a.length,"% Sold":pl.length?Math.round(s.length/pl.length*100)+"%":"0%","Revenue (₹)":s.reduce((acc,x)=>acc+Number(x.price||0),0)};});
   const dlCSV=()=>{const r=rows();if(!r.length)return;const h=Object.keys(r[0]);const csv=[h.join(","),...r.map(row=>h.map(k=>{const v=String(row[k]??"").replace(/"/g,'""');return v.includes(",")||v.includes('"')?`"${v}"`:v;}).join(","))].join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv"}));a.download=`PlotTracker_${Date.now()}.csv`;a.click();setOpen(false);};
