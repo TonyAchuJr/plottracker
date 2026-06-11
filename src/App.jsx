@@ -60,11 +60,31 @@ export default function App() {
 
   async function loadUser(u) {
     setAuthUser(u);
-    const { data: prof }  = await fetchProfile(u.id);
+
+    // Retry profile fetch up to 3 times (trigger may be slightly delayed)
+    let prof = null;
+    for (let i = 0; i < 3; i++) {
+      const { data } = await fetchProfile(u.id);
+      if (data) { prof = data; break; }
+      await new Promise(r => setTimeout(r, 800)); // wait 800ms then retry
+    }
+
+    // If profile still missing, create it manually from auth metadata
+    if (!prof) {
+      const meta = u.user_metadata || {};
+      const { data: created } = await supabase.from("profiles").insert({
+        id: u.id,
+        name: meta.name || u.email?.split("@")[0] || "User",
+        phone: meta.phone || "",
+        role: meta.role || "buyer",
+      }).select().single();
+      prof = created;
+    }
+
     const { data: profs } = await fetchAllProfiles();
+    const { data: projs } = await fetchProjects();
     setProfile(prof);
     setProfiles(profs || []);
-    const { data: projs } = await fetchProjects();
     setProjects(projs || []);
     setView("dashboard");
   }
@@ -210,9 +230,22 @@ function LoginPage({ ctx }) {
   const go = async () => {
     if (!email || !pass) { setErr("All fields required."); return; }
     setBusy(true); setErr("");
-    const { error } = await authSignIn({ email: email.trim().toLowerCase(), password: pass });
+    const { data, error } = await authSignIn({ email: email.trim().toLowerCase(), password: pass });
     setBusy(false);
-    if (error) setErr(error.message === "Invalid login credentials" ? "Invalid email or password." : error.message);
+    if (error) {
+      const msg = error.message || "";
+      if (msg.includes("Invalid login credentials") || msg.includes("invalid_credentials")) {
+        setErr("Wrong email or password. Please try again.");
+      } else if (msg.includes("Email not confirmed")) {
+        setErr("Please confirm your email first. Check your inbox.");
+      } else if (msg.includes("Too many requests")) {
+        setErr("Too many attempts. Please wait a few minutes.");
+      } else {
+        setErr(msg || "Login failed. Check your connection and try again.");
+      }
+      return;
+    }
+    // onAuthStateChange handles redirect automatically
   };
   return (
     <div className="auth-wrap">
