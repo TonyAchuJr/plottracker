@@ -385,10 +385,10 @@ function Shell({ ctx, children }) {
     </div>
 
     <div className="footer-links">
-      <a href="#">About</a>
-      <a href="#">Contact Us</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
+      <a href="https://tonyachujr.my.canva.site/">About</a>
+<a href="mailto:tonyachujrart@gmail.com">Contact Us</a>
+<a href="/">Privacy Policy</a>
+<a href="/">Terms of Service</a>
     </div>
 
     <div className="footer-copy">
