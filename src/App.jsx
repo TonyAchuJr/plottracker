@@ -392,8 +392,8 @@ function Shell({ ctx, children }) {
     </div>
 
     <div className="footer-copy">
-      © {new Date().getFullYear()} PlotTracker. All Rights Reserved.
-    </div>
+  &copy; {new Date().getFullYear()} PlotTracker. All Rights Reserved.
+</div>
   </div>
 </footer>
     </div>
