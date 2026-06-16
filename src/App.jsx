@@ -4,7 +4,7 @@ import "./styles.css";
 import {
   supabase, authSignUp, authSignIn, authSignOut, getSession,
   fetchProfile, fetchAllProfiles,
-  fetchProjects, insertProject,
+  fetchProjects, insertProject, deleteProject, archiveProject,
   fetchPlots, insertPlots, patchPlot,
   fetchHistory, insertHistory,
   fetchFiles, uploadFile, removeFile,
@@ -375,9 +375,34 @@ function Shell({ ctx, children }) {
    DASHBOARD
 ════════════════════════════════════════════════════════════════ */
 function Dashboard({ ctx }) {
-  const { profile, authUser, projects, openProject, setModal, busy } = ctx;
+  const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects } = ctx;
   const isOwner = profile?.role === "owner";
+  const [tab, setTab] = useState("active"); // "active" | "archived"
   const allPlots = projects.flatMap(p => p._plots || []);
+
+  const activeProjects   = projects.filter(p => !p.archived);
+  const archivedProjects = projects.filter(p =>  p.archived);
+  const shown = tab === "active" ? activeProjects : archivedProjects;
+
+  const handleArchive = async (proj, e) => {
+    e.stopPropagation();
+    const { error } = await archiveProject(proj.id, !proj.archived);
+    if (error) { toast$(error.message, "err"); return; }
+    const { data } = await fetchProjects();
+    setProjects(data || []);
+    toast$(proj.archived ? "Project restored!" : "Project archived.");
+  };
+
+  const handleDelete = async (proj, e) => {
+    e.stopPropagation();
+    if (!window.confirm(`Delete "${proj.name}" permanently? This cannot be undone.`)) return;
+    const { error } = await deleteProject(proj.id);
+    if (error) { toast$(error.message, "err"); return; }
+    const { data } = await fetchProjects();
+    setProjects(data || []);
+    toast$("Project deleted.");
+  };
+
   return (
     <div>
       <div className="flex jsb aic mb3 fw" style={{ gap: 10 }}>
@@ -388,16 +413,47 @@ function Dashboard({ ctx }) {
           <p className="tmuted tsm">{isOwner ? "Manage all layout projects" : "Browse available projects and plots"}</p>
         </div>
         <div className="flex g2 fw">
-          {isOwner && <ReportBtn projects={projects} allPlots={allPlots} profiles={ctx.profiles} />}
+          {isOwner && <ReportBtn projects={activeProjects} allPlots={allPlots} profiles={ctx.profiles} />}
           {isOwner && <button className="btn-primary afu1" onClick={() => setModal({ type: "create-project" })}>+ New Project</button>}
         </div>
       </div>
-      {busy ? <Spin /> : projects.length === 0
-        ? <div className="empty"><div className="empty-icon">🏗️</div><div>{isOwner ? "No projects yet. Create the first one!" : "No projects available yet."}</div></div>
+
+      {/* Tabs */}
+      {isOwner && (
+        <div className="flex g2 mb3" style={{ borderBottom: "1.5px solid var(--border)", paddingBottom: 0 }}>
+          {[["active", "🏗️ Active", activeProjects.length], ["archived", "📦 Archived", archivedProjects.length]].map(([t, label, count]) => (
+            <button key={t} onClick={() => setTab(t)} style={{
+              padding: "9px 18px 11px", border: "none", background: "none", cursor: "pointer",
+              fontSize: 14, fontWeight: 600, fontFamily: "var(--font-body)",
+              color: tab === t ? "var(--gold)" : "var(--text2)",
+              borderBottom: tab === t ? "2px solid var(--gold)" : "2px solid transparent",
+              marginBottom: -1.5, transition: "all var(--ease)",
+              display: "flex", alignItems: "center", gap: 7,
+            }}>
+              {label}
+              <span style={{ fontSize: 11, background: tab === t ? "var(--gold-dim)" : "var(--surface2)", color: tab === t ? "var(--gold)" : "var(--text3)", padding: "1px 7px", borderRadius: "100px", fontFamily: "var(--font-mono)" }}>
+                {count}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {busy ? <Spin /> : shown.length === 0
+        ? <div className="empty">
+            <div className="empty-icon">{tab === "archived" ? "📦" : "🏗️"}</div>
+            <div>{tab === "archived" ? "No archived projects." : isOwner ? "No projects yet. Create the first one!" : "No projects available yet."}</div>
+          </div>
         : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,275px),1fr))", gap: 13 }} className="g1-sm">
-            {projects.map((p, i) => (
+            {shown.map((p, i) => (
               <div key={p.id} className="afu" style={{ animationDelay: `${i * 0.05}s` }}>
-                <ProjCard proj={p} profiles={ctx.profiles} onClick={() => openProject(p.id)} isOwner={p.owner_id === authUser?.id} />
+                <ProjCard
+                  proj={p} profiles={ctx.profiles}
+                  onClick={() => !p.archived && openProject(p.id)}
+                  isOwner={p.owner_id === authUser?.id}
+                  onArchive={isOwner && p.owner_id === authUser?.id ? (e) => handleArchive(p, e) : null}
+                  onDelete={isOwner && p.owner_id === authUser?.id ? (e) => handleDelete(p, e) : null}
+                />
               </div>
             ))}
           </div>
@@ -406,20 +462,59 @@ function Dashboard({ ctx }) {
   );
 }
 
-function ProjCard({ proj, profiles, onClick, isOwner }) {
+function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
   const owner  = profiles.find(u => u.id === proj.owner_id);
   const pplots = proj._plots || [];
   const total = pplots.length, sold = pplots.filter(p => p.status === "sold").length,
         bkd   = pplots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
   const pct = total ? Math.round(sold / total * 100) : 0;
+  const [menu, setMenu] = useState(false);
+
   return (
-    <div className="project-card" onClick={onClick}>
+    <div className="project-card" onClick={onClick} style={{ opacity: proj.archived ? 0.7 : 1 }}>
       <div className="flex jsb aic mb2">
         <div style={{ flex: 1, minWidth: 0, marginRight: 8 }}>
-          <div className="trunc semi" style={{ fontSize: 15, color: "var(--text)", marginBottom: 3 }}>{proj.name}</div>
+          <div className="flex aic g2" style={{ marginBottom: 3 }}>
+            <div className="trunc semi" style={{ fontSize: 15, color: "var(--text)" }}>{proj.name}</div>
+            {proj.archived && <span style={{ fontSize: 10, background: "var(--surface3)", color: "var(--text3)", padding: "2px 7px", borderRadius: "100px", fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>Archived</span>}
+          </div>
           <div className="tmuted txs">by {owner?.name || "Unknown"}</div>
         </div>
-        {isOwner && <span style={{ fontSize: 10, background: "var(--gold-dim)", color: "var(--gold)", padding: "3px 8px", borderRadius: "100px", fontWeight: 600, border: "1px solid rgba(201,168,76,.2)", whiteSpace: "nowrap" }}>Your Project</span>}
+        {/* 3-dot menu for owner */}
+        {isOwner && (onArchive || onDelete) && (
+          <div style={{ position: "relative", flexShrink: 0 }} onClick={e => e.stopPropagation()}>
+            <button onClick={e => { e.stopPropagation(); setMenu(o => !o); }}
+              style={{ width: 30, height: 30, borderRadius: 8, background: "var(--surface2)", border: "1.5px solid var(--border2)", color: "var(--text2)", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "all var(--ease)" }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--gold)"; e.currentTarget.style.color = "var(--gold)"; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--border2)"; e.currentTarget.style.color = "var(--text2)"; }}>
+              ⋯
+            </button>
+            {menu && (
+              <>
+                <div onClick={() => setMenu(false)} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
+                <div style={{ position: "absolute", top: 36, right: 0, zIndex: 100, background: "var(--surface)", border: "1.5px solid var(--border2)", borderRadius: 12, padding: 5, minWidth: 160, boxShadow: "0 12px 32px rgba(0,0,0,0.45)" }}>
+                  {/* Gold top line */}
+                  <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg,transparent,var(--gold),transparent)", opacity: .4, borderRadius: "12px 12px 0 0" }} />
+                  {onArchive && (
+                    <button onClick={onArchive} style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", padding: "10px 12px", background: "none", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, color: "var(--text2)", fontFamily: "var(--font-body)", transition: "all var(--ease)", textAlign: "left" }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "var(--gold-dim)"; e.currentTarget.style.color = "var(--gold)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "var(--text2)"; }}>
+                      <span style={{ fontSize: 16 }}>{proj.archived ? "♻️" : "📦"}</span>
+                      {proj.archived ? "Restore Project" : "Archive Project"}
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button onClick={onDelete} style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", padding: "10px 12px", background: "none", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, color: "var(--rose)", fontFamily: "var(--font-body)", transition: "all var(--ease)", textAlign: "left" }}
+                      onMouseEnter={e => { e.currentTarget.style.background = "var(--rose-dim)"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = "none"; }}>
+                      <span style={{ fontSize: 16 }}>🗑️</span>Delete Project
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
       {proj.location && <p className="tmuted txs mb2">📍 {proj.location}</p>}
       <div className="flex g2 mb3 fw">
@@ -489,6 +584,7 @@ function ProjectView({ proj, ctx }) {
         {isProjectOwner && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>⬆ Upload Layout</button>}
         {isOwnerRole    && <button className="btn-primary" onClick={() => setModal({ type: "add-plots", proj })}>+ Add Plots</button>}
         {isOwnerRole    && <ReportBtn projects={[proj]} allPlots={plots} profiles={ctx.profiles} single />}
+        {isProjectOwner && <button className="btn-ghost" onClick={() => setModal({ type: "project-settings", proj })}>⚙️ Settings</button>}
       </div>
 
       <div className="flex g2 mb3 afu4 fw aic">
@@ -646,7 +742,8 @@ function ModalShell({ modal, ctx, proj, plot }) {
         {modal.type === "update-plot"    && <UpdatePlotModal ctx={ctx} plot={mpl} proj={mp} />}
         {modal.type === "edit-plot"      && <EditPlotModal ctx={ctx} plot={mpl} proj={mp} />}
         {modal.type === "upload-file"    && <UploadFileModal ctx={ctx} proj={mp} />}
-        {modal.type === "view-files"     && <ViewFilesModal ctx={ctx} proj={mp} />}
+        {modal.type === "view-files"        && <ViewFilesModal ctx={ctx} proj={mp} />}
+        {modal.type === "project-settings" && <ProjectSettingsModal ctx={ctx} proj={mp} />}
       </div>
     </div>
   );
@@ -876,6 +973,71 @@ function ViewFilesModal({ ctx, proj }) {
 }
 
 /* ════════════════════════════════════════════════════════════════
+   PROJECT SETTINGS MODAL (Archive / Delete)
+════════════════════════════════════════════════════════════════ */
+function ProjectSettingsModal({ ctx, proj }) {
+  const { toast$, setModal, setView, setProjects } = ctx;
+  const [busy, setBusy] = useState(false);
+
+  const handleArchive = async () => {
+    setBusy(true);
+    const { error } = await archiveProject(proj.id, !proj.archived);
+    setBusy(false);
+    if (error) { toast$(error.message, "err"); return; }
+    const { data } = await fetchProjects();
+    setProjects(data || []);
+    toast$(proj.archived ? "Project restored!" : "Project archived.");
+    setModal(null); setView("dashboard");
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm(`Permanently delete "${proj.name}"?\n\nAll plots, history and files will be deleted. This cannot be undone.`)) return;
+    setBusy(true);
+    const { error } = await deleteProject(proj.id);
+    setBusy(false);
+    if (error) { toast$(error.message, "err"); return; }
+    const { data } = await fetchProjects();
+    setProjects(data || []);
+    toast$("Project deleted."); setModal(null); setView("dashboard");
+  };
+
+  return <>
+    <h3 className="sheet-title">Project Settings</h3>
+    <div style={{ background: "var(--surface2)", borderRadius: 12, padding: "1rem", marginBottom: "1rem", border: "1px solid var(--border2)" }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>{proj.name}</div>
+      {proj.location && <div className="tmuted txs">📍 {proj.location}</div>}
+      <div className="tmuted txs" style={{ marginTop: 4 }}>Created {DFMT.format(new Date(proj.created_at))}</div>
+    </div>
+
+    {/* Archive */}
+    <div style={{ border: "1.5px solid var(--border2)", borderRadius: 12, padding: "1rem 1.1rem", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
+      <div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)", marginBottom: 3 }}>
+          {proj.archived ? "♻️ Restore Project" : "📦 Archive Project"}
+        </div>
+        <div className="tmuted txs">{proj.archived ? "Move project back to active dashboard." : "Hide from dashboard. Data is preserved, no plots are deleted."}</div>
+      </div>
+      <button className="btn-secondary" onClick={handleArchive} disabled={busy} style={{ flexShrink: 0 }}>
+        {busy ? "Working…" : proj.archived ? "Restore" : "Archive"}
+      </button>
+    </div>
+
+    {/* Delete */}
+    <div style={{ border: "1.5px solid rgba(244,63,94,0.28)", borderRadius: 12, padding: "1rem 1.1rem", marginBottom: "1rem", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap", background: "rgba(244,63,94,0.03)" }}>
+      <div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--rose)", marginBottom: 3 }}>🗑️ Delete Project</div>
+        <div className="tmuted txs">Permanently deletes the project, all plots, history and files. Cannot be undone.</div>
+      </div>
+      <button className="btn-danger" onClick={handleDelete} disabled={busy} style={{ flexShrink: 0 }}>
+        {busy ? "Deleting…" : "Delete"}
+      </button>
+    </div>
+
+    <button className="btn-ghost btn-full" onClick={() => setModal(null)}>Cancel</button>
+  </>;
+}
+
+/* ════════════════════════════════════════════════════════════════
    REPORT DOWNLOAD (Excel + CSV)
 ════════════════════════════════════════════════════════════════ */
 function ReportBtn({ projects=[], allPlots=[], profiles=[], single=false }) {
@@ -884,7 +1046,37 @@ function ReportBtn({ projects=[], allPlots=[], profiles=[], single=false }) {
   const rows=()=>{const out=[];for(const p of projects){const pl=single?allPlots:(p._plots||[]);for(const x of pl){out.push({"Project":p.name,"Location":p.location||"","Plot No.":x.number,"Status":(x.status||"").charAt(0).toUpperCase()+(x.status||"").slice(1),"Area":x.area||"","Price (₹)":x.price||"","Contact Name":x.contact_name||"","Contact Phone":x.contact_phone||"","Advance Paid":x.advance_paid===true?"Yes":x.advance_paid===false?"No":"","Notes":x.transaction_notes||""});}}return out;};
   const summ=()=>projects.map(p=>{const pl=single?allPlots:(p._plots||[]);const s=pl.filter(x=>x.status==="sold"),b=pl.filter(x=>x.status==="booked"),a=pl.filter(x=>x.status==="available");return{"Project":p.name,"Location":p.location||"","Total":pl.length,"Sold":s.length,"Booked":b.length,"Available":a.length,"% Sold":pl.length?Math.round(s.length/pl.length*100)+"%":"0%","Revenue (₹)":s.reduce((acc,x)=>acc+Number(x.price||0),0)};});
   const dlCSV=()=>{const r=rows();if(!r.length)return;const h=Object.keys(r[0]);const csv=[h.join(","),...r.map(row=>h.map(k=>{const v=String(row[k]??"").replace(/"/g,'""');return v.includes(",")||v.includes('"')?`"${v}"`:v;}).join(","))].join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv"}));a.download=`PlotTracker_${Date.now()}.csv`;a.click();setOpen(false);};
-  const dlXLSX=()=>{const wb=XLSX.utils.book_new();const sm=summ();if(sm.length){const s1=XLSX.utils.json_to_sheet(sm);s1["!cols"]=Object.keys(sm[0]).map(k=>({wch:Math.max(k.length,14)}));XLSX.utils.book_append_sheet(wb,s1,"Summary");}const r=rows();if(r.length){const s2=XLSX.utils.json_to_sheet(r);s2["!cols"]=Object.keys(r[0]).map(k=>({wch:Math.max(k.length,14)}));XLSX.utils.book_append_sheet(wb,s2,"All Plots");}const txn=rows().filter(r=>["Sold","Booked"].includes(r["Status"]));if(txn.length){const s3=XLSX.utils.json_to_sheet(txn);XLSX.utils.book_append_sheet(wb,s3,"Transactions");}XLSX.writeFile(wb,`PlotTracker_Report_${Date.now()}.xlsx`);setOpen(false);};
+  const dlXLSX = () => {
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Summary
+    const sm = summ();
+    if (sm.length) {
+      const ws1 = XLSX.utils.json_to_sheet(sm);
+      ws1["!cols"] = Object.keys(sm[0]).map(k => ({ wch: Math.max(k.length + 2, 16) }));
+      XLSX.utils.book_append_sheet(wb, ws1, "Summary");
+    }
+
+    // Sheet 2: All Plots
+    const r = rows();
+    if (r.length) {
+      const ws2 = XLSX.utils.json_to_sheet(r);
+      ws2["!cols"] = Object.keys(r[0]).map(k => ({ wch: Math.max(k.length + 2, 16) }));
+      XLSX.utils.book_append_sheet(wb, ws2, "All Plots");
+    }
+
+    // Sheet 3: Transactions only
+    const txn = rows().filter(row => ["Sold","Booked"].includes(row["Status"]));
+    if (txn.length) {
+      const ws3 = XLSX.utils.json_to_sheet(txn);
+      ws3["!cols"] = Object.keys(txn[0]).map(k => ({ wch: Math.max(k.length + 2, 16) }));
+      XLSX.utils.book_append_sheet(wb, ws3, "Transactions");
+    }
+
+    const fname = `PlotTracker_Report_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(wb, fname, { bookType: "xlsx", type: "binary" });
+    setOpen(false);
+  };
   return(
     <div style={{position:"relative",flexShrink:0}}>
       <button className="btn-secondary" onClick={()=>setOpen(o=>!o)}>📊 Report ▾</button>
