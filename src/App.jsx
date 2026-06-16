@@ -385,65 +385,23 @@ function Shell({ ctx, children }) {
     </div>
 
     <div className="footer-links">
-      <a href="https://tonyachujr.my.canva.site/">About</a>
-<a href="mailto:tonyachujrart@gmail.com">Contact Us</a>
-<a
-  href="/"
-  onClick={(e) => {
-    e.preventDefault();
-    setShowPrivacy(true);
-  }}
->
-  Privacy Policy
+      <a href="https://tonyachujr.my.canva.site" target="_blank" rel="noreferrer">
+  About
 </a>
-
-<a
-  href="/"
-  onClick={(e) => {
-    e.preventDefault();
-    setShowTerms(true);
-  }}
->
-  Terms of Service
+      <a href="mailto:tonyachujrart@gmail.com">
+  Contact Us
 </a>
+      <a href="/">Privacy Policy</a>
+      <a href="/">Terms of Service</a>
     </div>
 
     <div className="footer-copy">
-  &copy; {new Date().getFullYear()} PlotTracker. All Rights Reserved.
-</div>
-  </div>
-</footer>
-      {showPrivacy && (
-  <div className="modal-overlay">
-    <div className="legal-modal">
-
-      <h2>Privacy Policy</h2>
-
-      <p>
-        PlotTracker respects your privacy.
-      </p>
-
-      <p>
-        We collect only the information required to operate the platform,
-        including account details, project information, plot records,
-        uploaded files and transaction history.
-      </p>
-
-      <p>
-        We do not sell, rent or share your personal information with
-        third parties except when required by law.
-      </p>
-
-      <button
-        className="btn-primary"
-        onClick={() => setShowPrivacy(false)}
-      >
-        Close
-      </button>
-
+      © {new Date().getFullYear()} PlotTracker. All Rights Reserved.
     </div>
   </div>
-)}
+</footer>
+        {children}
+      </main>
     </div>
   );
 }
