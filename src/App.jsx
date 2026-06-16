@@ -364,40 +364,9 @@ function Shell({ ctx, children }) {
           </div>
         </div>
       </header>
-      <main
-  style={{
-    flex: 1,
-    padding: "clamp(.9rem,4vw,1.6rem)",
-    maxWidth: 1100,
-    margin: "0 auto",
-    width: "100%",
-    paddingBottom: "max(1.4rem,env(safe-area-inset-bottom,1rem))"
-  }}
->
-  {children}
-</main>
-
-<footer className="footer">
-  <div className="footer-inner">
-    <div className="footer-brand">
-      <h3>PlotTracker</h3>
-      <p>Premium Real Estate Plot Management Platform</p>
-    </div>
-
-    <div className="footer-links">
-      <a href="https://tonyachujr.my.canva.site/" target="_blank" rel="noreferrer">
-  About
-</a>
-      <a href="#">Contact Us</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-    </div>
-
-    <div className="footer-copy">
-      © {new Date().getFullYear()} PlotTracker. All Rights Reserved.
-    </div>
-  </div>
-</footer>
+      <main style={{ flex: 1, padding: "clamp(.9rem,4vw,1.6rem)", maxWidth: 1100, margin: "0 auto", width: "100%", paddingBottom: "max(1.4rem,env(safe-area-inset-bottom,1rem))" }}>
+        {children}
+      </main>
     </div>
   );
 }
