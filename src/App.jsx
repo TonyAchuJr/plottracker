@@ -400,8 +400,6 @@ function Shell({ ctx, children }) {
     </div>
   </div>
 </footer>
-        {children}
-      </main>
     </div>
   );
 }
