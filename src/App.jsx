@@ -179,7 +179,7 @@ function Spin() {
    LANDING
 ════════════════════════════════════════════════════════════════ */
 function Landing({ ctx }) {
-  const { setView, toggleDark, dark } = ctx;
+  const { setView, toggleDark, dark, setModal } = ctx;
   return (
     <div className="landing">
       <div className="orb" style={{ width: 480, height: 480, background: "rgba(201,168,76,0.06)", top: "-18%", left: "50%", transform: "translateX(-50%)" }} />
@@ -198,6 +198,16 @@ function Landing({ ctx }) {
             <div key={t} className="feat-pill">{ic} {t}</div>
           ))}
         </div>
+      </div>
+      <div className="landing-footer">
+        <button className="footer-link-btn" onClick={() => setModal({ type: "info-about" })}>About</button>
+        <span className="landing-footer-sep">·</span>
+        <button className="footer-link-btn" onClick={() => setModal({ type: "info-contact" })}>Contact Us</button>
+        <span className="landing-footer-sep">·</span>
+        <button className="footer-link-btn" onClick={() => setModal({ type: "info-privacy" })}>Privacy Policy</button>
+        <span className="landing-footer-sep">·</span>
+        <button className="footer-link-btn" onClick={() => setModal({ type: "info-terms" })}>Terms of Service</button>
+        <div className="landing-footer-copy">© {new Date().getFullYear()} PlotTracker. All Rights Reserved.</div>
       </div>
     </div>
   );
@@ -336,7 +346,7 @@ function RegisterPage({ ctx }) {
    SHELL
 ════════════════════════════════════════════════════════════════ */
 function Shell({ ctx, children }) {
-  const { dark, toggleDark, profile, authUser, setView } = ctx;
+  const { dark, toggleDark, profile, authUser, setView, setModal } = ctx;
   const [menu, setMenu] = useState(false);
   const initials = profile?.name?.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() || "?";
   return (
@@ -385,14 +395,10 @@ function Shell({ ctx, children }) {
     </div>
 
     <div className="footer-links">
-      <a href="https://tonyachujr.my.canva.site" target="_blank" rel="noreferrer">
-  About
-</a>
-      <a href="mailto:tonyachujrart@gmail.com">
-  Contact Us
-</a>
-      <a href="/">Privacy Policy</a>
-      <a href="/">Terms of Service</a>
+      <button className="footer-link-btn" onClick={() => setModal({ type: "info-about" })}>About</button>
+      <button className="footer-link-btn" onClick={() => setModal({ type: "info-contact" })}>Contact Us</button>
+      <button className="footer-link-btn" onClick={() => setModal({ type: "info-privacy" })}>Privacy Policy</button>
+      <button className="footer-link-btn" onClick={() => setModal({ type: "info-terms" })}>Terms of Service</button>
     </div>
 
     <div className="footer-copy">
@@ -766,9 +772,10 @@ function PlotView({ plot, proj, ctx }) {
 ════════════════════════════════════════════════════════════════ */
 function ModalShell({ modal, ctx, proj, plot }) {
   const mp = modal.proj || proj, mpl = modal.plot || plot;
+  const isInfo = modal.type?.startsWith("info-");
   return (
     <div className="overlay" onClick={e => e.target === e.currentTarget && ctx.setModal(null)}>
-      <div className="sheet">
+      <div className={isInfo ? "sheet sheet-info" : "sheet"}>
         <div className="sheet-handle" />
         {modal.type === "create-project" && <CreateProjectModal ctx={ctx} />}
         {modal.type === "add-plots"      && <AddPlotsModal ctx={ctx} proj={mp} />}
@@ -777,6 +784,161 @@ function ModalShell({ modal, ctx, proj, plot }) {
         {modal.type === "upload-file"    && <UploadFileModal ctx={ctx} proj={mp} />}
         {modal.type === "view-files"        && <ViewFilesModal ctx={ctx} proj={mp} />}
         {modal.type === "project-settings" && <ProjectSettingsModal ctx={ctx} proj={mp} />}
+        {modal.type === "info-about"   && <AboutModal ctx={ctx} />}
+        {modal.type === "info-contact" && <ContactModal ctx={ctx} />}
+        {modal.type === "info-privacy" && <PrivacyModal ctx={ctx} />}
+        {modal.type === "info-terms"   && <TermsModal ctx={ctx} />}
+      </div>
+    </div>
+  );
+}
+
+/* ── Info Modal shared header ── */
+function InfoHeader({ icon, title, setModal }) {
+  return (
+    <div className="flex jsb aic mb3">
+      <h3 className="sheet-title" style={{ marginBottom: 0 }}>{icon} {title}</h3>
+      <button className="btn-ghost" onClick={() => setModal(null)} style={{ padding: "7px 11px", fontSize: 16, lineHeight: 1 }}>✕</button>
+    </div>
+  );
+}
+
+function AboutModal({ ctx }) {
+  const { setModal } = ctx;
+  return (
+    <div className="info-modal">
+      <InfoHeader icon="🏘️" title="About PlotTracker" setModal={setModal} />
+      <div className="info-body">
+        <p>PlotTracker is a premium real estate layout management platform built to help land developers, agents, and buyers track plot availability, bookings, and sales — all in one place, synced live across every device.</p>
+        <p>Owners can create layout projects, upload site plans, manage plot status in real time, and generate detailed Excel/CSV reports. Buyers get a clean, read-only view of available plots and project layouts, with no clutter and no confusion.</p>
+        <div className="info-divider" />
+        <div className="info-row">
+          <span className="info-row-label">Developed by</span>
+          <span className="info-row-value">Tony Achu Jr</span>
+        </div>
+        <div className="info-row">
+          <span className="info-row-label">Version</span>
+          <span className="info-row-value mono">2.0.0</span>
+        </div>
+        <div className="info-row">
+          <span className="info-row-label">Built with</span>
+          <span className="info-row-value">React · Supabase · Vercel</span>
+        </div>
+        <a href="https://tonyachujr.my.canva.site" target="_blank" rel="noreferrer" className="btn-secondary btn-full" style={{ marginTop: 16, textDecoration: "none" }}>
+          🔗 Visit Developer Portfolio
+        </a>
+      </div>
+    </div>
+  );
+}
+
+function ContactModal({ ctx }) {
+  const { setModal, toast$ } = ctx;
+  const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [msg, setMsg] = useState("");
+  const send = () => {
+    if (!name.trim() || !email.trim() || !msg.trim()) { toast$("Please fill in all fields.", "err"); return; }
+    const subject = encodeURIComponent(`PlotTracker Support — ${name.trim()}`);
+    const body = encodeURIComponent(`Name: ${name.trim()}\nEmail: ${email.trim()}\n\nMessage:\n${msg.trim()}`);
+    window.location.href = `mailto:tonyachujrart@gmail.com?subject=${subject}&body=${body}`;
+    toast$("Opening your email app…", "ok");
+    setModal(null);
+  };
+  return (
+    <div className="info-modal">
+      <InfoHeader icon="✉️" title="Contact Support" setModal={setModal} />
+      <div className="info-body">
+        <p>Have a question, found a bug, or need help with your account? Send us a message and we'll get back to you as soon as possible.</p>
+        <Fi label="Your Name *" value={name} onChange={setName} placeholder="Full name" />
+        <Fi label="Your Email *" value={email} onChange={setEmail} type="email" placeholder="you@example.com" />
+        <Fi label="Message *" value={msg} onChange={setMsg} textarea placeholder="Describe your issue or question…" />
+        <button className="btn-primary btn-full" onClick={send} style={{ marginTop: 4 }}>✉️ Send Message</button>
+        <div className="info-divider" />
+        <div className="info-row">
+          <span className="info-row-label">Direct Email</span>
+          <a href="mailto:tonyachujrart@gmail.com" className="info-row-value tgold">tonyachujrart@gmail.com</a>
+        </div>
+        <div className="info-row">
+          <span className="info-row-label">Response Time</span>
+          <span className="info-row-value">Within 24–48 hours</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PrivacyModal({ ctx }) {
+  const { setModal } = ctx;
+  return (
+    <div className="info-modal">
+      <InfoHeader icon="🔒" title="Privacy Policy" setModal={setModal} />
+      <div className="info-body info-scroll">
+        <p className="info-updated">Last updated: {new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</p>
+
+        <h4>1. Information We Collect</h4>
+        <p>When you register for PlotTracker, we collect your name, email address, phone number (optional), and account role (Owner or Buyer). When you use the platform, we store project details, plot information, transaction records, and uploaded layout files that you choose to add.</p>
+
+        <h4>2. How We Use Your Information</h4>
+        <p>Your information is used solely to operate PlotTracker — to authenticate your account, display your projects and plots, enable communication between owners and buyers, and generate reports you request. We do not sell or rent your personal data to third parties.</p>
+
+        <h4>3. Data Storage</h4>
+        <p>All data is stored securely using Supabase, a managed PostgreSQL database provider with industry-standard encryption at rest and in transit. Uploaded layout files are stored in Supabase Storage with access controls enforced at the database level.</p>
+
+        <h4>4. Data Sharing</h4>
+        <p>Project and plot data marked as visible to buyers can be seen by any registered user with a Buyer role, as this is core to the platform's purpose of transparent plot availability. Contact details entered for bookings and sales are visible only to the project owner who recorded them.</p>
+
+        <h4>5. Your Rights</h4>
+        <p>You may request access to, correction of, or deletion of your personal data at any time by contacting support. Deleting your account will remove your profile and any projects you own, along with their associated plots and files.</p>
+
+        <h4>6. Cookies & Local Storage</h4>
+        <p>PlotTracker uses browser local storage only to remember your theme preference (dark or light mode). No tracking cookies or third-party advertising scripts are used.</p>
+
+        <h4>7. Changes to This Policy</h4>
+        <p>We may update this policy from time to time. Continued use of PlotTracker after changes constitutes acceptance of the revised policy.</p>
+
+        <h4>8. Contact</h4>
+        <p>For privacy-related questions, contact us at <a href="mailto:tonyachujrart@gmail.com" className="tgold">tonyachujrart@gmail.com</a>.</p>
+      </div>
+    </div>
+  );
+}
+
+function TermsModal({ ctx }) {
+  const { setModal } = ctx;
+  return (
+    <div className="info-modal">
+      <InfoHeader icon="📜" title="Terms of Service" setModal={setModal} />
+      <div className="info-body info-scroll">
+        <p className="info-updated">Last updated: {new Date().toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}</p>
+
+        <h4>1. Acceptance of Terms</h4>
+        <p>By creating an account and using PlotTracker, you agree to be bound by these Terms of Service. If you do not agree, please discontinue use of the platform.</p>
+
+        <h4>2. Account Roles</h4>
+        <p>PlotTracker offers two account types: Owner/Agent accounts, which can create and manage layout projects, add and update plots, and generate reports; and Buyer/Viewer accounts, which can browse projects and check plot availability. Misrepresenting your role to gain unauthorized access is prohibited.</p>
+
+        <h4>3. Accuracy of Information</h4>
+        <p>Owners are responsible for the accuracy of project details, plot statuses, pricing, and transaction information they enter. PlotTracker is a record-keeping and visibility tool — it does not verify land titles, ownership, or legal validity of any listed plot or transaction.</p>
+
+        <h4>4. No Brokerage or Legal Advice</h4>
+        <p>PlotTracker does not act as a real estate broker, agent, or legal advisor. Any booking, sale, or transaction recorded on the platform is between the parties involved. Users should conduct independent due diligence and seek professional legal advice before any real estate transaction.</p>
+
+        <h4>5. User Conduct</h4>
+        <p>You agree not to upload unlawful, misleading, or infringing content, not to misuse the platform to harass other users, and not to attempt to gain unauthorized access to accounts or data that do not belong to you.</p>
+
+        <h4>6. Data Ownership</h4>
+        <p>You retain ownership of the project and plot data you create. By uploading layout files, you confirm you have the right to share them and grant PlotTracker permission to store and display them to authorized users as part of the service.</p>
+
+        <h4>7. Limitation of Liability</h4>
+        <p>PlotTracker is provided "as is" without warranties of any kind. We are not liable for any financial loss, disputes, or damages arising from transactions recorded on the platform, or from inaccuracies in user-submitted data.</p>
+
+        <h4>8. Termination</h4>
+        <p>We reserve the right to suspend or terminate accounts that violate these terms, engage in fraudulent activity, or misuse the platform.</p>
+
+        <h4>9. Changes to These Terms</h4>
+        <p>We may revise these Terms of Service periodically. Continued use of PlotTracker after changes are posted constitutes acceptance of the updated terms.</p>
+
+        <h4>10. Contact</h4>
+        <p>For questions about these terms, contact us at <a href="mailto:tonyachujrart@gmail.com" className="tgold">tonyachujrart@gmail.com</a>.</p>
       </div>
     </div>
   );
