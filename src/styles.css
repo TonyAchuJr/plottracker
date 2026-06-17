@@ -846,3 +846,118 @@ a { color:var(--gold); text-decoration:none; }
   color:var(--text3);
   font-size:13px;
 }
+
+/* ── Footer link buttons (replace plain anchors) ── */
+.footer-link-btn{
+  background:none;
+  border:none;
+  color:var(--text2);
+  font-size:14px;
+  font-family:var(--font-body);
+  cursor:pointer;
+  padding:4px 0;
+  transition:color .2s, opacity .2s;
+}
+.footer-link-btn:hover{
+  color:var(--gold);
+}
+
+/* ── Landing page footer ── */
+.landing-footer{
+  position:relative;
+  z-index:1;
+  margin-top:48px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  text-align:center;
+}
+.landing-footer .footer-link-btn{
+  color:rgba(255,255,255,0.55);
+  font-size:13px;
+}
+.landing-footer .footer-link-btn:hover{
+  color:var(--gold-light);
+}
+.landing-footer-sep{
+  color:rgba(255,255,255,0.22);
+  font-size:13px;
+}
+.landing-footer-copy{
+  width:100%;
+  margin-top:10px;
+  color:rgba(255,255,255,0.35);
+  font-size:12px;
+}
+
+/* ── Info modal (About / Contact / Privacy / Terms) ── */
+.sheet-info{
+  max-width:640px;
+}
+.info-modal{
+  display:flex;
+  flex-direction:column;
+}
+.info-body{
+  color:var(--text2);
+  font-size:14.5px;
+  line-height:1.7;
+}
+.info-body p{
+  margin-bottom:14px;
+}
+.info-body h4{
+  color:var(--text);
+  font-size:15px;
+  font-weight:700;
+  margin:20px 0 8px;
+  font-family:var(--font-serif);
+}
+.info-body h4:first-child{
+  margin-top:0;
+}
+.info-scroll{
+  max-height:55vh;
+  overflow-y:auto;
+  padding-right:6px;
+}
+.info-updated{
+  font-size:12px;
+  color:var(--text3);
+  font-family:var(--font-mono);
+  margin-bottom:18px;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+}
+.info-divider{
+  height:1px;
+  background:var(--border2);
+  margin:18px 0;
+}
+.info-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:8px 0;
+  border-bottom:1px solid var(--border);
+  gap:12px;
+}
+.info-row:last-of-type{
+  border-bottom:none;
+}
+.info-row-label{
+  font-size:12px;
+  color:var(--text3);
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  flex-shrink:0;
+}
+.info-row-value{
+  font-size:14px;
+  color:var(--text);
+  font-weight:500;
+  text-align:right;
+}
