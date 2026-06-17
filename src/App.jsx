@@ -890,7 +890,7 @@ function PrivacyModal({ ctx }) {
         <p>You may request access to, correction of, or deletion of your personal data at any time by contacting support. Deleting your account will remove your profile and any projects you own, along with their associated plots and files.</p>
 
         <h4>6. Cookies & Local Storage</h4>
-        <p>PlotTracker uses browser local storage only to remember your theme preference (dark or light mode). No tracking cookies or third-party advertising scripts are used.</p>
+        <p>PlotTracker uses only your browser local storage only to remember your theme preference (dark or light mode). No tracking cookies or third-party advertising scripts are used.</p>
 
         <h4>7. Changes to This Policy</h4>
         <p>We may update this policy from time to time. Continued use of PlotTracker after changes constitutes acceptance of the revised policy.</p>
@@ -925,17 +925,14 @@ function TermsModal({ ctx }) {
         <h4>5. User Conduct</h4>
         <p>You agree not to upload unlawful, misleading, or infringing content, not to misuse the platform to harass other users, and not to attempt to gain unauthorized access to accounts or data that do not belong to you.</p>
 
-        <h4>6. Data Ownership</h4>
-        <p>You retain ownership of the project and plot data you create. By uploading layout files, you confirm you have the right to share them and grant PlotTracker permission to store and display them to authorized users as part of the service.</p>
-
-        <h4>7. Limitation of Liability</h4>
+        <h4>6. Limitation of Liability</h4>
         <p>PlotTracker is provided "as is" without warranties of any kind. We are not liable for any financial loss, disputes, or damages arising from transactions recorded on the platform, or from inaccuracies in user-submitted data.</p>
 
-        <h4>8. Termination</h4>
+        <h4>7. Termination</h4>
         <p>We reserve the right to suspend or terminate accounts that violate these terms, engage in fraudulent activity, or misuse the platform.</p>
 
-        <h4>9. Changes to These Terms</h4>
-        <p>We may revise these Terms of Service periodically. Continued use of PlotTracker after changes are posted constitutes acceptance of the updated terms.</p>
+        <h4>8. Changes to These Terms</h4>
+        <p>We may revise these Terms of Service periodically as per client/organisation requirements. Continued use of PlotTracker after changes are posted constitutes acceptance of the updated terms.</p>
 
         <h4>10. Contact</h4>
         <p>For questions about these terms, contact us at <a href="mailto:tonyachujrart@gmail.com" className="tgold">tonyachujrart@gmail.com</a>.</p>
