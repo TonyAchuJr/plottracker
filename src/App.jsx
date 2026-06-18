@@ -97,12 +97,20 @@ export default function App() {
 
   /* ── Realtime ──────────────────────────────────────────────────── */
   useEffect(() => {
-    const ch = subProjects(async () => {
-      const { data } = await fetchProjects();
-      setProjects(data || []);
-    });
-    return () => supabase.removeChannel(ch);
-  }, []);
+  const loadProjects = async () => {
+    const { data } = await fetchProjects();
+    setProjects(data || []);
+  };
+
+  loadProjects();
+
+  const ch = subProjects(async () => {
+    const { data } = await fetchProjects();
+    setProjects(data || []);
+  });
+
+  return () => supabase.removeChannel(ch);
+}, []);
 
   useEffect(() => {
     if (!projId) return;
