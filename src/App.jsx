@@ -641,7 +641,16 @@ function ProjectView({ proj, ctx }) {
       {busy ? <Spin /> : filtered.length === 0
         ? <div className="empty"><div className="empty-icon">📋</div><div>{plots.length === 0 ? (isOwnerRole ? "No plots yet. Tap + Add Plots." : "Owner hasn't added plots yet.") : "No plots match."}</div></div>
         : <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(min(100%,150px),1fr))", gap: 8 }}>
-            {filtered.map((pl, i) => <PlotTile key={pl.id} plot={pl} i={i} onClick={() => openPlot(pl.id)} />)}
+            {filtered.map((pl, i) => <PlotTile
+  key={pl.id}
+  plot={pl}
+  i={i}
+  onClick={() => {
+    if(profile?.role === "owner"){
+      openPlot(pl.id);
+    }
+  }}
+/>)}
           </div>
       }
     </div>
@@ -663,10 +672,10 @@ function PlotTile({ plot, i, onClick }) {
           <span className="sdot" style={{ background: s.c }} />{plot.status}
         </span>
       </div>
-      {plot.area  && <div style={{ fontSize: 11, color: s.c, opacity: .78, marginBottom: 2 }}>{plot.area}</div>}
-      {plot.price && <div className="semi mono" style={{ fontSize: 13, color: s.c }}>{inr(plot.price)}</div>}
-      {plot.contact_name && <div className="trunc" style={{ fontSize: 11, marginTop: 5, color: s.c, opacity: .82 }}>→ {plot.contact_name}</div>}
-      {plot.transaction_date && <div className="mono txs" style={{ color: s.c, opacity: .6, marginTop: 2 }}>{DFMT.format(new Date(plot.transaction_date))}</div>}
+      {profile?.role === "owner" && plot.area  && <div style={{ fontSize: 11, color: s.c, opacity: .78, marginBottom: 2 }}>{plot.area}</div>}
+      {profile?.role === "owner" && plot.price && <div className="semi mono" style={{ fontSize: 13, color: s.c }}>{inr(plot.price)}</div>}
+      {profile?.role === "owner" && plot.contact_name && <div className="trunc" style={{ fontSize: 11, marginTop: 5, color: s.c, opacity: .82 }}>→ {plot.contact_name}</div>}
+      {profile?.role === "owner" && plot.transaction_date && <div className="mono txs" style={{ color: s.c, opacity: .6, marginTop: 2 }}>{DFMT.format(new Date(plot.transaction_date))}</div>}
     </div>
   );
 }
