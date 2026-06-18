@@ -289,18 +289,14 @@ function PublicProjects({ ctx }) {
   return (
     <div className="page">
       <h1>Available Projects</h1>
-<p>Total Projects: {projects.length}</p>
+
       <div className="project-grid">
         {projects.map(p => (
-          <div
-            key={p.id}
-            className="project-card"
-            onClick={() => openProject(p.id)}
-          >
-            <h3>{p.name}</h3>
-            <p>{p.location}</p>
-          </div>
-        ))}
+  <div key={p.id}>
+    <h3>{p.name}</h3>
+    <p>{p.location}</p>
+  </div>
+))}
       </div>
     </div>
   );
