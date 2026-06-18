@@ -147,6 +147,7 @@ export default function App() {
       {modal  && <ModalShell modal={modal} ctx={ctx} proj={proj} plot={plot} />}
       {view === "landing"  && <Landing ctx={ctx} />}
       {view === "login"    && <LoginPage ctx={ctx} />}
+      {view === "public-projects" && <PublicProjects ctx={ctx} />}
       {view === "register" && <RegisterPage ctx={ctx} />}
       {(view === "dashboard" || view === "project" || view === "plot") && (
         <Shell ctx={ctx}>
@@ -190,8 +191,17 @@ function Landing({ ctx }) {
         <h1 className="landing-title afu1">PlotTracker</h1>
         <p className="landing-sub afu2">Premium real estate layout management — track sales, bookings and share verified layouts with your entire team. Data syncs live across all devices.</p>
         <div className="flex g3 afu3" style={{ justifyContent: "center", flexWrap: "wrap", marginBottom: "2.2rem" }}>
-          <button className="btn-land-primary" onClick={() => setView("login")}>Sign in</button>
-          <button className="btn-land-secondary" onClick={() => setView("register")}>Create account</button>
+          <button className="btn-land-primary" onClick={() => setView("public-projects")}>
+  View Projects
+</button>
+
+<button className="btn-land-secondary" onClick={() => setView("login")}>
+  Sign in
+</button>
+
+<button className="btn-land-secondary" onClick={() => setView("register")}>
+  Create account
+</button>
         </div>
         <div className="flex g2" style={{ justifyContent: "center", flexWrap: "wrap" }}>
           {[["🗺️","Upload Layouts"], ["📊","Track Status"], ["👥","Owner Access"], ["🔒","Buyer View"], ["⚡","Live Sync"]].map(([ic, t]) => (
@@ -273,7 +283,28 @@ function LoginPage({ ctx }) {
     </div>
   );
 }
+function PublicProjects({ ctx }) {
+  const { projects, openProject } = ctx;
 
+  return (
+    <div className="page">
+      <h1>Available Projects</h1>
+
+      <div className="project-grid">
+        {projects.map(p => (
+          <div
+            key={p.id}
+            className="project-card"
+            onClick={() => openProject(p.id)}
+          >
+            <h3>{p.name}</h3>
+            <p>{p.location}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 function RegisterPage({ ctx }) {
   const { setView } = ctx;
   const [role, setRole]   = useState("owner");
@@ -645,6 +676,7 @@ function ProjectView({ proj, ctx }) {
   key={pl.id}
   plot={pl}
   i={i}
+  isOwnerRole={isOwnerRole}
   onClick={() => {
     if(profile?.role === "owner"){
       openPlot(pl.id);
@@ -657,7 +689,7 @@ function ProjectView({ proj, ctx }) {
   );
 }
 
-function PlotTile({ plot, i, onClick }) {
+function PlotTile({ plot, i, onClick, isOwnerRole }) {
   const C = {
     available: { bg: "var(--emerald-dim)", c: "var(--emerald)", b: "rgba(16,185,129,.28)" },
     booked:    { bg: "var(--amber-dim)",   c: "var(--amber)",   b: "rgba(245,158,11,.28)" },
@@ -672,10 +704,13 @@ function PlotTile({ plot, i, onClick }) {
           <span className="sdot" style={{ background: s.c }} />{plot.status}
         </span>
       </div>
-      {plot.area && <div style={{ fontSize: 11, color: s.c, opacity: .78, marginBottom: 2 }}>{plot.area}</div>}
-{plot.price && <div className="semi mono" style={{ fontSize: 13, color: s.c }}>{inr(plot.price)}</div>}
-{plot.contact_name && <div className="trunc" style={{ fontSize: 11, marginTop: 5, color: s.c, opacity: .82 }}>{plot.contact_name}</div>}
-{plot.transaction_date && <div className="mono txs" style={{ color: s.c, opacity: .6, marginTop: 2 }}>{DFMT.format(new Date(plot.transaction_date))}</div>}
+      {isOwnerRole && plot.area && <div style={{ fontSize: 11, color: s.c, opacity: .78, marginBottom: 2 }}>{plot.area}</div>}
+
+{isOwnerRole && plot.price && <div className="semi mono" style={{ fontSize: 13, color: s.c }}>{inr(plot.price)}</div>}
+
+{isOwnerRole && plot.contact_name && <div className="trunc" style={{ fontSize: 11, marginTop: 5, color: s.c, opacity: .82 }}>{plot.contact_name}</div>}
+
+{isOwnerRole && plot.transaction_date && <div className="mono txs" style={{ color: s.c, opacity: .6, marginTop: 2 }}>{DFMT.format(new Date(plot.transaction_date))}</div>}
     </div>
   );
 }
