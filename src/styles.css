@@ -791,10 +791,9 @@ a { color:var(--gold); text-decoration:none; }
   .g1-sm{grid-template-columns:1fr!important}
   .g2-sm{grid-template-columns:1fr 1fr!important}
   .scroll-row{
-    overflow-x:auto; padding-bottom:4px;
-    -webkit-overflow-scrolling:touch;
-    scrollbar-width:none; flex-wrap:nowrap!important;
-  }
+  flex-wrap:wrap!important;
+  overflow:visible;
+}
   .scroll-row::-webkit-scrollbar{display:none}
   .btn-primary,.btn-secondary,.btn-ghost{padding:10px 14px;font-size:13px}
 }
