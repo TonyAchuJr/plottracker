@@ -672,10 +672,10 @@ function PlotTile({ plot, i, onClick }) {
           <span className="sdot" style={{ background: s.c }} />{plot.status}
         </span>
       </div>
-      {profile?.role === "owner" && plot.area  && <div style={{ fontSize: 11, color: s.c, opacity: .78, marginBottom: 2 }}>{plot.area}</div>}
-      {profile?.role === "owner" && plot.price && <div className="semi mono" style={{ fontSize: 13, color: s.c }}>{inr(plot.price)}</div>}
-      {profile?.role === "owner" && plot.contact_name && <div className="trunc" style={{ fontSize: 11, marginTop: 5, color: s.c, opacity: .82 }}>→ {plot.contact_name}</div>}
-      {profile?.role === "owner" && plot.transaction_date && <div className="mono txs" style={{ color: s.c, opacity: .6, marginTop: 2 }}>{DFMT.format(new Date(plot.transaction_date))}</div>}
+      {plot.area && <div style={{ fontSize: 11, color: s.c, opacity: .78, marginBottom: 2 }}>{plot.area}</div>}
+{plot.price && <div className="semi mono" style={{ fontSize: 13, color: s.c }}>{inr(plot.price)}</div>}
+{plot.contact_name && <div className="trunc" style={{ fontSize: 11, marginTop: 5, color: s.c, opacity: .82 }}>{plot.contact_name}</div>}
+{plot.transaction_date && <div className="mono txs" style={{ color: s.c, opacity: .6, marginTop: 2 }}>{DFMT.format(new Date(plot.transaction_date))}</div>}
     </div>
   );
 }
