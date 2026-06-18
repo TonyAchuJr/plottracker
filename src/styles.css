@@ -55,9 +55,9 @@
   --border2:rgba(0,0,0,0.11);
   --border3:rgba(0,0,0,0.18);
 
-  --text:#111111;
-  --text2:#444444;
-  --text3:#666666;
+  --text:#000000;
+  --text2:#000000;
+  --text3:#000000;
 
   --landing-shadow:0 1px 2px rgba(0,0,0,.35);
 }
@@ -911,7 +911,7 @@ background-clip:text;
   text-align:center;
 }
 .landing-footer .footer-link-btn{
-  color:rgba(255,255,255,0.55);
+  color:var(--text2);
    text-shadow: var(--landing-shadow);
   font-size:13px;
 }
@@ -919,14 +919,14 @@ background-clip:text;
   color:var(--gold-light);
 }
 .landing-footer-sep{
-  color:rgba(255,255,255,0.22);
+  color:var(--text3);
    text-shadow: var(--landing-shadow);
   font-size:13px;
 }
 .landing-footer-copy{
   width:100%;
   margin-top:10px;
-  color:rgba(255,255,255,0.35);
+  color:var(--text3);
    text-shadow: var(--landing-shadow);
   font-size:12px;
 }
