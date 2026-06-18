@@ -597,7 +597,6 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
         bkd   = pplots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
   const pct = total ? Math.round(sold / total * 100) : 0;
   const [menu, setMenu] = useState(false);
-  const fileInputRef = useRef(null);
 
   return (
     <div
