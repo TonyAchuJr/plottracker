@@ -600,9 +600,6 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
 
   return (
     <div className="project-card" onClick={onClick} style={{ opacity: proj.archived ? 0.7 : 1 }}>
-      <div style={{ color: "red", fontSize: "10px" }}>
-        {proj.cover_image}
-        </div>
       {proj.cover_image && (
       <img
         src={proj.cover_image}
@@ -639,6 +636,26 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
                 <div style={{ position: "absolute", top: 36, right: 0, zIndex: 100, background: "var(--surface)", border: "1.5px solid var(--border2)", borderRadius: 12, padding: 5, minWidth: 160, boxShadow: "0 12px 32px rgba(0,0,0,0.45)" }}>
                   {/* Gold top line */}
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg,transparent,var(--gold),transparent)", opacity: .4, borderRadius: "12px 12px 0 0" }} />
+                  <button
+  onClick={() => openCoverUpload(proj)}
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: 9,
+    width: "100%",
+    padding: "10px 12px",
+    background: "none",
+    border: "none",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontSize: 13,
+    color: "var(--text2)",
+    textAlign: "left"
+  }}
+>
+  <span style={{ fontSize: 16 }}>🖼️</span>
+  Upload Cover Image
+</button>
                   {onArchive && (
                     <button onClick={onArchive} style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", padding: "10px 12px", background: "none", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, color: "var(--text2)", fontFamily: "var(--font-body)", transition: "all var(--ease)", textAlign: "left" }}
                       onMouseEnter={e => { e.currentTarget.style.background = "var(--gold-dim)"; e.currentTarget.style.color = "var(--gold)"; }}
@@ -1231,7 +1248,7 @@ function EditPlotModal({ ctx, plot, proj }) {
 }
 
 function UploadFileModal({ ctx, proj }) {
-  const { authUser, toast$, setModal, setFiles } = ctx;
+  const { authUser, toast$, setModal, setFiles, setProjects } = ctx;
   const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [busy,setBusy]=useState(false); const ref=useRef();
   const go = async () => {
     if (!pending.length) return;
@@ -1253,6 +1270,8 @@ function UploadFileModal({ ctx, proj }) {
   }
 }
     const { data } = await fetchFiles(proj.id); setFiles(data||[]);
+    const { data: projectsData } = await fetchProjects();
+setProjects(projectsData || []);
     setBusy(false); toast$(`${pending.length} file(s) uploaded!`); setModal(null);
   };
   return <>
