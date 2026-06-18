@@ -581,6 +581,8 @@ function Dashboard({ ctx }) {
                   isOwner={p.owner_id === authUser?.id}
                   onArchive={isOwner && p.owner_id === authUser?.id ? (e) => handleArchive(p, e) : null}
                   onDelete={isOwner && p.owner_id === authUser?.id ? (e) => handleDelete(p, e) : null}
+                  authUser={authUser}
+setProjects={setProjects}
                 />
               </div>
             ))}
@@ -590,7 +592,7 @@ function Dashboard({ ctx }) {
   );
 }
 
-function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
+function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authUser, setProjects }) {
   const owner  = profiles.find(u => u.id === proj.owner_id);
   const pplots = proj._plots || [];
   const total = pplots.length, sold = pplots.filter(p => p.status === "sold").length,
@@ -637,7 +639,7 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
                   {/* Gold top line */}
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg,transparent,var(--gold),transparent)", opacity: .4, borderRadius: "12px 12px 0 0" }} />
                   <button
-                    onClick={() => alert("Cover upload not implemented yet")}
+                    onClick={() => document.getElementById(`cover-${proj.id}`)?.click()}
   style={{
     display: "flex",
     alignItems: "center",
@@ -656,6 +658,35 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
   <span style={{ fontSize: 16 }}>🖼️</span>
   Upload Cover Image
 </button>
+                  <input
+  id={`cover-${proj.id}`}
+  type="file"
+  accept="image/*"
+  style={{ display: "none" }}
+  onChange={async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const { data } = await uploadFile({
+      projectId: proj.id,
+      file,
+      label: "Cover Image",
+      userId: authUser.id
+    });
+
+    await supabase
+      .from("projects")
+      .update({
+        cover_image: data?.storage_path || data?.[0]?.storage_path
+      })
+      .eq("id", proj.id);
+
+    const { data: projectsData } = await fetchProjects();
+    setProjects(projectsData || []);
+
+    toast$("Cover image updated!");
+  }}
+/>
                   {onArchive && (
                     <button onClick={onArchive} style={{ display: "flex", alignItems: "center", gap: 9, width: "100%", padding: "10px 12px", background: "none", border: "none", borderRadius: 8, cursor: "pointer", fontSize: 13, color: "var(--text2)", fontFamily: "var(--font-body)", transition: "all var(--ease)", textAlign: "left" }}
                       onMouseEnter={e => { e.currentTarget.style.background = "var(--gold-dim)"; e.currentTarget.style.color = "var(--gold)"; }}
