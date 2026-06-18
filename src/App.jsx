@@ -196,7 +196,7 @@ function Landing({ ctx }) {
       <button className="theme-btn" onClick={toggleDark} style={{ position: "absolute", top: 14, right: 14 }}>{dark ? "☀️" : "🌙"}</button>
       <div style={{ textAlign: "center", maxWidth: 540, width: "100%", position: "relative", zIndex: 1 }}>
         <div className="logo-icon afu">🏘️</div>
-        <h1 className="landing-title afu1">PlotTracker</h1>
+        <h1 className="landing-title afu1">INFY-Builders</h1>
         <p className="landing-sub afu2">Premium real estate layout management — track sales, bookings and share verified layouts with your entire team. Data syncs live across all devices.</p>
         <div className="flex g3 afu3" style={{ justifyContent: "center", flexWrap: "wrap", marginBottom: "2.2rem" }}>
           <button className="btn-land-primary" onClick={() => setView("dashboard")}>
@@ -241,7 +241,7 @@ function AuthTop({ ctx, title, sub }) {
       <div className="flex aic jsb mb3">
         <div className="flex aic g2" style={{ cursor: "pointer" }} onClick={() => setView("landing")}>
           <div className="header-logo-icon">🏘️</div>
-          <span className="header-logo-text" style={{ fontSize: 15 }}>PlotTracker</span>
+          <span className="header-logo-text" style={{ fontSize: 15 }}>INFY-Builders</span>
         </div>
         <button className="theme-btn" onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
       </div>
@@ -424,7 +424,7 @@ function Shell({ ctx, children }) {
       <header className="app-header">
         <div className="header-logo" onClick={() => setView("dashboard")}>
           <div className="header-logo-icon">🏘️</div>
-          <span className="header-logo-text">PlotTracker</span>
+          <span className="header-logo-text">INFY-Builders</span>
         </div>
         <div className="flex aic g2">
           {profile?.role && <span className={`hbadge hbadge-${profile.role}`}>{profile.role === "owner" ? "🏗️ Owner" : "🏠 Buyer"}</span>}
@@ -462,7 +462,7 @@ function Shell({ ctx, children }) {
 <footer className="footer">
   <div className="footer-inner">
     <div className="footer-brand">
-      <h3>PlotTracker</h3>
+      <h3>INFY-Builders</h3>
       <p>Premium Real Estate Plot Management Platform</p>
     </div>
 
@@ -981,7 +981,7 @@ function AboutModal({ ctx }) {
     <div className="info-modal">
       <InfoHeader icon="🏘️" title="About PlotTracker" setModal={setModal} />
       <div className="info-body">
-        <p>PlotTracker is a premium real estate layout management platform built to help land developers, agents, and buyers track plot availability, bookings, and sales — all in one place, synced live across every device.</p>
+        <p>PlotTracker is a premium real estate layout management by INFY-Builders, a platform built to help land developers, agents, and buyers track plot availability, bookings, and sales — all in one place, synced live across every device.</p>
         <p>Owners can create layout projects, upload site plans, manage plot status in real time, and generate detailed Excel/CSV reports. Buyers get a clean, read-only view of available plots and project layouts, with no clutter and no confusion.</p>
         <div className="info-divider" />
         <div className="info-row">
