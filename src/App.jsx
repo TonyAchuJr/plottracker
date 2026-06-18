@@ -670,7 +670,13 @@ function ProjectView({ proj, ctx }) {
         bkd   = plots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
-  const filtered = plots.filter(p => (filter === "all" || p.status === filter) && (!search || p.number.toLowerCase().includes(search.toLowerCase())));
+  const filtered = plots
+  .filter(
+    p =>
+      (filter === "all" || p.status === filter) &&
+      (!search || p.number.toLowerCase().includes(search.toLowerCase()))
+  )
+  .sort((a, b) => Number(a.number) - Number(b.number));
   const ownerProf = profiles.find(u => u.id === proj.owner_id);
 
   return (
