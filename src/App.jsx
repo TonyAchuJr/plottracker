@@ -501,6 +501,23 @@ function Dashboard({ ctx }) {
             {isOwner ? "Owner Dashboard" : "Project Browser"}
           </h2>
           <p className="tmuted tsm">{isOwner ? "Manage all layout projects" : "Browse available projects and plots"}</p>
+          {!authUser && (
+  <div style={{ display: "flex", gap: 10, marginTop: 12 }}>
+    <button
+      className="btn-land-secondary"
+      onClick={() => setView("landing")}
+    >
+      ← Back
+    </button>
+
+    <button
+      className="btn-land-primary"
+      onClick={() => setView("login")}
+    >
+      Sign In
+    </button>
+  </div>
+)}
         </div>
         <div className="flex g2 fw">
           {isOwner && <ReportBtn projects={activeProjects} allPlots={allPlots} profiles={ctx.profiles} />}
