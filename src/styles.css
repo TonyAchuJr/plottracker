@@ -255,20 +255,30 @@ background-clip:text;
   padding:9px 18px; border-radius:100px; font-size:13px; font-weight:500;
   background:rgba(255,255,255,0.04);
   border:1px solid rgba(255,255,255,0.1);
-  color:#ffffff;
+  color:#222222;
    font-weight:600;
   text-shadow:none;
   backdrop-filter:blur(10px);
   transition:all var(--ease); cursor:default;
   position:relative; overflow:hidden;
 }
+[data-theme="dark"] .feat-pill{
+    color:#ffffff;
+}
+
+[data-theme="light"] .feat-pill{
+    color:#222222;
+}
 .feat-pill::before {
   content:''; position:absolute; inset:0; border-radius:inherit;
   background:linear-gradient(135deg, rgba(201,168,76,0.08), transparent);
   opacity:0; transition:opacity var(--ease);
 }
-.feat-pill:hover { border-color:var(--gold); color:#ffffff); transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,0.2); }
+.feat-pill:hover { border-color:var(--gold); color:#111111); transform:translateY(-2px); box-shadow:0 4px 16px rgba(0,0,0,0.2); }
 .feat-pill:hover::before { opacity:1; }
+[data-theme="dark"] .feat-pill:hover{
+    color:#ffffff;
+}
 .feat-pill .pill-icon {
   width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center;
   font-size:14px;
