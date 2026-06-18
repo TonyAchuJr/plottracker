@@ -600,7 +600,7 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
 
   return (
     <div className="project-card" onClick={onClick} style={{ opacity: proj.archived ? 0.7 : 1 }}>
-      <div className="flex jsb aic mb2">
+      <div className="flex jsb aic mb2 fw">
         <div style={{ flex: 1, minWidth: 0, marginRight: 8 }}>
           <div className="flex aic g2" style={{ marginBottom: 3 }}>
             <div className="trunc semi" style={{ fontSize: 15, color: "var(--text)" }}>{proj.name}</div>
