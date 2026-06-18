@@ -662,7 +662,7 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
   id={`cover-${proj.id}`}
   type="file"
   accept="image/*"
-  style={{ display: "none" }}
+  style={{ display: "block" }}
   onChange={async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
