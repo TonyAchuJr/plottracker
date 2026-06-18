@@ -637,7 +637,6 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
                   {/* Gold top line */}
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 1, background: "linear-gradient(90deg,transparent,var(--gold),transparent)", opacity: .4, borderRadius: "12px 12px 0 0" }} />
                   <button
-  onClick={() => openCoverUpload(proj)}
   style={{
     display: "flex",
     alignItems: "center",
