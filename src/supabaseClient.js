@@ -28,7 +28,13 @@ export const fetchAllProfiles = () =>
 
 // ── PROJECTS ──────────────────────────────────────────────────────
 export const fetchProjects = () =>
-  supabase.from("projects").select("*").order("created_at", { ascending: false });
+  supabase
+    .from("projects")
+    .select(`
+      *,
+      _plots:plots(*)
+    `)
+    .order("created_at", { ascending: false });
 
 export const insertProject = ({ name, location, mapUrl, description, ownerId }) =>
   supabase.from("projects")
