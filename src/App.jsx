@@ -1232,7 +1232,7 @@ function UploadFileModal({ ctx, proj }) {
   if (file.type.startsWith("image/")) {
     await supabase
       .from("projects")
-      .update({ cover_image: data.storage_path })
+      .update({ cover_image: data?.storage_path || data?.[0]?.storage_path })
       .eq("id", proj.id);
   }
 }
