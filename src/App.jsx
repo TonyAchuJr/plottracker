@@ -406,7 +406,7 @@ function RegisterPage({ ctx }) {
         <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>{busy ? "Creating..." : "Create account"}</button>
         <p className="tmuted tsm" style={{ textAlign: "center" }}>
           Have an account? <span style={{
-  color: dark ? "var(--gold)" : "#111111",
+  color: "var(--text)",
   cursor: "pointer"
 }} onClick={() => setView("login")}>Sign in</span>
         </p>
