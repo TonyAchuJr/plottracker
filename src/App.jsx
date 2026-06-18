@@ -462,7 +462,7 @@ function Shell({ ctx, children }) {
 <footer className="footer">
   <div className="footer-inner">
     <div className="footer-brand">
-      <h3>INFY-Builders</h3>
+      <h3>Plot Tracker</h3>
       <p>Premium Real Estate Plot Management Platform</p>
     </div>
 
