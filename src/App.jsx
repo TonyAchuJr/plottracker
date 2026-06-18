@@ -328,12 +328,26 @@ function RegisterPage({ ctx }) {
   const [role, setRole]   = useState("owner");
   const [name, setName]   = useState(""); const [email, setEmail] = useState("");
   const [phone, setPhone] = useState(""); const [pass, setPass]   = useState("");
+  const [ownerCode, setOwnerCode] = useState("");
   const [err, setErr]     = useState(""); const [busy, setBusy]   = useState(false);
   const [done, setDone]   = useState(false);
 
   const go = async () => {
     if (!name.trim() || !email.trim() || !pass.trim()) { setErr("All required fields missing."); return; }
     if (pass.length < 6) { setErr("Password must be at least 6 characters."); return; }
+    if (role === "owner") {
+  const { data: codeRow } = await supabase
+    .from("owner_codes")
+    .select("*")
+    .eq("code", ownerCode.trim())
+    .eq("active", true)
+    .single();
+
+  if (!codeRow) {
+    setErr("Invalid Owner Access Code");
+    return;
+  }
+}
     setBusy(true); setErr("");
     const { data, error } = await authSignUp({
       email: email.trim().toLowerCase(), password: pass,
@@ -380,6 +394,13 @@ function RegisterPage({ ctx }) {
         <Fi label="Full Name *"        value={name}  onChange={setName} />
         <Fi label="Email *"            value={email} onChange={setEmail} type="email" />
         <Fi label="Phone (optional)"   value={phone} onChange={setPhone} />
+        {role === "owner" && (
+  <Fi
+    label="Owner Access Code"
+    value={ownerCode}
+    onChange={setOwnerCode}
+  />
+)}
         <Fi label="Password * (min 6)" value={pass}  onChange={setPass}  type="password" />
         {err && <Err>{err}</Err>}
         <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>{busy ? "Creating..." : "Create account"}</button>
