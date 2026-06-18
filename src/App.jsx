@@ -405,7 +405,10 @@ function RegisterPage({ ctx }) {
         {err && <Err>{err}</Err>}
         <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>{busy ? "Creating..." : "Create account"}</button>
         <p className="tmuted tsm" style={{ textAlign: "center" }}>
-          Have an account? <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("login")}>Sign in</span>
+          Have an account? <span style={{
+  color: dark ? "var(--gold)" : "#111111",
+  cursor: "pointer"
+}} onClick={() => setView("login")}>Sign in</span>
         </p>
       </div>
     </div>
