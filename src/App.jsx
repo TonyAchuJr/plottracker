@@ -528,9 +528,7 @@ function Dashboard({ ctx }) {
           ))}
         </div>
       )}
-<div style={{ color: "white", marginBottom: "10px" }}>
-  Projects Count: {shown.length}
-</div>
+
       {busy ? <Spin /> : shown.length === 0
         ? <div className="empty">
             <div className="empty-icon">{tab === "archived" ? "📦" : "🏗️"}</div>
