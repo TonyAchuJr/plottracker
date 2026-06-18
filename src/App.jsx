@@ -292,12 +292,26 @@ function LoginPage({ ctx }) {
   );
 }
 function PublicProjects({ ctx }) {
-  const { projects } = ctx;
+  const { projects, setView } = ctx;
 
   return (
     <div className="page">
       <h1>Available Projects</h1>
+<div style={{ display: "flex", gap: 10, marginBottom: 15 }}>
+  <button
+    className="btn-land-secondary"
+    onClick={() => setView("landing")}
+  >
+    ← Back
+  </button>
 
+  <button
+    className="btn-land-primary"
+    onClick={() => setView("login")}
+  >
+    Sign In
+  </button>
+</div>
       <div className="project-grid">
         {projects.map(p => (
   <div key={p.id}>
