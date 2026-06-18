@@ -600,6 +600,9 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete }) {
 
   return (
     <div className="project-card" onClick={onClick} style={{ opacity: proj.archived ? 0.7 : 1 }}>
+      <div style={{ color: "red", fontSize: "10px" }}>
+        {proj.cover_image}
+        </div>
       {proj.cover_image && (
       <img
         src={proj.cover_image}
