@@ -628,7 +628,15 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
 >{proj.name}</div>
             {proj.archived && <span style={{ fontSize: 10, background: "var(--surface3)", color: "var(--text3)", padding: "2px 7px", borderRadius: "100px", fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>Archived</span>}
           </div>
-          <div className="tmuted txs">by {owner?.name || "Unknown"}</div>
+          <div
+  className="muted txs"
+  style={{
+    color:"#ffffff",
+    textShadow:"0 2px 8px rgba(0,0,0,0.9)"
+  }}
+>
+    by {owner?.name || "Unknown"}
+</div>
         </div>
         {/* 3-dot menu for owner */}
         {isOwner && (onArchive || onDelete) && (
@@ -715,7 +723,17 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
           </div>
         )}
       </div>
-      {proj.location && <p className="tmuted txs mb2">📍 {proj.location}</p>}
+      {proj.location && (
+  <p
+    className="muted txs mb2"
+    style={{
+      color:"#ffffff",
+      textShadow:"0 2px 8px rgba(0,0,0,0.9)"
+    }}
+  >
+    📍 {proj.location}
+  </p>
+)}
       <div className="flex g2 mb3 fw">
         {[[total,"Total","var(--text2)"],[avail,"Avail","var(--emerald)"],[bkd,"Booked","var(--amber)"],[sold,"Sold","var(--rose)"]].map(([v,l,c]) => (
           <div key={l} style={{ background: "var(--surface2)", borderRadius: 7, padding: "5px 8px", textAlign: "center", flex: "1 1 42px", minWidth: 38 }}>
@@ -770,8 +788,8 @@ function ProjectView({ proj, ctx }) {
 
       <div className="afu1 mb3">
         <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(19px,5vw,27px)", color: "var(--text)", marginBottom: 4 }}>{proj.name}</h2>
-        <p className="tmuted tsm">by <strong style={{ color: "var(--text)" }}>{ownerProf?.name}</strong> · {DFMT.format(new Date(proj.created_at))}</p>
-        {proj.location && <p className="tmuted tsm" style={{ marginTop: 2 }}>📍 {proj.location}{proj.map_url && <a href={proj.map_url} target="_blank" rel="noreferrer" style={{ marginLeft: 7, color: "var(--gold)", fontSize: 12 }}>Map ↗</a>}</p>}
+        <p className="muted tsm" style={{ color:"#ffffff", textShadow:"0 2px 8px rgba(0,0,0,0.9)" }}>by <strong style={{ color: "var(--text)" }}>{ownerProf?.name}</strong> · {DFMT.format(new Date(proj.created_at))}</p>
+        {proj.location && <p className="tmuted tsm" style={{ marginTop: 2, color:"#ffffff", textShadow:"0 2px 8px rgba(0,0,0,0.9)" }}>📍 {proj.location}{proj.map_url && <a href={proj.map_url} target="_blank" rel="noreferrer" style={{ marginLeft: 7, color: "var(--gold)", fontSize: 12 }}>Map ↗</a>}</p>}
         {proj.description && <p className="tmuted tsm" style={{ marginTop: 5, maxWidth: 480 }}>{proj.description}</p>}
       </div>
 
