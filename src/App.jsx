@@ -684,7 +684,7 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
     const { data: projectsData } = await fetchProjects();
     setProjects(projectsData || []);
 
-    toast$("Cover image updated!");
+    alert("Cover image updated!");
   }}
 />
                   {onArchive && (
