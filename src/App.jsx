@@ -284,7 +284,7 @@ function LoginPage({ ctx }) {
   );
 }
 function PublicProjects({ ctx }) {
-  const { projects, openProject } = ctx;
+  const { projects } = ctx;
 
   return (
     <div className="page">
