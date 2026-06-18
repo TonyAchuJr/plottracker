@@ -386,7 +386,8 @@ function Shell({ ctx, children }) {
         <div className="flex aic g2">
           {profile?.role && <span className={`hbadge hbadge-${profile.role}`}>{profile.role === "owner" ? "🏗️ Owner" : "🏠 Buyer"}</span>}
           <button className="theme-btn" onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
-          <div style={{ position: "relative" }}>
+          {authUser && (
+      <div style={{ position: "relative" }}>
             <div className="avatar" onClick={() => setMenu(o => !o)}>{initials}</div>
             {menu && <>
               <div onClick={() => setMenu(false)} style={{ position: "fixed", inset: 0, zIndex: 300 }} />
@@ -399,6 +400,7 @@ function Shell({ ctx, children }) {
               </div>
             </>}
           </div>
+      )}
         </div>
       </header>
       <main
@@ -504,7 +506,9 @@ function Dashboard({ ctx }) {
           ))}
         </div>
       )}
-
+<div style={{ color: "white", marginBottom: "10px" }}>
+  Projects Count: {shown.length}
+</div>
       {busy ? <Spin /> : shown.length === 0
         ? <div className="empty">
             <div className="empty-icon">{tab === "archived" ? "📦" : "🏗️"}</div>
