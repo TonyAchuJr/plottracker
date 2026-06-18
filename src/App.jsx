@@ -465,7 +465,7 @@ function Shell({ ctx, children }) {
    DASHBOARD
 ════════════════════════════════════════════════════════════════ */
 function Dashboard({ ctx }) {
-  const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects } = ctx;
+  const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects, setview } = ctx;
   const isOwner = profile?.role === "owner";
   const [tab, setTab] = useState("active"); // "active" | "archived"
   const allPlots = projects.flatMap(p => p._plots || []);
