@@ -1117,7 +1117,7 @@ function AddPlotsModal({ ctx, proj }) {
 }
 
 function UpdatePlotModal({ ctx, plot, proj }) {
-  const { authUser, toast$, setModal, setPlots, setHistory } = ctx;
+  const { authUser, profile, toast$, setModal, setPlots, setHistory } = ctx;
   const [status,setStatus]   = useState(plot.status);
   const [cName,setCName]     = useState(plot.contact_name||"");
   const [cPhone,setCPhone]   = useState(plot.contact_phone||"");
@@ -1148,7 +1148,11 @@ function UpdatePlotModal({ ctx, plot, proj }) {
       seller_id:        status!=="available"?authUser.id:null,
       transaction_date: status!=="available"?new Date().toISOString():null,
     };
-    const { error } = await patchPlot(plot.id, updates);
+    const { error } = await patchPlot(
+  plot.id,
+  updates,
+  profile?.name || authUser?.email
+);
     if (error) { toast$(error.message,"err"); setBusy(false); return; }
     await insertHistory({ plotId:plot.id, action, actorId:authUser.id, note:note.trim()||null });
     const [{ data: pl },{ data: hi }] = await Promise.all([fetchPlots(proj.id), fetchHistory(plot.id)]);
