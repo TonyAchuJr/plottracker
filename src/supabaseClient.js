@@ -49,10 +49,16 @@ export const fetchPlots = (projectId) =>
 export const insertPlots = (rows) =>
   supabase.from("plots").insert(rows).select();
 
-export const patchPlot = (id, updates) =>
+export const patchPlot = (id, updates, editor) =>
   supabase.from("plots")
-    .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq("id", id).select().single();
+    .update({
+      ...updates,
+      last_edited_by: editor,
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", id)
+    .select()
+    .single();
 
 export const deletePlot = (id) =>
   supabase.from("plots").delete().eq("id", id);
