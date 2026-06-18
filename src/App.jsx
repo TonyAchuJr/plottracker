@@ -289,7 +289,7 @@ function PublicProjects({ ctx }) {
   return (
     <div className="page">
       <h1>Available Projects</h1>
-
+<p>Total Projects: {projects.length}</p>
       <div className="project-grid">
         {projects.map(p => (
           <div
