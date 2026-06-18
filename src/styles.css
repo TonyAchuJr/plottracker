@@ -197,7 +197,7 @@ a { color:var(--gold); text-decoration:none; }
 
 .btn-land-secondary {
   padding:14px 34px; border-radius:12px; font-size:15px; font-weight:500;
-  background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.88);
+  background:rgba(255,255,255,0.05); color: #333333;
   border:1.5px solid rgba(255,255,255,0.15);
   backdrop-filter:blur(12px); letter-spacing:0.02em;
   transition:all var(--ease);
