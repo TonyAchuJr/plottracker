@@ -233,11 +233,19 @@ background-clip:text;
 
 .btn-land-secondary {
   padding:14px 34px; border-radius:12px; font-size:15px; font-weight:500;
-  background:rgba(255,255,255,0.05); color: #333333;
+  background:rgba(255,255,255,0.05); color: #ffffff;
   border:1.5px solid rgba(255,255,255,0.15);
   backdrop-filter:blur(12px); letter-spacing:0.02em;
   transition:all var(--ease);
 }
+[data-theme="dark"] .btn-land-secondary{
+    color:#ffffff;
+}
+
+[data-theme="light"] .btn-land-secondary{
+    color:#222222;
+}
+
 .btn-land-secondary:hover { transform:translateY(-3px); background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.28); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
 .btn-land-secondary:active { transform:translateY(-1px); }
 
