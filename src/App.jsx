@@ -791,8 +791,8 @@ function ProjectView({ proj, ctx }) {
 
       <div className="afu1 mb3">
         <h2 style={{ fontFamily: "var(--font-serif)", fontSize: "clamp(19px,5vw,27px)", color: "var(--text)", marginBottom: 4 }}>{proj.name}</h2>
-        <p className="muted tsm" style={{ color:"#ffffff", textShadow:"0 2px 8px rgba(0,0,0,0.9)" }}>by <strong style={{ color: "var(--text)" }}>{ownerProf?.name}</strong> · {DFMT.format(new Date(proj.created_at))}</p>
-        {proj.location && <p className="tmuted tsm" style={{ marginTop: 2, color:"#ffffff", textShadow:"0 2px 8px rgba(0,0,0,0.9)" }}>📍 {proj.location}{proj.map_url && <a href={proj.map_url} target="_blank" rel="noreferrer" style={{ marginLeft: 7, color: "var(--gold)", fontSize: 12 }}>Map ↗</a>}</p>}
+        <p className="muted tsm" style={{ color:"var(--text)", textShadow:"0 2px 8px rgba(0,0,0,0.9)" }}>by <strong style={{ color: "var(--text)" }}>{ownerProf?.name}</strong> · {DFMT.format(new Date(proj.created_at))}</p>
+        {proj.location && <p className="tmuted tsm" style={{ marginTop: 2, color:"var(--text)", textShadow:"0 2px 8px rgba(0,0,0,0.9)" }}>📍 {proj.location}{proj.map_url && <a href={proj.map_url} target="_blank" rel="noreferrer" style={{ marginLeft: 7, color: "var(--gold)", fontSize: 12 }}>Map ↗</a>}</p>}
         {proj.description && <p className="tmuted tsm" style={{ marginTop: 5, maxWidth: 480 }}>{proj.description}</p>}
       </div>
 
