@@ -618,7 +618,14 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
       <div className="flex jsb aic mb2 fw">
         <div style={{ flex: 1, minWidth: 0, marginRight: 8 }}>
           <div className="flex aic g2" style={{ marginBottom: 3 }}>
-            <div className="trunc semi" style={{ fontSize: 15, color: "var(--text)" }}>{proj.name}</div>
+           <div
+  className="trunc semi"
+  style={{
+    fontSize: 15,
+    color: "#fff",
+    textShadow: "0 2px 8px rgba(0,0,0,.9)"
+  }}
+>{proj.name}</div>
             {proj.archived && <span style={{ fontSize: 10, background: "var(--surface3)", color: "var(--text3)", padding: "2px 7px", borderRadius: "100px", fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>Archived</span>}
           </div>
           <div className="tmuted txs">by {owner?.name || "Unknown"}</div>
