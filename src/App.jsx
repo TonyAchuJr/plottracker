@@ -1220,7 +1220,22 @@ function UploadFileModal({ ctx, proj }) {
   const go = async () => {
     if (!pending.length) return;
     setBusy(true);
-    for (const file of pending) await uploadFile({ projectId:proj.id, file, label, userId:authUser.id });
+    for (const file of pending) {
+
+  const { data } = await uploadFile({
+    projectId: proj.id,
+    file,
+    label,
+    userId: authUser.id
+  });
+
+  if (file.type.startsWith("image/")) {
+    await supabase
+      .from("projects")
+      .update({ cover_image: data.storage_path })
+      .eq("id", proj.id);
+  }
+}
     const { data } = await fetchFiles(proj.id); setFiles(data||[]);
     setBusy(false); toast$(`${pending.length} file(s) uploaded!`); setModal(null);
   };
