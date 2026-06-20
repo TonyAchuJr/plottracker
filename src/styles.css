@@ -254,7 +254,7 @@ a { color:var(--gold); text-decoration:none; }
 }
 
 [data-theme="light"] .btn-land-secondary{
-    color:#222222;
+    color:#ffffff;
 }
 
 .btn-land-secondary:hover { transform:translateY(-3px); background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.28); box-shadow:0 8px 24px rgba(0,0,0,0.3); }
@@ -266,7 +266,7 @@ a { color:var(--gold); text-decoration:none; }
   padding:9px 18px; border-radius:100px; font-size:13px; font-weight:500;
   background:rgba(0,0,0,0.45);
   border:1px solid rgba(255,255,255,0.25);
-  color:#222222;
+  color:#ffffff;
    font-weight:600;
   text-shadow:0 2px 8px rgba(0,0,0,.8);
   backdrop-filter:blur(16px);
@@ -278,7 +278,7 @@ a { color:var(--gold); text-decoration:none; }
 }
 
 [data-theme="light"] .feat-pill{
-    color:#222222;
+    color:#ffffff;
 }
 .feat-pill::before {
   content:''; position:absolute; inset:0; border-radius:inherit;
