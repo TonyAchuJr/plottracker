@@ -70,7 +70,7 @@ export default function App() {
       await new Promise(r => setTimeout(r, 800)); // wait 800ms then retry
     }
 
-    // If profile still missing, create it manually from auth metadata
+    // If profile still missing, create it manually from auth metadata -(random text)
     if (!prof) {
       const meta = u.user_metadata || {};
       const { data: created } = await supabase.from("profiles").insert({
