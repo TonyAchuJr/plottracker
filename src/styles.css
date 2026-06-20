@@ -925,6 +925,11 @@ background-clip:text;
 .footer-link-btn:hover{
   color:var(--gold);
 }
+.footer-link-btn:disabled{
+  opacity:.5;
+  cursor:default;
+  color:var(--text2);
+}
 
 /* ── Landing page footer ── */
 .landing-footer{
