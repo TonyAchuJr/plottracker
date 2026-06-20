@@ -226,7 +226,7 @@ function Landing({ ctx }) {
         <button className="footer-link-btn" onClick={() => setModal({ type: "info-privacy" })}>Privacy Policy</button>
         <span className="landing-footer-sep">·</span>
         <button className="footer-link-btn" onClick={() => setModal({ type: "info-terms" })}>Terms of Service</button>
-        <div className="landing-footer-copy">© {new Date().getFullYear()} PlotTracker. All Rights Reserved.</div>
+        <div className="landing-footer-copy">© {new Date().getFullYear()} TonyAchuJr. All Rights Reserved.</div>
       </div>
     </div>
   );
