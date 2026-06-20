@@ -135,7 +135,7 @@ a { color:var(--gold); text-decoration:none; }
   position:relative;
   overflow:hidden;
 
-  /* Layered premium backdrop — no external image file needed */
+  /* Layered premium backdrop */
   background:
     /* warm gold glow top */
     radial-gradient(ellipse 1100px 700px at 50% -10%, rgba(201,168,76,0.16), transparent 60%),
@@ -145,7 +145,11 @@ a { color:var(--gold); text-decoration:none; }
     radial-gradient(ellipse 800px 600px at 0% 100%, rgba(139,92,246,0.08), transparent 55%),
     /* architectural diagonal hatch, very faint */
     repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 26px),
-    /* base deep charcoal-navy gradient */
+
+    /* ▼▼▼ PUT YOUR IMAGE HERE — uncomment the line below and set the path ▼▼▼ */
+    /* url("/landing-bg.jpg"), */
+
+    /* base deep charcoal-navy gradient (fallback / works without image) */
     linear-gradient(160deg, #07070c 0%, #0c0d16 45%, #0a0a12 100%);
 
   background-size:cover;
