@@ -120,3 +120,25 @@ export const subProjects = (cb) =>
   supabase.channel("projects:all")
     .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, cb)
     .subscribe();
+
+// ── OWNER ACCESS CODE ─────────────────────────────────────────────
+// Calls Edge Functions (server-side) which generate/verify a random
+// 6-digit code with a 10-minute expiry, emailed to a fixed address.
+
+export const sendOwnerCode = async (requesterEmail) => {
+  const { data, error } = await supabase.functions.invoke("send-owner-code", {
+    body: { requesterEmail },
+  });
+  if (error) return { error };
+  if (data?.error) return { error: { message: data.error } };
+  return { data };
+};
+
+export const verifyOwnerCode = async (code, requesterEmail) => {
+  const { data, error } = await supabase.functions.invoke("verify-owner-code", {
+    body: { code, requesterEmail },
+  });
+  if (error) return { valid: false, error };
+  if (data?.error) return { valid: false, error: { message: data.error } };
+  return { valid: data?.valid === true };
+};
