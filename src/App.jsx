@@ -9,6 +9,7 @@ import {
   fetchHistory, insertHistory,
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
+  sendOwnerCode, verifyOwnerCode,
 } from "./supabaseClient";
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
@@ -324,30 +325,62 @@ function PublicProjects({ ctx }) {
   );
 }
 function RegisterPage({ ctx }) {
-  const { setView } = ctx;
+  const { setView, toast$ } = ctx;
   const [role, setRole]   = useState("owner");
   const [name, setName]   = useState(""); const [email, setEmail] = useState("");
   const [phone, setPhone] = useState(""); const [pass, setPass]   = useState("");
-  const [ownerCode, setOwnerCode] = useState("");
   const [err, setErr]     = useState(""); const [busy, setBusy]   = useState(false);
   const [done, setDone]   = useState(false);
+
+  // Owner access code flow state
+  const [ownerCode, setOwnerCode]   = useState("");
+  const [codeSent, setCodeSent]     = useState(false);
+  const [codeVerified, setCodeVerified] = useState(false);
+  const [sendingCode, setSendingCode]   = useState(false);
+  const [verifyingCode, setVerifyingCode] = useState(false);
+  const [secondsLeft, setSecondsLeft]   = useState(0);
+  const [codeErr, setCodeErr]           = useState("");
+
+  // 10-minute countdown after a code is sent
+  useEffect(() => {
+    if (!codeSent || secondsLeft <= 0) return;
+    const t = setInterval(() => setSecondsLeft(s => (s > 0 ? s - 1 : 0)), 1000);
+    return () => clearInterval(t);
+  }, [codeSent, secondsLeft]);
+
+  const mm = String(Math.floor(secondsLeft / 60)).padStart(2, "0");
+  const ss = String(secondsLeft % 60).padStart(2, "0");
+  const expired = codeSent && secondsLeft === 0 && !codeVerified;
+
+  const handleSendCode = async () => {
+    if (!email.trim()) { setCodeErr("Enter your email above first."); return; }
+    setSendingCode(true); setCodeErr("");
+    const { error } = await sendOwnerCode(email.trim().toLowerCase());
+    setSendingCode(false);
+    if (error) { setCodeErr(error.message || "Could not send code. Try again."); return; }
+    setCodeSent(true); setCodeVerified(false); setOwnerCode("");
+    setSecondsLeft(10 * 60);
+    toast$("A 6-digit code has been sent for approval.", "ok");
+  };
+
+  const handleVerifyCode = async () => {
+    if (!ownerCode.trim()) { setCodeErr("Enter the 6-digit code."); return; }
+    setVerifyingCode(true); setCodeErr("");
+    const { valid, error } = await verifyOwnerCode(ownerCode.trim(), email.trim().toLowerCase());
+    setVerifyingCode(false);
+    if (error) { setCodeErr(error.message || "Verification failed."); return; }
+    if (!valid) { setCodeErr("Invalid or expired code."); return; }
+    setCodeVerified(true);
+    toast$("Owner access verified!", "ok");
+  };
 
   const go = async () => {
     if (!name.trim() || !email.trim() || !pass.trim()) { setErr("All required fields missing."); return; }
     if (pass.length < 6) { setErr("Password must be at least 6 characters."); return; }
-    if (role === "owner") {
-  const { data: codeRow } = await supabase
-    .from("owner_codes")
-    .select("*")
-    .eq("code", ownerCode.trim())
-    .eq("active", true)
-    .single();
-
-  if (!codeRow) {
-    setErr("Invalid Owner Access Code");
-    return;
-  }
-}
+    if (role === "owner" && !codeVerified) {
+      setErr("Please verify your Owner Access Code before continuing.");
+      return;
+    }
     setBusy(true); setErr("");
     const { data, error } = await authSignUp({
       email: email.trim().toLowerCase(), password: pass,
@@ -384,7 +417,7 @@ function RegisterPage({ ctx }) {
         <span className="flabel">I am a</span>
         <div className="flex g2 mb3">
           {[["owner","🏗️","Owner / Agent","Create & manage projects"],["buyer","🏠","Buyer / Viewer","View layouts & availability"]].map(([r,ic,label,desc]) => (
-            <button key={r} className={`role-btn${role===r?" active":""}`} onClick={() => setRole(r)}>
+            <button key={r} className={`role-btn${role===r?" active":""}`} onClick={() => { setRole(r); setCodeSent(false); setCodeVerified(false); setOwnerCode(""); setCodeErr(""); }}>
               <span className="role-icon">{ic}</span>
               <span className="role-label">{label}</span>
               <span className="role-desc">{desc}</span>
@@ -394,13 +427,52 @@ function RegisterPage({ ctx }) {
         <Fi label="Full Name *"        value={name}  onChange={setName} />
         <Fi label="Email *"            value={email} onChange={setEmail} type="email" />
         <Fi label="Phone (optional)"   value={phone} onChange={setPhone} />
+
         {role === "owner" && (
-  <Fi
-    label="Owner Access Code"
-    value={ownerCode}
-    onChange={setOwnerCode}
-  />
-)}
+          <div style={{ background: "var(--surface2)", borderRadius: 12, padding: "1rem", marginBottom: "1rem", border: "1px solid var(--border2)" }}>
+            <div className="mono txs semi tgold" style={{ textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".7rem" }}>
+              🔐 Owner Access Verification
+            </div>
+
+            {!codeVerified ? (
+              <>
+                <p className="tmuted tsm" style={{ marginBottom: 10, lineHeight: 1.5 }}>
+                  A one-time 6-digit code will be sent for approval. Enter it below to verify your Owner access.
+                </p>
+                {!codeSent ? (
+                  <button className="btn-secondary btn-full" onClick={handleSendCode} disabled={sendingCode || !email.trim()}>
+                    {sendingCode ? "Sending…" : "📤 Send Access Code"}
+                  </button>
+                ) : (
+                  <>
+                    <div className="flex g2" style={{ alignItems: "flex-end" }}>
+                      <Fi label="6-Digit Code" value={ownerCode} onChange={v => setOwnerCode(v.replace(/\D/g, "").slice(0, 6))} placeholder="000000" />
+                      <button className="btn-primary" onClick={handleVerifyCode} disabled={verifyingCode || ownerCode.length !== 6 || expired} style={{ marginBottom: "1rem", whiteSpace: "nowrap" }}>
+                        {verifyingCode ? "Checking…" : "Verify"}
+                      </button>
+                    </div>
+                    <div className="flex jsb aic" style={{ marginTop: -6 }}>
+                      {!expired ? (
+                        <span className="txs tmuted mono">⏱ Expires in {mm}:{ss}</span>
+                      ) : (
+                        <span className="txs" style={{ color: "var(--rose)" }}>Code expired</span>
+                      )}
+                      <button onClick={handleSendCode} disabled={sendingCode} className="footer-link-btn" style={{ fontSize: 12 }}>
+                        {sendingCode ? "Resending…" : "Resend code"}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="flex aic g2" style={{ color: "var(--emerald)", fontSize: 14, fontWeight: 600 }}>
+                ✅ Owner access verified
+              </div>
+            )}
+            {codeErr && <Err>{codeErr}</Err>}
+          </div>
+        )}
+
         <Fi label="Password * (min 6)" value={pass}  onChange={setPass}  type="password" />
         {err && <Err>{err}</Err>}
         <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>{busy ? "Creating..." : "Create account"}</button>
