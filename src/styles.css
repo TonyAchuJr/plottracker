@@ -955,7 +955,7 @@ a { color:var(--gold); text-decoration:none; }
   text-align:center;
 }
 .landing-footer .footer-link-btn{
-  color:var(--text2);
+  color:#ffffff;
    text-shadow: var(--landing-shadow);
   font-size:13px;
 }
@@ -963,14 +963,14 @@ a { color:var(--gold); text-decoration:none; }
   color:var(--gold-light);
 }
 .landing-footer-sep{
-  color:var(--text3);
+  color:#ffffff;
    text-shadow: var(--landing-shadow);
   font-size:13px;
 }
 .landing-footer-copy{
   width:100%;
   margin-top:10px;
-  color:var(--text3);
+  color:#ffffff;
    text-shadow: var(--landing-shadow);
   font-size:12px;
 }
