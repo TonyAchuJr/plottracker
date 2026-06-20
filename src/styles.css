@@ -264,12 +264,12 @@ a { color:var(--gold); text-decoration:none; }
 .feat-pill {
   display:inline-flex; align-items:center; gap:8px;
   padding:9px 18px; border-radius:100px; font-size:13px; font-weight:500;
-  background:rgba(255,255,255,0.04);
-  border:1px solid rgba(255,255,255,0.1);
+  background:rgba(0,0,0,0.45);
+  border:1px solid rgba(255,255,255,0.25);
   color:#222222;
    font-weight:600;
-  text-shadow:none;
-  backdrop-filter:blur(10px);
+  text-shadow:0 2px 8px rgba(0,0,0,.8);
+  backdrop-filter:blur(16px);
   transition:all var(--ease); cursor:default;
   position:relative; overflow:hidden;
 }
