@@ -191,7 +191,13 @@ function Spin() {
 function Landing({ ctx }) {
   const { setView, toggleDark, dark, setModal } = ctx;
   return (
-    <div className="landing">
+    <div
+      className="landing"
+      style={{
+        /* ▼▼▼ PUT YOUR IMAGE HERE — keep the file in /public, reference it like this ▼▼▼ */
+        backgroundImage: `url(${process.env.PUBLIC_URL}/plot.jpg)`,
+      }}
+    >
       <div className="orb" style={{ width: 480, height: 480, background: "rgba(201,168,76,0.06)", top: "-18%", left: "50%", transform: "translateX(-50%)" }} />
       <div className="orb" style={{ width: 280, height: 280, background: "rgba(56,189,248,0.05)", bottom: "8%", right: "4%" }} />
       <button className="theme-btn" onClick={toggleDark} style={{ position: "absolute", top: 14, right: 14 }}>{dark ? "☀️" : "🌙"}</button>
@@ -217,6 +223,7 @@ function Landing({ ctx }) {
 <button className="btn-land-secondary" onClick={() => setView("login")}>
   Sign in
 </button>
+
 
 <button className="btn-land-secondary" onClick={() => setView("register")}>
   Create account
