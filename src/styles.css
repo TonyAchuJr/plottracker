@@ -147,7 +147,7 @@ a { color:var(--gold); text-decoration:none; }
     repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 26px),
 
     /* ▼▼▼ PUT YOUR IMAGE HERE — uncomment the line below and set the path ▼▼▼ */
-    /* url("/landing-bg.jpg"), */
+    url("/plot.jpg"),
 
     /* base deep charcoal-navy gradient (fallback / works without image) */
     linear-gradient(160deg, #07070c 0%, #0c0d16 45%, #0a0a12 100%);
