@@ -195,7 +195,7 @@ function Landing({ ctx }) {
       <div className="orb" style={{ width: 480, height: 480, background: "rgba(201,168,76,0.06)", top: "-18%", left: "50%", transform: "translateX(-50%)" }} />
       <div className="orb" style={{ width: 280, height: 280, background: "rgba(56,189,248,0.05)", bottom: "8%", right: "4%" }} />
       <button className="theme-btn" onClick={toggleDark} style={{ position: "absolute", top: 14, right: 14 }}>{dark ? "☀️" : "🌙"}</button>
-      <div style={{ textAlign: "center", maxWidth: 540, width: "100%", position: "relative", zIndex: 1 }}>
+      <div style={{ textAlign: "center", maxWidth: 900, width: "100%", position: "relative", zIndex: 1 }}>
         <div className="logo-icon afu">🏘️</div>
         <h1 className="landing-title afu1">INFY-Builders</h1>
         <p className="landing-sub afu2">Premium real estate layout management — track sales, bookings and share verified layouts with your entire team. Data syncs live across all devices.</p>
