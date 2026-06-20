@@ -135,18 +135,25 @@ a { color:var(--gold); text-decoration:none; }
   position:relative;
   overflow:hidden;
 
+  /* Layered premium backdrop — no external image file needed */
   background:
-    linear-gradient(
-      rgba(0,0,0,0.35),
-      rgba(0,0,0,0.55)
-    ),
-    url("./assets/plot.jpg");
+    /* warm gold glow top */
+    radial-gradient(ellipse 1100px 700px at 50% -10%, rgba(201,168,76,0.16), transparent 60%),
+    /* cool accent bottom right */
+    radial-gradient(ellipse 900px 600px at 100% 100%, rgba(56,189,248,0.10), transparent 55%),
+    /* subtle violet accent bottom left */
+    radial-gradient(ellipse 800px 600px at 0% 100%, rgba(139,92,246,0.08), transparent 55%),
+    /* architectural diagonal hatch, very faint */
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 26px),
+    /* base deep charcoal-navy gradient */
+    linear-gradient(160deg, #07070c 0%, #0c0d16 45%, #0a0a12 100%);
 
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
+  background-attachment:fixed;
 }
-/* Add a Gold Overlay*/
+/* Add a Gold Overlay glow centered behind the logo */
 .landing::before{
   content:"";
   position:absolute;
@@ -155,7 +162,7 @@ a { color:var(--gold); text-decoration:none; }
   background:
     radial-gradient(
       circle at center,
-      rgba(201,168,76,0.12)
+      rgba(201,168,76,0.14),
       transparent 60%
     );
 
@@ -166,6 +173,7 @@ a { color:var(--gold); text-decoration:none; }
 .landing::after {
   content:''; position:absolute; inset:0; pointer-events:none;
   background:
+    radial-gradient(ellipse 70% 70% at 50% 50%, transparent 55%, rgba(0,0,0,0.45) 100%),
     repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.018) 60px),
     repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.018) 60px);
 }
