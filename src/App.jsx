@@ -259,7 +259,7 @@ function AuthTop({ ctx, title, sub }) {
       <div className="flex aic jsb mb3">
         <div className="flex aic g2" style={{ cursor: "pointer" }} onClick={() => setView("landing")}>
           <div className="header-logo-icon">🏘️</div>
-          <span className="header-logo-text" style={{ fontSize: 15 }}>INFY-Builders</span>
+          <span className="header-logo-text" style={{ fontSize: 15 }}>AIRAA GROUP</span>
         </div>
         <button className="theme-btn" onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
       </div>
@@ -516,7 +516,7 @@ function Shell({ ctx, children }) {
       <header className="app-header">
         <div className="header-logo" onClick={() => setView("dashboard")}>
           <div className="header-logo-icon">🏘️</div>
-          <span className="header-logo-text">INFY-Builders</span>
+          <span className="header-logo-text">AIRAA GROUP</span>
         </div>
         <div className="flex aic g2">
           {profile?.role && <span className={`hbadge hbadge-${profile.role}`}>{profile.role === "owner" ? "🏗️ Owner" : "🏠 Buyer"}</span>}
@@ -1098,7 +1098,7 @@ function AboutModal({ ctx }) {
     <div className="info-modal">
       <InfoHeader icon="🏘️" title="About PlotTracker" setModal={setModal} />
       <div className="info-body">
-        <p>PlotTracker is a premium real estate layout management by INFY-Builders, a platform built to help land developers, agents, and buyers track plot availability, bookings, and sales — all in one place, synced live across every device.</p>
+        <p>PlotTracker is a premium real estate layout management by AIRA Group of Projects, a platform built to help land developers, agents, and buyers track plot availability, bookings, and sales — all in one place, synced live across every device.</p>
         <p>Owners can create layout projects, upload site plans, manage plot status in real time, and generate detailed Excel/CSV reports. Buyers get a clean, read-only view of available plots and project layouts, with no clutter and no confusion.</p>
         <div className="info-divider" />
         <div className="info-row">
