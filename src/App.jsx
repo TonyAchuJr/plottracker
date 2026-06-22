@@ -213,8 +213,8 @@ function Landing({ ctx }) {
   }}
 >
         <div className="logo-icon afu">🏘️</div>
-        <h1 className="landing-title afu1">INFY-Builders</h1>
-        <p className="landing-sub afu2">Premium real estate layout management — track sales, bookings and share verified layouts with your entire team. Data syncs live across all devices.</p>
+        <h1 className="landing-title afu1">AIRAA GROUP</h1>
+        <p className="landing-sub afu2">AIRAA Group of Projects. Premium real estate layout management — track sales, bookings and share verified layouts with your entire team. Data syncs live across all devices.</p>
         <div className="flex g3 afu3" style={{ justifyContent: "center", flexWrap: "wrap", marginBottom: "2.2rem" }}>
           <button className="btn-land-primary" onClick={() => setView("dashboard")}>
   View Projects
