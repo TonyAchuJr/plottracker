@@ -555,7 +555,7 @@ function Shell({ ctx, children }) {
   <div className="footer-inner">
     <div className="footer-brand">
       <h3>Plot Tracker</h3>
-      <p>Premium Real Estate Plot Management Platform</p>
+      <p>AIRAA Group of Projects - Premium Real Estate Plot Management Platform</p>
     </div>
 
     <div className="footer-links">
@@ -566,7 +566,7 @@ function Shell({ ctx, children }) {
     </div>
 
     <div className="footer-copy">
-      © {new Date().getFullYear()} PlotTracker. All Rights Reserved.
+      © {new Date().getFullYear()} TonyAchuJr. All Rights Reserved.
     </div>
   </div>
 </footer>
