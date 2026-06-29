@@ -4,7 +4,7 @@ import "./styles.css";
 import {
   supabase, authSignUp, authSignIn, authSignOut, getSession,
   fetchProfile, fetchAllProfiles,
-  fetchProjects, insertProject, deleteProject, archiveProject,
+  fetchProjects, insertProject, deleteProject, archiveProject, updateProject,
   fetchPlots, insertPlots, patchPlot,
   fetchHistory, insertHistory,
   fetchFiles, uploadFile, removeFile,
@@ -1478,8 +1478,34 @@ function ViewFilesModal({ ctx, proj }) {
    PROJECT SETTINGS MODAL (Archive / Delete)
 ════════════════════════════════════════════════════════════════ */
 function ProjectSettingsModal({ ctx, proj }) {
-  const { toast$, setModal, setView, setProjects } = ctx;
+  const { toast$, setModal, setView, setProjects, openProject } = ctx;
   const [busy, setBusy] = useState(false);
+
+  // Editable details state
+  const [name, setName] = useState(proj.name || "");
+  const [loc, setLoc] = useState(proj.location || "");
+  const [mapUrl, setMapUrl] = useState(proj.map_url || "");
+  const [desc, setDesc] = useState(proj.description || "");
+  const [editErr, setEditErr] = useState("");
+  const [savingDetails, setSavingDetails] = useState(false);
+
+  const handleSaveDetails = async () => {
+    if (!name.trim()) { setEditErr("Project name required."); return; }
+    setSavingDetails(true); setEditErr("");
+    const { error } = await updateProject(proj.id, {
+      name: name.trim(),
+      location: loc.trim(),
+      mapUrl: mapUrl.trim(),
+      description: desc.trim(),
+    });
+    setSavingDetails(false);
+    if (error) { setEditErr(error.message); return; }
+    const { data } = await fetchProjects();
+    setProjects(data || []);
+    toast$("Project details updated!");
+    setModal(null);
+    openProject(proj.id);
+  };
 
   const handleArchive = async () => {
     setBusy(true);
@@ -1505,11 +1531,23 @@ function ProjectSettingsModal({ ctx, proj }) {
 
   return <>
     <h3 className="sheet-title">Project Settings</h3>
-    <div style={{ background: "var(--surface2)", borderRadius: 12, padding: "1rem", marginBottom: "1rem", border: "1px solid var(--border2)" }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", marginBottom: 4 }}>{proj.name}</div>
-      {proj.location && <div className="tmuted txs">📍 {proj.location}</div>}
-      <div className="tmuted txs" style={{ marginTop: 4 }}>Created {DFMT.format(new Date(proj.created_at))}</div>
+
+    {/* Editable details */}
+    <div style={{ border: "1.5px solid var(--border2)", borderRadius: 12, padding: "1rem 1.1rem", marginBottom: 14 }}>
+      <div className="mono txs semi tgold" style={{ textTransform: "uppercase", letterSpacing: ".08em", marginBottom: ".8rem" }}>
+        ✏️ Edit Project Details
+      </div>
+      <Fi label="Project Name *" value={name} onChange={setName} />
+      <Fi label="Location / Address" value={loc} onChange={setLoc} />
+      <Fi label="Google Maps URL (optional)" value={mapUrl} onChange={setMapUrl} placeholder="https://maps.google.com/..." />
+      <Fi label="Description" value={desc} onChange={setDesc} textarea />
+      {editErr && <Err>{editErr}</Err>}
+      <button className="btn-primary btn-full" onClick={handleSaveDetails} disabled={savingDetails}>
+        {savingDetails ? "Saving…" : "Save Details"}
+      </button>
     </div>
+
+    <div className="tmuted txs" style={{ marginBottom: 14 }}>Created {DFMT.format(new Date(proj.created_at))}</div>
 
     {/* Archive */}
     <div style={{ border: "1.5px solid var(--border2)", borderRadius: 12, padding: "1rem 1.1rem", marginBottom: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
