@@ -47,6 +47,13 @@ export const deleteProject = (id) =>
 export const archiveProject = (id, archived = true) =>
   supabase.from("projects").update({ archived }).eq("id", id);
 
+export const updateProject = (id, { name, location, mapUrl, description }) =>
+  supabase.from("projects")
+    .update({ name, location, map_url: mapUrl, description })
+    .eq("id", id)
+    .select()
+    .single();
+
 // ── PLOTS ─────────────────────────────────────────────────────────
 export const fetchPlots = (projectId) =>
   supabase.from("plots").select("*").eq("project_id", projectId)
