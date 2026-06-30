@@ -554,7 +554,7 @@ function Shell({ ctx, children }) {
 <footer className="footer">
   <div className="footer-inner">
     <div className="footer-brand">
-      <h3>Plot Tracker</h3>
+      <h3>Plot Tracker v2.2</h3>
       <p>AIRAA Group of Projects - Premium Real Estate Plot Management Platform</p>
     </div>
 
