@@ -898,6 +898,7 @@ function ProjectView({ proj, ctx }) {
         {files.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "view-files", proj })}>📎 Files ({files.length})</button>}
         {isProjectOwner && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>⬆ Upload Layout</button>}
         {isOwnerRole    && <button className="btn-primary" onClick={() => setModal({ type: "add-plots", proj })}>+ Add Plots</button>}
+        {isOwnerRole && plots.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "bulk-edit-plots", proj })}>✏️ Edit All Plots</button>}
         {isOwnerRole    && <ReportBtn projects={[proj]} allPlots={plots} profiles={ctx.profiles} single />}
         {isProjectOwner && <button className="btn-ghost" onClick={() => setModal({ type: "project-settings", proj })}>⚙️ Settings</button>}
       </div>
@@ -1062,14 +1063,16 @@ function PlotView({ plot, proj, ctx }) {
 function ModalShell({ modal, ctx, proj, plot }) {
   const mp = modal.proj || proj, mpl = modal.plot || plot;
   const isInfo = modal.type?.startsWith("info-");
+  const isWide = modal.type === "bulk-edit-plots";
   return (
     <div className="overlay" onClick={e => e.target === e.currentTarget && ctx.setModal(null)}>
-      <div className={isInfo ? "sheet sheet-info" : "sheet"}>
+      <div className={isInfo ? "sheet sheet-info" : isWide ? "sheet sheet-wide" : "sheet"}>
         <div className="sheet-handle" />
         {modal.type === "create-project" && <CreateProjectModal ctx={ctx} />}
         {modal.type === "add-plots"      && <AddPlotsModal ctx={ctx} proj={mp} />}
         {modal.type === "update-plot"    && <UpdatePlotModal ctx={ctx} plot={mpl} proj={mp} />}
         {modal.type === "edit-plot"      && <EditPlotModal ctx={ctx} plot={mpl} proj={mp} />}
+        {modal.type === "bulk-edit-plots" && <BulkEditPlotsModal ctx={ctx} proj={mp} />}
         {modal.type === "upload-file"    && <UploadFileModal ctx={ctx} proj={mp} />}
         {modal.type === "view-files"        && <ViewFilesModal ctx={ctx} proj={mp} />}
         {modal.type === "project-settings" && <ProjectSettingsModal ctx={ctx} proj={mp} />}
@@ -1392,6 +1395,103 @@ function EditPlotModal({ ctx, plot, proj }) {
     <div className="flex g2"><Fi label="Facing" value={facing} onChange={setFacing} placeholder="North, East…" /><Fi label="Category" value={cat} onChange={setCat} placeholder="Residential…" /></div>
     <Fi label="Notes" value={notes} onChange={setNotes} textarea />
     <Btns cancel={()=>setModal(null)} confirm={go} label={busy?"Saving…":"Save Changes"} disabled={busy} />
+  </>;
+}
+
+function BulkEditPlotsModal({ ctx, proj }) {
+  const { toast$, setModal, setPlots, plots } = ctx;
+  const [busy, setBusy] = useState(false);
+
+  const sorted = [...plots].sort((a, b) => {
+    const an = parseFloat(a.number), bn = parseFloat(b.number);
+    if (!isNaN(an) && !isNaN(bn)) return an - bn;
+    return String(a.number).localeCompare(String(b.number));
+  });
+
+  const [rows, setRows] = useState(() =>
+    Object.fromEntries(sorted.map(p => [p.id, {
+      area: p.area || "",
+      price: p.price || "",
+      facing: p.facing || "",
+      category: p.category || "",
+      notes: p.notes || "",
+    }]))
+  );
+
+  const updateRow = (id, field, value) => {
+    setRows(prev => ({ ...prev, [id]: { ...prev[id], [field]: value } }));
+  };
+
+  const saveAll = async () => {
+    setBusy(true);
+    let okCount = 0, errCount = 0;
+
+    for (const p of sorted) {
+      const r = rows[p.id];
+      const changed =
+        (r.area || "") !== (p.area || "") ||
+        String(r.price || "") !== String(p.price || "") ||
+        (r.facing || "") !== (p.facing || "") ||
+        (r.category || "") !== (p.category || "") ||
+        (r.notes || "") !== (p.notes || "");
+      if (!changed) continue;
+
+      const { error } = await patchPlot(p.id, {
+        area: r.area || null,
+        price: r.price ? Number(r.price) : null,
+        facing: r.facing || null,
+        category: r.category || null,
+        notes: r.notes || null,
+      });
+      if (error) errCount++; else okCount++;
+    }
+
+    const { data } = await fetchPlots(proj.id);
+    setPlots(data || []);
+    setBusy(false);
+
+    if (errCount > 0) {
+      toast$(`Saved ${okCount} plot(s), ${errCount} failed.`, "err");
+    } else if (okCount === 0) {
+      toast$("No changes to save.", "info");
+    } else {
+      toast$(`${okCount} plot(s) updated!`, "ok");
+      setModal(null);
+    }
+  };
+
+  return <>
+    <h3 className="sheet-title">Edit All Plots — {proj.name}</h3>
+    <p className="tmuted tsm mb3">Update area, price, facing, category, and notes for every plot at once. Only changed rows are saved.</p>
+
+    <div className="bulk-edit-table-wrap">
+      <table className="bulk-edit-table">
+        <thead>
+          <tr>
+            <th>Plot</th>
+            <th>Area</th>
+            <th>Price (₹)</th>
+            <th>Facing</th>
+            <th>Category</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {sorted.map(p => (
+            <tr key={p.id}>
+              <td className="bulk-edit-plotnum">#{p.number}</td>
+              <td><input value={rows[p.id].area} onChange={e => updateRow(p.id, "area", e.target.value)} placeholder="1200 sq.ft" /></td>
+              <td><input value={rows[p.id].price} onChange={e => updateRow(p.id, "price", e.target.value)} type="number" placeholder="0" /></td>
+              <td><input value={rows[p.id].facing} onChange={e => updateRow(p.id, "facing", e.target.value)} placeholder="North…" /></td>
+              <td><input value={rows[p.id].category} onChange={e => updateRow(p.id, "category", e.target.value)} placeholder="Residential…" /></td>
+              <td><input value={rows[p.id].notes} onChange={e => updateRow(p.id, "notes", e.target.value)} placeholder="Notes…" /></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <Btns cancel={() => setModal(null)} confirm={saveAll} label={busy ? "Saving…" : "Save All Changes"} disabled={busy} />
   </>;
 }
 
