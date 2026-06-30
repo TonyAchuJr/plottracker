@@ -554,7 +554,7 @@ function Shell({ ctx, children }) {
 <footer className="footer">
   <div className="footer-inner">
     <div className="footer-brand">
-      <h3>Plot Tracker v2.2</h3>
+      <h3>Plot Tracker</h3>
       <p>AIRAA Group of Projects - Premium Real Estate Plot Management Platform</p>
     </div>
 
@@ -1110,7 +1110,7 @@ function AboutModal({ ctx }) {
         </div>
         <div className="info-row">
           <span className="info-row-label">Version</span>
-          <span className="info-row-value mono">2.0.0</span>
+          <span className="info-row-value mono">2.2.0</span>
         </div>
         <div className="info-row">
           <span className="info-row-label">Built with</span>
