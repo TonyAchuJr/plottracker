@@ -990,6 +990,69 @@ a { color:var(--gold); text-decoration:none; }
 .sheet-info{
   max-width:640px;
 }
+
+/* ── Wide modal (Bulk Edit Plots) ── */
+.sheet-wide{
+  max-width:920px;
+}
+@media(max-width:600px){
+  .sheet-wide{ max-width:100%; }
+}
+
+/* ── Bulk Edit Plots table ── */
+.bulk-edit-table-wrap{
+  width:100%;
+  max-height:52vh;
+  overflow:auto;
+  border:1px solid var(--border2);
+  border-radius:var(--r);
+  margin-bottom:1.4rem;
+  -webkit-overflow-scrolling:touch;
+}
+.bulk-edit-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:720px;
+}
+.bulk-edit-table thead th{
+  position:sticky;
+  top:0;
+  background:var(--surface2);
+  color:var(--text3);
+  font-size:10.5px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-family:var(--font-mono);
+  text-align:left;
+  padding:10px 10px;
+  border-bottom:1.5px solid var(--border2);
+  z-index:2;
+}
+.bulk-edit-table tbody tr{
+  border-bottom:1px solid var(--border);
+}
+.bulk-edit-table tbody tr:hover{
+  background:var(--surface2);
+}
+.bulk-edit-table td{
+  padding:6px 8px;
+  vertical-align:middle;
+}
+.bulk-edit-table td input{
+  width:100%;
+  min-width:90px;
+  padding:8px 10px;
+  font-size:13px;
+  border-radius:7px;
+}
+.bulk-edit-plotnum{
+  font-family:var(--font-mono);
+  font-weight:700;
+  color:var(--gold);
+  white-space:nowrap;
+  font-size:13px;
+}
 .info-modal{
   display:flex;
   flex-direction:column;
