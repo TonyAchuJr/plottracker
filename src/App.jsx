@@ -6,7 +6,7 @@ import {
   fetchProfile, fetchAllProfiles,
   fetchProjects, insertProject, deleteProject, archiveProject, updateProject,
   fetchPlots, insertPlots, patchPlot,
-  fetchHistory, insertHistory,
+  fetchHistory, insertHistory, fetchProjectHistory, insertProjectHistory,
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
   sendOwnerCode, verifyOwnerCode,
@@ -30,6 +30,7 @@ export default function App() {
   const [plots, setPlots]       = useState([]);
   const [files, setFiles]       = useState([]);
   const [history, setHistory]   = useState([]);
+  const [projHistory, setProjHistory] = useState([]);
   const [projId, setProjId]     = useState(null);
   const [plotId, setPlotId]     = useState(null);
   const [toast, setToast]       = useState(null);
@@ -125,8 +126,8 @@ export default function App() {
   /* ── Navigation helpers ────────────────────────────────────────── */
   async function openProject(id) {
     setProjId(id); setPlotId(null); setBusy(true);
-    const [{ data: pl }, { data: fi }] = await Promise.all([fetchPlots(id), fetchFiles(id)]);
-    setPlots(pl || []); setFiles(fi || []);
+    const [{ data: pl }, { data: fi }, { data: ph }] = await Promise.all([fetchPlots(id), fetchFiles(id), fetchProjectHistory(id)]);
+    setPlots(pl || []); setFiles(fi || []); setProjHistory(ph || []);
     setBusy(false); setView("project");
   }
   async function openPlot(id) {
@@ -143,6 +144,7 @@ export default function App() {
     dark, toggleDark, authUser, profile, profiles,
     projects, setProjects, plots, setPlots,
     files, setFiles, history, setHistory,
+    projHistory, setProjHistory,
     projId, setProjId, plotId, setPlotId,
     toast$, setView, setModal, busy, setBusy,
     openProject, openPlot,
@@ -591,6 +593,11 @@ function Dashboard({ ctx }) {
     e.stopPropagation();
     const { error } = await archiveProject(proj.id, !proj.archived);
     if (error) { toast$(error.message, "err"); return; }
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: proj.archived ? "Project restored" : "Project archived",
+      actorId: authUser.id,
+    });
     const { data } = await fetchProjects();
     setProjects(data || []);
     toast$(proj.archived ? "Project restored!" : "Project archived.");
@@ -670,9 +677,9 @@ function Dashboard({ ctx }) {
                 <ProjCard
                   proj={p} profiles={ctx.profiles}
                   onClick={() => !p.archived && openProject(p.id)}
-                  isOwner={p.owner_id === authUser?.id}
-                  onArchive={isOwner && p.owner_id === authUser?.id ? (e) => handleArchive(p, e) : null}
-                  onDelete={isOwner && p.owner_id === authUser?.id ? (e) => handleDelete(p, e) : null}
+                  isOwner={isOwner}
+                  onArchive={isOwner ? (e) => handleArchive(p, e) : null}
+                  onDelete={isOwner ? (e) => handleDelete(p, e) : null}
                   authUser={authUser}
 setProjects={setProjects}
                 />
@@ -788,6 +795,12 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
       })
       .eq("id", proj.id);
 
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: "Cover image updated",
+      actorId: authUser.id,
+    });
+
     const { data: projectsData } = await fetchProjects();
     setProjects(projectsData || []);
 
@@ -846,7 +859,6 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
 function ProjectView({ proj, ctx }) {
   const { profile, authUser, plots, files, setView, openPlot, setModal, busy, profiles } = ctx;
   const isOwnerRole    = profile?.role === "owner";
-  const isProjectOwner = proj.owner_id === authUser?.id;
   const total = plots.length, sold = plots.filter(p => p.status === "sold").length,
         bkd   = plots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
   const [filter, setFilter] = useState("all");
@@ -896,12 +908,28 @@ function ProjectView({ proj, ctx }) {
 
       <div className="flex g2 mb3 afu3 scroll-row">
         {files.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "view-files", proj })}>📎 Files ({files.length})</button>}
-        {isProjectOwner && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>⬆ Upload Layout</button>}
+        {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>⬆ Upload Layout</button>}
         {isOwnerRole    && <button className="btn-primary" onClick={() => setModal({ type: "add-plots", proj })}>+ Add Plots</button>}
         {isOwnerRole && plots.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "bulk-edit-plots", proj })}>✏️ Edit All Plots</button>}
         {isOwnerRole    && <ReportBtn projects={[proj]} allPlots={plots} profiles={ctx.profiles} single />}
-        {isProjectOwner && <button className="btn-ghost" onClick={() => setModal({ type: "project-settings", proj })}>⚙️ Settings</button>}
+        {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "project-settings", proj })}>⚙️ Settings</button>}
       </div>
+
+      {isOwnerRole && ctx.projHistory.length > 0 && (
+        <div className="card afu3 mb3">
+          <div className="sec-head">Project Activity</div>
+          {ctx.projHistory.map(h => (
+            <div key={h.id} className="titem">
+              <Av name={h.actor?.name || "?"} size={31} />
+              <div style={{ minWidth: 0 }}>
+                <div className="semi tsm" style={{ color: "var(--text)" }}>{h.action}</div>
+                <div className="txs tmuted">edited by {h.actor?.name || "System"} · {TFMT.format(new Date(h.created_at))}</div>
+                {h.note && <div className="tsm tmuted" style={{ marginTop: 2 }}>{h.note}</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="flex g2 mb3 afu4 fw aic">
         <div className="srch">
@@ -1110,7 +1138,7 @@ function AboutModal({ ctx }) {
         </div>
         <div className="info-row">
           <span className="info-row-label">Version</span>
-          <span className="info-row-value mono">2.2.0</span>
+          <span className="info-row-value mono">2.0.0</span>
         </div>
         <div className="info-row">
           <span className="info-row-label">Built with</span>
@@ -1496,30 +1524,38 @@ function BulkEditPlotsModal({ ctx, proj }) {
 }
 
 function UploadFileModal({ ctx, proj }) {
-  const { authUser, toast$, setModal, setFiles, setProjects } = ctx;
+  const { authUser, toast$, setModal, setFiles, setProjects, setProjHistory } = ctx;
   const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [busy,setBusy]=useState(false); const ref=useRef();
   const go = async () => {
     if (!pending.length) return;
     setBusy(true);
     for (const file of pending) {
-
-  const { data } = await uploadFile({
-    projectId: proj.id,
-    file,
-    label,
-    userId: authUser.id
-  });
-
-  if (file.type.startsWith("image/")) {
-    await supabase
-      .from("projects")
-      .update({ cover_image: data?.storage_path || data?.[0]?.storage_path })
-      .eq("id", proj.id);
-  }
-}
-    const { data } = await fetchFiles(proj.id); setFiles(data||[]);
-    const { data: projectsData } = await fetchProjects();
-setProjects(projectsData || []);
+      const { data } = await uploadFile({
+        projectId: proj.id,
+        file,
+        label,
+        userId: authUser.id
+      });
+      if (file.type.startsWith("image/")) {
+        await supabase
+          .from("projects")
+          .update({ cover_image: data?.storage_path || data?.[0]?.storage_path })
+          .eq("id", proj.id);
+      }
+    }
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: `Uploaded ${pending.length} file(s)${label ? `: ${label}` : ""}`,
+      actorId: authUser.id,
+    });
+    const [{ data: fi }, { data: ph }, { data: projectsData }] = await Promise.all([
+      fetchFiles(proj.id),
+      fetchProjectHistory(proj.id),
+      fetchProjects(),
+    ]);
+    setFiles(fi || []);
+    setProjHistory(ph || []);
+    setProjects(projectsData || []);
     setBusy(false); toast$(`${pending.length} file(s) uploaded!`); setModal(null);
   };
   return <>
@@ -1542,9 +1578,17 @@ setProjects(projectsData || []);
 }
 
 function ViewFilesModal({ ctx, proj }) {
-  const { authUser, toast$, setModal, files, setFiles } = ctx;
-  const isProjOwner = proj.owner_id === authUser?.id;
-  const del = async (id, path) => { await removeFile(id, path); const { data } = await fetchFiles(proj.id); setFiles(data||[]); toast$("File removed."); };
+  const { authUser, profile, toast$, setModal, files, setFiles } = ctx;
+  const isOwnerRole = profile?.role === "owner";
+  const del = async (id, path, label) => {
+    await removeFile(id, path);
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: `Deleted file: ${label}`,
+      actorId: authUser.id,
+    });
+    const { data } = await fetchFiles(proj.id); setFiles(data||[]); toast$("File removed.");
+  };
   return <>
     <h3 className="sheet-title">Layout Files — {proj.name}</h3>
     {files.length === 0
@@ -1563,7 +1607,7 @@ function ViewFilesModal({ ctx, proj }) {
                 </div>
                 <div className="flex g2">
                   <a href={f.storage_path} target="_blank" rel="noreferrer" download className="btn-secondary" style={{padding:"8px 13px",borderRadius:7,fontSize:13}}>⬇ Download</a>
-                  {isProjOwner && <button className="btn-danger" onClick={()=>del(f.id,f.storage_path)}>Delete</button>}
+                  {isOwnerRole && <button className="btn-danger" onClick={()=>del(f.id,f.storage_path,f.label||f.name)}>Delete</button>}
                 </div>
               </div>
             </div>
@@ -1578,7 +1622,7 @@ function ViewFilesModal({ ctx, proj }) {
    PROJECT SETTINGS MODAL (Archive / Delete)
 ════════════════════════════════════════════════════════════════ */
 function ProjectSettingsModal({ ctx, proj }) {
-  const { toast$, setModal, setView, setProjects, openProject } = ctx;
+  const { authUser, toast$, setModal, setView, setProjects, openProject } = ctx;
   const [busy, setBusy] = useState(false);
 
   // Editable details state
@@ -1600,6 +1644,11 @@ function ProjectSettingsModal({ ctx, proj }) {
     });
     setSavingDetails(false);
     if (error) { setEditErr(error.message); return; }
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: "Project details edited",
+      actorId: authUser.id,
+    });
     const { data } = await fetchProjects();
     setProjects(data || []);
     toast$("Project details updated!");
@@ -1612,6 +1661,11 @@ function ProjectSettingsModal({ ctx, proj }) {
     const { error } = await archiveProject(proj.id, !proj.archived);
     setBusy(false);
     if (error) { toast$(error.message, "err"); return; }
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: proj.archived ? "Project restored" : "Project archived",
+      actorId: authUser.id,
+    });
     const { data } = await fetchProjects();
     setProjects(data || []);
     toast$(proj.archived ? "Project restored!" : "Project archived.");
