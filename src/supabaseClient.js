@@ -87,18 +87,6 @@ export const insertHistory = ({ plotId, action, actorId, note }) =>
   supabase.from("plot_history")
     .insert({ plot_id: plotId, action, actor_id: actorId, note: note || null });
 
-// ── PROJECT HISTORY (reuses plot_history table with plot_id = null) ─
-export const fetchProjectHistory = (projectId) =>
-  supabase.from("plot_history")
-    .select("*, actor:profiles(name)")
-    .eq("project_id", projectId)
-    .is("plot_id", null)
-    .order("created_at", { ascending: false });
-
-export const insertProjectHistory = ({ projectId, action, actorId, note }) =>
-  supabase.from("plot_history")
-    .insert({ project_id: projectId, plot_id: null, action, actor_id: actorId, note: note || null });
-
 // ── FILES ─────────────────────────────────────────────────────────
 export const fetchFiles = (projectId) =>
   supabase.from("project_files").select("*")
