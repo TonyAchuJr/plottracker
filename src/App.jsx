@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import * as XLSX from "xlsx";
 import "./styles.css";
 import {
-  supabase, authSignUp, authSignIn, authSignOut, getSession,
+  supabase, authSignUp, authSignIn, authSignOut, resetPassword, getSession,
   fetchProfile, fetchAllProfiles,
   fetchProjects, insertProject, deleteProject, archiveProject, updateProject,
   fetchPlots, insertPlots, patchPlot,
-  fetchHistory, insertHistory,
+  fetchHistory, insertHistory, fetchProjectHistory, insertProjectHistory,
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
   sendOwnerCode, verifyOwnerCode,
@@ -30,6 +30,7 @@ export default function App() {
   const [plots, setPlots]       = useState([]);
   const [files, setFiles]       = useState([]);
   const [history, setHistory]   = useState([]);
+  const [projHistory, setProjHistory] = useState([]);
   const [projId, setProjId]     = useState(null);
   const [plotId, setPlotId]     = useState(null);
   const [toast, setToast]       = useState(null);
@@ -125,8 +126,8 @@ export default function App() {
   /* ── Navigation helpers ────────────────────────────────────────── */
   async function openProject(id) {
     setProjId(id); setPlotId(null); setBusy(true);
-    const [{ data: pl }, { data: fi }] = await Promise.all([fetchPlots(id), fetchFiles(id)]);
-    setPlots(pl || []); setFiles(fi || []);
+    const [{ data: pl }, { data: fi }, { data: ph }] = await Promise.all([fetchPlots(id), fetchFiles(id), fetchProjectHistory(id)]);
+    setPlots(pl || []); setFiles(fi || []); setProjHistory(ph || []);
     setBusy(false); setView("project");
   }
   async function openPlot(id) {
@@ -143,6 +144,7 @@ export default function App() {
     dark, toggleDark, authUser, profile, profiles,
     projects, setProjects, plots, setPlots,
     files, setFiles, history, setHistory,
+    projHistory, setProjHistory,
     projId, setProjId, plotId, setPlotId,
     toast$, setView, setModal, busy, setBusy,
     openProject, openPlot,
@@ -154,10 +156,12 @@ export default function App() {
     <>
       {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
       {modal  && <ModalShell modal={modal} ctx={ctx} proj={proj} plot={plot} />}
-      {view === "landing"  && <Landing ctx={ctx} />}
-      {view === "login"    && <LoginPage ctx={ctx} />}
+      {view === "landing"         && <Landing ctx={ctx} />}
+      {view === "login"           && <LoginPage ctx={ctx} />}
+      {view === "forgot-password" && <ForgotPasswordPage ctx={ctx} />}
+      {view === "reset-password"  && <ResetPasswordPage ctx={ctx} />}
       {view === "public-projects" && <PublicProjects ctx={ctx} />}
-      {view === "register" && <RegisterPage ctx={ctx} />}
+      {view === "register"        && <RegisterPage ctx={ctx} />}
       {(view === "dashboard" || view === "project" || view === "plot") && (
         <Shell ctx={ctx}>
           {view === "dashboard" && <Dashboard ctx={ctx} />}
@@ -291,20 +295,141 @@ function LoginPage({ ctx }) {
       }
       return;
     }
-    // onAuthStateChange handles redirect automatically
   };
   return (
-    <div className="auth-wrap">
+    <div className="auth-wrap" style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/login-bg.jpg)` }}>
       <div className="auth-card">
         <AuthTop ctx={ctx} title="Welcome back" sub="Sign in to your PlotTracker account" />
         <Fi label="Email" value={email} onChange={setEmail} type="email" />
         <Fi label="Password" value={pass} onChange={setPass} type="password" />
         {err && <Err>{err}</Err>}
         <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
+        <p className="tmuted tsm" style={{ textAlign: "center", marginBottom: 10 }}>
+          <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("forgot-password")}>Forgot password?</span>
+        </p>
         <p className="tmuted tsm" style={{ textAlign: "center" }}>
           No account? <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("register")}>Register</span>
           {" · "}<span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("landing")}>Back</span>
         </p>
+      </div>
+    </div>
+  );
+}
+
+/* ── Forgot Password Page ─────────────────────────────────────── */
+function ForgotPasswordPage({ ctx }) {
+  const { setView, dark, toggleDark } = ctx;
+  const [email, setEmail] = useState("");
+  const [err, setErr]     = useState("");
+  const [busy, setBusy]   = useState(false);
+  const [done, setDone]   = useState(false);
+
+  const go = async () => {
+    if (!email.trim()) { setErr("Please enter your email address."); return; }
+    setBusy(true); setErr("");
+    const { error } = await resetPassword(email.trim().toLowerCase());
+    setBusy(false);
+    if (error) { setErr(error.message); return; }
+    setDone(true);
+  };
+
+  if (done) {
+    return (
+      <div className="auth-wrap">
+        <div className="auth-card" style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>📧</div>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--text)", marginBottom: 10 }}>Check your email</h2>
+          <p className="tmuted tsm" style={{ marginBottom: 20, lineHeight: 1.6 }}>
+            A password reset link has been sent to <strong style={{ color: "var(--text)" }}>{email}</strong>.
+            Click the link in the email to set a new password.
+          </p>
+          <div style={{ background: "var(--gold-dim)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "var(--gold-light)", lineHeight: 1.6 }}>
+            Check your spam/junk folder if you do not see it. The link expires in 1 hour.
+          </div>
+          <button className="btn-primary btn-full" onClick={() => setView("login")}>Back to Sign in</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="auth-wrap">
+      <div className="auth-card">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <div className="flex aic g2" style={{ cursor: "pointer" }} onClick={() => setView("landing")}>
+            <div className="header-logo-icon">🏘️</div>
+            <span className="header-logo-text" style={{ fontSize: 15 }}>PlotTracker</span>
+          </div>
+          <button className="theme-btn" onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
+        </div>
+        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 25, color: "var(--text)", marginBottom: 6 }}>Forgot password?</h2>
+        <p className="tmuted tsm mb3">Enter the email address linked to your account. We'll send you a reset link.</p>
+        <Fi label="Email address *" value={email} onChange={setEmail} type="email" placeholder="you@example.com" />
+        {err && <Err>{err}</Err>}
+        <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>
+          {busy ? "Sending…" : "Send Reset Link"}
+        </button>
+        <p className="tmuted tsm" style={{ textAlign: "center" }}>
+          Remembered it? <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("login")}>Back to Sign in</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/* ── Reset Password Page (user arrives here after clicking email link) ── */
+function ResetPasswordPage({ ctx }) {
+  const { setView, toast$ } = ctx;
+  const [pass, setPass]   = useState("");
+  const [pass2, setPass2] = useState("");
+  const [err, setErr]     = useState("");
+  const [busy, setBusy]   = useState(false);
+  const [done, setDone]   = useState(false);
+
+  // Supabase automatically handles the token from the URL when the
+  // user lands on this page — we just need to call updateUser.
+  const go = async () => {
+    if (!pass || !pass2)         { setErr("Both fields are required."); return; }
+    if (pass.length < 6)         { setErr("Password must be at least 6 characters."); return; }
+    if (pass !== pass2)          { setErr("Passwords do not match."); return; }
+    setBusy(true); setErr("");
+    const { error } = await supabase.auth.updateUser({ password: pass });
+    setBusy(false);
+    if (error) { setErr(error.message); return; }
+    setDone(true);
+    toast$("Password updated successfully!");
+  };
+
+  if (done) {
+    return (
+      <div className="auth-wrap">
+        <div className="auth-card" style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--text)", marginBottom: 10 }}>Password updated!</h2>
+          <p className="tmuted tsm" style={{ marginBottom: 20, lineHeight: 1.6 }}>
+            Your password has been reset successfully. You can now sign in with your new password.
+          </p>
+          <button className="btn-primary btn-full" onClick={() => setView("login")}>Sign in now</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="auth-wrap">
+      <div className="auth-card">
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+          <div className="header-logo-icon">🏘️</div>
+          <span className="header-logo-text" style={{ fontSize: 15 }}>PlotTracker</span>
+        </div>
+        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 25, color: "var(--text)", marginBottom: 6 }}>Set new password</h2>
+        <p className="tmuted tsm mb3">Choose a strong password for your account.</p>
+        <Fi label="New Password * (min 6)" value={pass}  onChange={setPass}  type="password" placeholder="Enter new password" />
+        <Fi label="Confirm Password *"     value={pass2} onChange={setPass2} type="password" placeholder="Repeat new password" />
+        {err && <Err>{err}</Err>}
+        <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>
+          {busy ? "Updating…" : "Update Password"}
+        </button>
       </div>
     </div>
   );
@@ -591,6 +716,11 @@ function Dashboard({ ctx }) {
     e.stopPropagation();
     const { error } = await archiveProject(proj.id, !proj.archived);
     if (error) { toast$(error.message, "err"); return; }
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: proj.archived ? "Project restored" : "Project archived",
+      actorId: authUser.id,
+    });
     const { data } = await fetchProjects();
     setProjects(data || []);
     toast$(proj.archived ? "Project restored!" : "Project archived.");
@@ -670,11 +800,10 @@ function Dashboard({ ctx }) {
                 <ProjCard
                   proj={p} profiles={ctx.profiles}
                   onClick={() => !p.archived && openProject(p.id)}
-                  isOwner={p.owner_id === authUser?.id}
-                  onArchive={isOwner && p.owner_id === authUser?.id ? (e) => handleArchive(p, e) : null}
-                  onDelete={isOwner && p.owner_id === authUser?.id ? (e) => handleDelete(p, e) : null}
-                  authUser={authUser}
-setProjects={setProjects}
+                  isOwner={isOwner}
+                  onArchive={isOwner ? (e) => handleArchive(p, e) : null}
+                  onDelete={isOwner ? (e) => handleDelete(p, e) : null}
+                  setProjects={setProjects}
                 />
               </div>
             ))}
@@ -684,7 +813,7 @@ setProjects={setProjects}
   );
 }
 
-function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authUser, setProjects }) {
+function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, setProjects }) {
   const owner  = profiles.find(u => u.id === proj.owner_id);
   const pplots = proj._plots || [];
   const total = pplots.length, sold = pplots.filter(p => p.status === "sold").length,
@@ -788,6 +917,12 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
       })
       .eq("id", proj.id);
 
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: "Cover image updated",
+      actorId: authUser.id,
+    });
+
     const { data: projectsData } = await fetchProjects();
     setProjects(projectsData || []);
 
@@ -844,9 +979,8 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, authU
    PROJECT VIEW
 ════════════════════════════════════════════════════════════════ */
 function ProjectView({ proj, ctx }) {
-  const { profile, authUser, plots, files, setView, openPlot, setModal, busy, profiles } = ctx;
+  const { profile, plots, files, setView, openPlot, setModal, busy, profiles } = ctx;
   const isOwnerRole    = profile?.role === "owner";
-  const isProjectOwner = proj.owner_id === authUser?.id;
   const total = plots.length, sold = plots.filter(p => p.status === "sold").length,
         bkd   = plots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
   const [filter, setFilter] = useState("all");
@@ -896,12 +1030,28 @@ function ProjectView({ proj, ctx }) {
 
       <div className="flex g2 mb3 afu3 scroll-row">
         {files.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "view-files", proj })}>📎 Files ({files.length})</button>}
-        {isProjectOwner && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>⬆ Upload Layout</button>}
+        {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>⬆ Upload Layout</button>}
         {isOwnerRole    && <button className="btn-primary" onClick={() => setModal({ type: "add-plots", proj })}>+ Add Plots</button>}
         {isOwnerRole && plots.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "bulk-edit-plots", proj })}>✏️ Edit All Plots</button>}
         {isOwnerRole    && <ReportBtn projects={[proj]} allPlots={plots} profiles={ctx.profiles} single />}
-        {isProjectOwner && <button className="btn-ghost" onClick={() => setModal({ type: "project-settings", proj })}>⚙️ Settings</button>}
+        {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "project-settings", proj })}>⚙️ Settings</button>}
       </div>
+
+      {isOwnerRole && ctx.projHistory.length > 0 && (
+        <div className="card afu3 mb3">
+          <div className="sec-head">Project Activity</div>
+          {ctx.projHistory.map(h => (
+            <div key={h.id} className="titem">
+              <Av name={h.actor?.name || "?"} size={31} />
+              <div style={{ minWidth: 0 }}>
+                <div className="semi tsm" style={{ color: "var(--text)" }}>{h.action}</div>
+                <div className="txs tmuted">edited by {h.actor?.name || "System"} · {TFMT.format(new Date(h.created_at))}</div>
+                {h.note && <div className="tsm tmuted" style={{ marginTop: 2 }}>{h.note}</div>}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="flex g2 mb3 afu4 fw aic">
         <div className="srch">
@@ -1110,7 +1260,7 @@ function AboutModal({ ctx }) {
         </div>
         <div className="info-row">
           <span className="info-row-label">Version</span>
-          <span className="info-row-value mono">2.2.0</span>
+          <span className="info-row-value mono">2.0.0</span>
         </div>
         <div className="info-row">
           <span className="info-row-label">Built with</span>
@@ -1496,30 +1646,38 @@ function BulkEditPlotsModal({ ctx, proj }) {
 }
 
 function UploadFileModal({ ctx, proj }) {
-  const { authUser, toast$, setModal, setFiles, setProjects } = ctx;
+  const { authUser, toast$, setModal, setFiles, setProjects, setProjHistory } = ctx;
   const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [busy,setBusy]=useState(false); const ref=useRef();
   const go = async () => {
     if (!pending.length) return;
     setBusy(true);
     for (const file of pending) {
-
-  const { data } = await uploadFile({
-    projectId: proj.id,
-    file,
-    label,
-    userId: authUser.id
-  });
-
-  if (file.type.startsWith("image/")) {
-    await supabase
-      .from("projects")
-      .update({ cover_image: data?.storage_path || data?.[0]?.storage_path })
-      .eq("id", proj.id);
-  }
-}
-    const { data } = await fetchFiles(proj.id); setFiles(data||[]);
-    const { data: projectsData } = await fetchProjects();
-setProjects(projectsData || []);
+      const { data } = await uploadFile({
+        projectId: proj.id,
+        file,
+        label,
+        userId: authUser.id
+      });
+      if (file.type.startsWith("image/")) {
+        await supabase
+          .from("projects")
+          .update({ cover_image: data?.storage_path || data?.[0]?.storage_path })
+          .eq("id", proj.id);
+      }
+    }
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: `Uploaded ${pending.length} file(s)${label ? `: ${label}` : ""}`,
+      actorId: authUser.id,
+    });
+    const [{ data: fi }, { data: ph }, { data: projectsData }] = await Promise.all([
+      fetchFiles(proj.id),
+      fetchProjectHistory(proj.id),
+      fetchProjects(),
+    ]);
+    setFiles(fi || []);
+    setProjHistory(ph || []);
+    setProjects(projectsData || []);
     setBusy(false); toast$(`${pending.length} file(s) uploaded!`); setModal(null);
   };
   return <>
@@ -1542,9 +1700,17 @@ setProjects(projectsData || []);
 }
 
 function ViewFilesModal({ ctx, proj }) {
-  const { authUser, toast$, setModal, files, setFiles } = ctx;
-  const isProjOwner = proj.owner_id === authUser?.id;
-  const del = async (id, path) => { await removeFile(id, path); const { data } = await fetchFiles(proj.id); setFiles(data||[]); toast$("File removed."); };
+  const { authUser, profile, toast$, setModal, files, setFiles } = ctx;
+  const isOwnerRole = profile?.role === "owner";
+  const del = async (id, path, label) => {
+    await removeFile(id, path);
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: `Deleted file: ${label}`,
+      actorId: authUser.id,
+    });
+    const { data } = await fetchFiles(proj.id); setFiles(data||[]); toast$("File removed.");
+  };
   return <>
     <h3 className="sheet-title">Layout Files — {proj.name}</h3>
     {files.length === 0
@@ -1563,7 +1729,7 @@ function ViewFilesModal({ ctx, proj }) {
                 </div>
                 <div className="flex g2">
                   <a href={f.storage_path} target="_blank" rel="noreferrer" download className="btn-secondary" style={{padding:"8px 13px",borderRadius:7,fontSize:13}}>⬇ Download</a>
-                  {isProjOwner && <button className="btn-danger" onClick={()=>del(f.id,f.storage_path)}>Delete</button>}
+                  {isOwnerRole && <button className="btn-danger" onClick={()=>del(f.id,f.storage_path,f.label||f.name)}>Delete</button>}
                 </div>
               </div>
             </div>
@@ -1578,7 +1744,7 @@ function ViewFilesModal({ ctx, proj }) {
    PROJECT SETTINGS MODAL (Archive / Delete)
 ════════════════════════════════════════════════════════════════ */
 function ProjectSettingsModal({ ctx, proj }) {
-  const { toast$, setModal, setView, setProjects, openProject } = ctx;
+  const { authUser, toast$, setModal, setView, setProjects, openProject } = ctx;
   const [busy, setBusy] = useState(false);
 
   // Editable details state
@@ -1600,6 +1766,11 @@ function ProjectSettingsModal({ ctx, proj }) {
     });
     setSavingDetails(false);
     if (error) { setEditErr(error.message); return; }
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: "Project details edited",
+      actorId: authUser.id,
+    });
     const { data } = await fetchProjects();
     setProjects(data || []);
     toast$("Project details updated!");
@@ -1612,6 +1783,11 @@ function ProjectSettingsModal({ ctx, proj }) {
     const { error } = await archiveProject(proj.id, !proj.archived);
     setBusy(false);
     if (error) { toast$(error.message, "err"); return; }
+    await insertProjectHistory({
+      projectId: proj.id,
+      action: proj.archived ? "Project restored" : "Project archived",
+      actorId: authUser.id,
+    });
     const { data } = await fetchProjects();
     setProjects(data || []);
     toast$(proj.archived ? "Project restored!" : "Project archived.");
