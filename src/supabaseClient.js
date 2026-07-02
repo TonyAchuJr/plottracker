@@ -14,6 +14,11 @@ export const authSignIn = ({ email, password }) =>
 
 export const authSignOut = () => supabase.auth.signOut();
 
+export const resetPassword = (email) =>
+  supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}`,
+  });
+
 export const getSession = async () => {
   const { data } = await supabase.auth.getSession();
   return data.session;
