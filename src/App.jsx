@@ -804,6 +804,7 @@ function Dashboard({ ctx }) {
               <div key={p.id} className="afu" style={{ animationDelay: `${i * 0.05}s` }}>
                 <ProjCard
                   proj={p} profiles={ctx.profiles}
+                  authUser={authUser}
                   onClick={() => !p.archived && openProject(p.id)}
                   isOwner={isOwner}
                   onArchive={isOwner ? (e) => handleArchive(p, e) : null}
@@ -818,7 +819,7 @@ function Dashboard({ ctx }) {
   );
 }
 
-function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, setProjects }) {
+function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDelete, setProjects }) {
   const owner  = profiles.find(u => u.id === proj.owner_id);
   const pplots = proj._plots || [];
   const total = pplots.length, sold = pplots.filter(p => p.status === "sold").length,
