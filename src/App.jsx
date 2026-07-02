@@ -221,11 +221,14 @@ function UpdatePopup({ version, onClose }) {
 
                     <li>✅ Premium Homepage</li>
 
-                    <li>✅ Bugs fixed</li>
+                    <li>✅ Bugs in cards menu fixed</li>
 
                     <li>✅ Added feature that any user with owner access can upload, archive, delete project</li>
 
                     <li>✅ Included the forgot password feature, users can sent password resent request to their mail and reset</li>
+
+                    <li>⚠️ Bugs found in forgot password. reset link. I will be fixed in future.</li>
+
 
                 </ul>
 
