@@ -54,6 +54,11 @@ export default function App() {
       else setView("landing");
     })();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY") {
+        // User clicked the reset link in their email — show the set-new-password page
+        setView("reset-password");
+        return;
+      }
       if (event === "SIGNED_IN" && session?.user) await loadUser(session.user);
       if (event === "SIGNED_OUT") { setAuthUser(null); setProfile(null); setProjects([]); setView("landing"); }
     });
@@ -976,7 +981,7 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, setPr
 }
 
 /* ════════════════════════════════════════════════════════════════
-   PROJECT VIEW ---
+   PROJECT VIEW
 ════════════════════════════════════════════════════════════════ */
 function ProjectView({ proj, ctx }) {
   const { profile, plots, files, setView, openPlot, setModal, busy, profiles } = ctx;
