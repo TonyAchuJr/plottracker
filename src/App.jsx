@@ -1321,7 +1321,7 @@ function AboutModal({ ctx }) {
         </div>
         <div className="info-row">
           <span className="info-row-label">Version</span>
-          <span className="info-row-value mono">2.0.0</span>
+          <span className="info-row-value mono">2.3.1</span>
         </div>
         <div className="info-row">
           <span className="info-row-label">Built with</span>
