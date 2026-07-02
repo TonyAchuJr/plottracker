@@ -145,7 +145,7 @@ export const subProjects = (cb) =>
     .on("postgres_changes", { event: "*", schema: "public", table: "projects" }, cb)
     .subscribe();
 
-// ── OWNER ACCESS CODE ─────────────────────────────────────────────
+// ── OWNER ACCESS CODE ─────────────────────────────────────────────===
 // Calls Edge Functions (server-side) which generate/verify a random
 // 6-digit code with a 10-minute expiry, emailed to a fixed address.
 
