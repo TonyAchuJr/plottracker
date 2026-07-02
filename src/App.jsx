@@ -20,6 +20,7 @@ const inr  = v => v ? `₹${Number(v).toLocaleString("en-IN")}` : "";
 /* ════════════════════════════════════════════════════════════════
    ROOT
 ════════════════════════════════════════════════════════════════ */
+const APP_VERSION = "2.3.0";
 export default function App() {
   const [dark, setDark]       = useState(() => localStorage.getItem("pt_theme") !== "light");
   const [view, setView]       = useState("booting");
@@ -36,7 +37,7 @@ export default function App() {
   const [toast, setToast]       = useState(null);
   const [modal, setModal]       = useState(null);
   const [busy, setBusy]         = useState(false);
-
+  const [showUpdate, setShowUpdate] = useState(false);
   const toast$ = (msg, type = "ok") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
@@ -52,6 +53,11 @@ export default function App() {
       const session = await getSession();
       if (session?.user) await loadUser(session.user);
       else setView("landing");
+      const lastSeen = localStorage.getItem("pt_last_seen");
+
+if (lastSeen !== APP_VERSION) {
+    setShowUpdate(true);
+}
     })();
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "PASSWORD_RECOVERY") {
@@ -64,7 +70,10 @@ export default function App() {
     });
     return () => subscription.unsubscribe();
   }, []);
-
+const closeUpdate = () => {
+    localStorage.setItem("pt_last_seen", APP_VERSION);
+    setShowUpdate(false);
+};
   async function loadUser(u) {
     setAuthUser(u);
 
@@ -159,6 +168,12 @@ export default function App() {
 
   return (
     <>
+      {showUpdate && (
+    <UpdatePopup
+        version={APP_VERSION}
+        onClose={closeUpdate}
+    />
+)}
       {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
       {modal  && <ModalShell modal={modal} ctx={ctx} proj={proj} plot={plot} />}
       {view === "landing"         && <Landing ctx={ctx} />}
@@ -188,7 +203,44 @@ function Booting() {
     </div>
   );
 }
+function UpdatePopup({ version, onClose }) {
+    return (
+        <div className="update-overlay">
 
+            <div className="update-box">
+
+                <div className="update-title">
+                    📢 AIRAA Updates
+                </div>
+
+                <div className="update-version">
+                    Version {version}
+                </div>
+
+                <ul className="update-list">
+
+                    <li>✅ Premium Homepage</li>
+
+                    <li>✅ Bugs fixed</li>
+
+                    <li>✅ Added feature that any user with owner access can upload, archive, delete project</li>
+
+                    <li>✅ Included the forgot password feature, users can sent password resent request to their mail and reset</li>
+
+                </ul>
+
+                <button
+                    className="btn-primary btn-full"
+                    onClick={onClose}
+                >
+                    Got it
+                </button>
+
+            </div>
+
+        </div>
+    );
+}
 /* ── Spinner ─────────────────────────────────────────────────────── */
 function Spin() {
   return <div className="spinner-wrap"><div className="spinner" /></div>;
