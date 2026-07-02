@@ -20,7 +20,7 @@ const inr  = v => v ? `₹${Number(v).toLocaleString("en-IN")}` : "";
 /* ════════════════════════════════════════════════════════════════
    ROOT
 ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "2.3.0";
+const APP_VERSION = "2.3.1";
 export default function App() {
   const [dark, setDark]       = useState(() => localStorage.getItem("pt_theme") !== "light");
   const [view, setView]       = useState("booting");
