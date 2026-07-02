@@ -976,7 +976,7 @@ function ProjCard({ proj, profiles, onClick, isOwner, onArchive, onDelete, setPr
 }
 
 /* ════════════════════════════════════════════════════════════════
-   PROJECT VIEW
+   PROJECT VIEW ---
 ════════════════════════════════════════════════════════════════ */
 function ProjectView({ proj, ctx }) {
   const { profile, plots, files, setView, openPlot, setModal, busy, profiles } = ctx;
