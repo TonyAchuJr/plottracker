@@ -10,7 +10,7 @@ import {
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
   sendOwnerCode, verifyOwnerCode,
-
+createEnquiry,
 fetchBuyerEnquiries,
 fetchOwnerEnquiries,
 
@@ -216,15 +216,38 @@ setView("dashboard");
 `}
 />
       {showEnquiryModal && selectedProject && (
-    <BuyerEnquiryModal
-    open={showEnquiryModal}
-    project={selectedProject}
-    onClose={() => setShowEnquiryModal(false)}
-    onSubmit={(form) => {
-      console.log(form);
-      setShowEnquiryModal(false);
-    }}
-  />
+   <BuyerEnquiryModal
+  open={showEnquiryModal}
+  project={selectedProject}
+  onClose={() => setShowEnquiryModal(false)}
+  onSubmit={async (form) => {
+    const { error } = await createEnquiry({
+      buyer_id: profile.id,
+      owner_id: selectedProject.owner_id,
+      project_id: selectedProject.id,
+      enquiry_type: form.enquiry_type,
+      category: form.category,
+      location: form.location,
+      budget_min: form.budget_min || null,
+      budget_max: form.budget_max || null,
+      description: form.description,
+      priority: form.priority,
+      status: "Pending",
+      is_read: false,
+    });
+
+    if (error) {
+      toast$(error.message, "err");
+      return;
+    }
+
+    toast$("Enquiry submitted successfully");
+    setShowEnquiryModal(false);
+
+    const { data } = await fetchBuyerEnquiries(profile.id);
+    setBuyerEnquiries(data || []);
+  }}
+/>
 )}
       {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
       {modal  && <ModalShell modal={modal} ctx={ctx} proj={proj} plot={plot} />}
@@ -819,6 +842,7 @@ function Shell({ ctx, children }) {
 function Dashboard({ ctx }) {
   const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects, setView, } = ctx;
   const isOwner = profile?.role === "owner";
+  const unreadEnquiries = ownerEnquiries.filter(e => !e.is_read).length;
   const [tab, setTab] = useState("active"); // "active" | "archived"
   const allPlots = projects.flatMap(p => p._plots || []);
 
@@ -874,6 +898,17 @@ function Dashboard({ ctx }) {
       Sign In
     </button>
   </div>
+)}
+        {isOwner && unreadEnquiries > 0 && (
+  <button
+    className="btn-primary"
+    onClick={() => setView("owner-enquiries")}
+    style={{
+      marginBottom: 12
+    }}
+  >
+    🔔 Enquiries ({unreadEnquiries})
+  </button>
 )}
         </div>
         <div className="flex g2 fw">
