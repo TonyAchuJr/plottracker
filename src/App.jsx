@@ -11,7 +11,7 @@ import {
   subPlots, subProjects,
   sendOwnerCode, verifyOwnerCode,
 } from "./supabaseClient";
-
+import FloatingAnnouncement from "./FloatingAnnouncement";
 /* ── Helpers ─────────────────────────────────────────────────────── */
 const DFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" });
 const TFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" });
@@ -174,6 +174,19 @@ const closeUpdate = () => {
         onClose={closeUpdate}
     />
 )}
+      <FloatingAnnouncement
+    version="2.3.0"
+    title="Latest Updates"
+    message={`
+• Bugs in cards menu fixed
+
+• any owner user login can now edit the projects
+
+• added forgot password feature
+
+• Orb for announcement pop up
+`}
+/>
       {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
       {modal  && <ModalShell modal={modal} ctx={ctx} proj={proj} plot={plot} />}
       {view === "landing"         && <Landing ctx={ctx} />}
