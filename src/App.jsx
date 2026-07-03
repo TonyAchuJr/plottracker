@@ -13,7 +13,8 @@ import {
 createEnquiry,
 fetchBuyerEnquiries,
 fetchOwnerEnquiries,
-
+replyEnquiry,
+markEnquiryRead,
 
 } from "./supabaseClient";
 import FloatingAnnouncement from "./FloatingAnnouncement";
@@ -188,6 +189,8 @@ setView("dashboard");
     toast$, setView, setModal, busy, setBusy,
     openProject, openPlot, buyerEnquiries,
   ownerEnquiries,
+    setOwnerEnquiries,
+setBuyerEnquiries,
   setSelectedProject,
   setShowEnquiryModal
   };
@@ -257,16 +260,33 @@ setView("dashboard");
       {view === "reset-password"  && <ResetPasswordPage ctx={ctx} />}
       {view === "public-projects" && <PublicProjects ctx={ctx} />}
       {view === "register"        && <RegisterPage ctx={ctx} />}
-      {(view === "dashboard" || view === "project" || view === "plot") && (
-        <Shell ctx={ctx}>
-          {view === "dashboard" && <Dashboard ctx={ctx} />}
-          {view === "buyer-notifications" && (
-  <BuyerNotifications ctx={ctx} />
+      {(
+  view === "dashboard" ||
+  view === "project" ||
+  view === "plot" ||
+  view === "buyer-notifications" ||
+  view === "owner-enquiries"
+) && (
+  <Shell ctx={ctx}>
+    {view === "dashboard" && <Dashboard ctx={ctx} />}
+
+    {view === "buyer-notifications" && (
+      <BuyerNotifications ctx={ctx} />
+    )}
+
+    {view === "owner-enquiries" && (
+      <OwnerEnquiries ctx={ctx} />
+    )}
+
+    {view === "project" && proj && (
+      <ProjectView proj={proj} ctx={ctx} />
+    )}
+
+    {view === "plot" && plot && proj && (
+      <PlotView plot={plot} proj={proj} ctx={ctx} />
+    )}
+  </Shell>
 )}
-          {view === "project"   && proj && <ProjectView proj={proj} ctx={ctx} />}
-          {view === "plot"      && plot && proj && <PlotView plot={plot} proj={proj} ctx={ctx} />}
-        </Shell>
-      )}
     </>
   );
 }
@@ -1352,6 +1372,112 @@ function BuyerNotifications({ ctx }) {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+function OwnerEnquiries({ ctx }) {
+  const {
+    ownerEnquiries,
+    profile,
+    setView
+  } = ctx;
+
+  if (!profile) return null;
+
+  return (
+    <div className="page">
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20
+        }}
+      >
+        <h2>🔔 Buyer Enquiries</h2>
+
+        <button
+          className="btn-secondary"
+          onClick={() => setView("dashboard")}
+        >
+          ← Back
+        </button>
+      </div>
+
+      <div
+        style={{
+          display: "grid",
+          gap: "16px"
+        }}
+      >
+        {ownerEnquiries.length === 0 ? (
+  <div className="card">
+    <h3>No enquiries</h3>
+    <p>No buyers have contacted you yet.</p>
+  </div>
+) : (
+  ownerEnquiries.map((item) => (
+    <div
+      key={item.id}
+      className="card"
+      style={{
+        padding: "18px",
+        borderRadius: "12px"
+      }}
+    >
+      <h3>{item.project_name || "Project"}</h3>
+
+      <p><strong>Buyer:</strong> {item.buyer_name || item.buyer_id}</p>
+
+      <p><strong>Category:</strong> {item.category}</p>
+
+      <p><strong>Budget:</strong> ₹{item.budget_min || 0} - ₹{item.budget_max || 0}</p>
+
+      <p><strong>Message:</strong></p>
+
+      <p>{item.description}</p>
+
+<hr style={{ margin: "16px 0" }} />
+
+<textarea
+  placeholder="Type your reply to the buyer..."
+  defaultValue={item.owner_reply || ""}
+  rows={4}
+  id={`reply-${item.id}`}
+  style={{
+    width: "100%",
+    padding: "10px",
+    borderRadius: "8px",
+    marginBottom: "12px"
+  }}
+/>
+
+<button
+  className="btn-primary"
+  onClick={async () => {
+    const reply = document.getElementById(`reply-${item.id}`).value;
+
+    if (!reply.trim()) {
+      alert("Please enter a reply.");
+      return;
+    }
+
+    await replyEnquiry(item.id, reply);
+
+alert("Reply sent successfully.");
+
+const { data } = await fetchOwnerEnquiries(profile.id);
+ctx.setOwnerEnquiries(data || []);
+  }}
+>
+  Send Reply
+</button>
+
+</div>
+  ))
+)}
+   </div>
     </div>
   );
 }
