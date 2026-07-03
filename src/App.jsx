@@ -210,11 +210,17 @@ setBuyerEnquiries,
     message={`
 • Bugs in cards menu fixed
 
-• any owner user login can now edit the projects
+• Any owner user login can now edit the projects
 
-• added forgot password feature
+• Buyers/Viewers can now send Enquiries. 
+Just click on the project card > click on Request Information and fill the fields and you'll reach it out from agents 
 
-• Orb for announcement pop up
+• Owners can view the enquiries sent by buyers. 
+Just click on Enquires and respond to them (for Eg: we'll get back soon)
+
+• Added forgot password feature(bugs need to be fixed)
+
+• Orb for announcement pop up move anywhere on the screen.
 `}
 />
       {showEnquiryModal && selectedProject && (
