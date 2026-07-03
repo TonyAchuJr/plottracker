@@ -166,3 +166,50 @@ export const verifyOwnerCode = async (code, requesterEmail) => {
   if (data?.error) return { valid: false, error: { message: data.error } };
   return { valid: data?.valid === true };
 };
+// =========================
+// BUYER ENQUIRIES
+// =========================
+
+export const createEnquiry = async (data) => {
+  return supabase
+    .from("buyer_enquiries")
+    .insert(data)
+    .select()
+    .single();
+};
+
+export const fetchBuyerEnquiries = async (buyerId) => {
+  return supabase
+    .from("buyer_enquiries")
+    .select("*")
+    .eq("buyer_id", buyerId)
+    .order("created_at", { ascending: false });
+};
+
+export const fetchOwnerEnquiries = async (ownerId) => {
+  return supabase
+    .from("buyer_enquiries")
+    .select("*")
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: false });
+};
+
+export const replyEnquiry = async (id, reply) => {
+  return supabase
+    .from("buyer_enquiries")
+    .update({
+      owner_reply: reply,
+      status: "Answered",
+      is_read: true
+    })
+    .eq("id", id);
+};
+
+export const markEnquiryRead = async (id) => {
+  return supabase
+    .from("buyer_enquiries")
+    .update({
+      is_read: true
+    })
+    .eq("id", id);
+};
