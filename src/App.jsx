@@ -225,7 +225,6 @@ setView("dashboard");
       setShowEnquiryModal(false);
     }}
   />
-  />
 )}
       {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
       {modal  && <ModalShell modal={modal} ctx={ctx} proj={proj} plot={plot} />}
