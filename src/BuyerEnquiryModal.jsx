@@ -115,7 +115,7 @@ onChange={(e)=>setForm({...form,category:e.target.value})}
 
 <option value="">Select</option>
 
-<option>Document Dispute</option>
+<option>Document Disputes</option>
 
 <option>DTCP Approval</option>
 
