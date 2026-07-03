@@ -956,6 +956,8 @@ function Dashboard({ ctx }) {
                   onArchive={isOwner ? (e) => handleArchive(p, e) : null}
                   onDelete={isOwner ? (e) => handleDelete(p, e) : null}
                   setProjects={setProjects}
+                  setSelectedProject={ctx.setSelectedProject}
+  setShowEnquiryModal={ctx.setShowEnquiryModal}
                 />
               </div>
             ))}
@@ -965,7 +967,7 @@ function Dashboard({ ctx }) {
   );
 }
 
-function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDelete, setProjects }) {
+function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDelete, setProjects, setSelectedProject, setShowEnquiryModal }) {
   const owner  = profiles.find(u => u.id === proj.owner_id);
   const pplots = proj._plots || [];
   const total = pplots.length, sold = pplots.filter(p => p.status === "sold").length,
@@ -1122,6 +1124,24 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
         ))}
       </div>
       <div className="ptrack"><div className="pbar" style={{ width: `${pct}%` }} /></div>
+      {!isOwner && (
+  <button
+    className="btn-primary"
+    style={{
+      width: "100%",
+      marginBottom: 12,
+      padding: "10px",
+      fontWeight: 600
+    }}
+    onClick={(e) => {
+      e.stopPropagation();
+      setSelectedProject(proj);
+      setShowEnquiryModal(true);
+    }}
+  >
+    📩 Request Information
+  </button>
+)}
       <p className="txs mono" style={{ color: "var(--text3)", marginTop: 4 }}>{pct}% sold</p>
     </div>
   );
