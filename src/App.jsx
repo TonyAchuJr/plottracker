@@ -13,8 +13,7 @@ import {
 createEnquiry,
 fetchBuyerEnquiries,
 fetchOwnerEnquiries,
-replyEnquiry,
-markEnquiryRead,
+replyEnquiry
 
 } from "./supabaseClient";
 import FloatingAnnouncement from "./FloatingAnnouncement";
