@@ -216,20 +216,15 @@ setView("dashboard");
 `}
 />
       {showEnquiryModal && selectedProject && (
-  <BuyerEnquiryModal
+    <BuyerEnquiryModal
+    open={showEnquiryModal}
     project={selectedProject}
-    buyer={profile}
     onClose={() => setShowEnquiryModal(false)}
-    onSuccess={async () => {
+    onSubmit={(form) => {
+      console.log(form);
       setShowEnquiryModal(false);
-
-      if (profile?.role === "buyer") {
-        const { data } = await fetchBuyerEnquiries(profile.id);
-        setBuyerEnquiries(data || []);
-      }
-
-      toast$("Enquiry submitted successfully");
     }}
+  />
   />
 )}
       {toast && <div className={`toast toast-${toast.type}`}>{toast.msg}</div>}
