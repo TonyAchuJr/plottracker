@@ -828,7 +828,7 @@ function Shell({ ctx, children }) {
    DASHBOARD
 ════════════════════════════════════════════════════════════════ */
 function Dashboard({ ctx }) {
-  const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects, setView } = ctx;
+  const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects, setView, setSelectedProject, setShowEnquiryModal } = ctx;
   const isOwner = profile?.role === "owner";
   const [tab, setTab] = useState("active"); // "active" | "archived"
   const allPlots = projects.flatMap(p => p._plots || []);
