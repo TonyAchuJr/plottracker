@@ -26,7 +26,7 @@ const inr  = v => v ? `₹${Number(v).toLocaleString("en-IN")}` : "";
 /* ════════════════════════════════════════════════════════════════
    ROOT
 ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "2.3.2";
+const APP_VERSION = "2.3.3";
 export default function App() {
   const [dark, setDark]       = useState(() => localStorage.getItem("pt_theme") !== "light");
   const [view, setView]       = useState("booting");
@@ -205,7 +205,7 @@ setBuyerEnquiries,
     />
 )}
       <FloatingAnnouncement
-    version="2.3.2"
+    version="2.3.3"
     title="Latest Updates"
     message={`
 • Bugs in cards menu fixed
@@ -328,11 +328,9 @@ function UpdatePopup({ version, onClose }) {
 
                     <li>✅ Added feature that any user with owner access can upload, archive, delete project</li>
 
-                    <li>✅ Included the forgot password feature, users can sent password resent request to their mail and reset</li>
+                    <li>✅ Double-Click on the golden orb to view the updates</li>
 
-                    <li>✅ added a orb feature which will show the changes/updates made in the webpage</li>
-
-                    <li>⚠️ Bugs found in forgot password. reset link. I will be fixed in future.</li>
+                    <li>⚠️ Bugs found in forgot password. reset link. It will be fixed in future.</li>
 
 
                 </ul>
@@ -1672,7 +1670,7 @@ function AboutModal({ ctx }) {
         </div>
         <div className="info-row">
           <span className="info-row-label">Version</span>
-          <span className="info-row-value mono">2.3.2</span>
+          <span className="info-row-value mono">2.3.3</span>
         </div>
         <div className="info-row">
           <span className="info-row-label">Built with</span>
