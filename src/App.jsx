@@ -260,6 +260,9 @@ setView("dashboard");
       {(view === "dashboard" || view === "project" || view === "plot") && (
         <Shell ctx={ctx}>
           {view === "dashboard" && <Dashboard ctx={ctx} />}
+          {view === "buyer-notifications" && (
+  <BuyerNotifications ctx={ctx} />
+)}
           {view === "project"   && proj && <ProjectView proj={proj} ctx={ctx} />}
           {view === "plot"      && plot && proj && <PlotView plot={plot} proj={proj} ctx={ctx} />}
         </Shell>
@@ -914,9 +917,43 @@ function Dashboard({ ctx }) {
 )}
         </div>
         <div className="flex g2 fw">
-          {isOwner && <ReportBtn projects={activeProjects} allPlots={allPlots} profiles={ctx.profiles} />}
-          {isOwner && <button className="btn-primary afu1" onClick={() => setModal({ type: "create-project" })}>+ New Project</button>}
-        </div>
+
+  {isOwner && (
+    <button
+      className="btn-primary"
+      onClick={() => setView("owner-enquiries")}
+    >
+      🔔 Enquiries
+    </button>
+  )}
+
+  {!isOwner && (
+    <button
+      className="btn-primary"
+      onClick={() => setView("buyer-notifications")}
+    >
+      🔔 Notifications
+    </button>
+  )}
+
+  {isOwner && (
+    <ReportBtn
+      projects={activeProjects}
+      allPlots={allPlots}
+      profiles={ctx.profiles}
+    />
+  )}
+
+  {isOwner && (
+    <button
+      className="btn-primary afu1"
+      onClick={() => setModal({ type: "create-project" })}
+    >
+      + New Project
+    </button>
+  )}
+
+</div>
       </div>
 
       {/* Tabs */}
@@ -1124,24 +1161,6 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
         ))}
       </div>
       <div className="ptrack"><div className="pbar" style={{ width: `${pct}%` }} /></div>
-      {!isOwner && (
-  <button
-    className="btn-primary"
-    style={{
-      width: "100%",
-      marginBottom: 12,
-      padding: "10px",
-      fontWeight: 600
-    }}
-    onClick={(e) => {
-      e.stopPropagation();
-      setSelectedProject(proj);
-      setShowEnquiryModal(true);
-    }}
-  >
-    📩 Request Information
-  </button>
-)}
       <p className="txs mono" style={{ color: "var(--text3)", marginTop: 4 }}>{pct}% sold</p>
     </div>
   );
@@ -1256,7 +1275,86 @@ function ProjectView({ proj, ctx }) {
     </div>
   );
 }
+function BuyerNotifications({ ctx }) {
+  const {
+    profile,
+    setView,
+    buyerEnquiries
+  } = ctx;
 
+  if (!profile) return null;
+
+  return (
+    <div className="page">
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 20
+        }}
+      >
+        <h2>🔔 Buyer Notifications</h2>
+
+        <button
+          className="btn-secondary"
+          onClick={() => setView("dashboard")}
+        >
+          ← Back
+        </button>
+      </div>
+
+      {buyerEnquiries?.length === 0 ? (
+        <div className="card">
+          <h3>No Notifications</h3>
+          <p>You haven't received any replies yet.</p>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: "grid",
+            gap: "16px"
+          }}
+        >
+          {buyerEnquiries.map((item) => (
+            <div
+              key={item.id}
+              className="card"
+              style={{
+                padding: "18px",
+                borderRadius: "12px"
+              }}
+            >
+              <h3>{item.project_name || "Project"}</h3>
+
+              <p>
+                <strong>Status:</strong> {item.status}
+              </p>
+
+              <p>
+                <strong>Your Enquiry:</strong>
+              </p>
+
+              <p>{item.description}</p>
+
+              <hr />
+
+              <p>
+                <strong>Owner Reply:</strong>
+              </p>
+
+              <p>
+                {item.owner_reply
+                  ? item.owner_reply
+                  : "Waiting for owner response..."}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 function PlotTile({ plot, i, onClick, isOwnerRole }) {
   const C = {
     available: { bg: "var(--emerald-dim)", c: "var(--emerald)", b: "rgba(16,185,129,.28)" },
