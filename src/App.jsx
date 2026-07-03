@@ -10,11 +10,11 @@ import {
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
   sendOwnerCode, verifyOwnerCode,
-  createEnquiry,
+
 fetchBuyerEnquiries,
 fetchOwnerEnquiries,
-replyEnquiry,
-markEnquiryRead,
+
+
 } from "./supabaseClient";
 import FloatingAnnouncement from "./FloatingAnnouncement";
 import BuyerEnquiryModal from "./BuyerEnquiryModal";
@@ -48,17 +48,9 @@ export default function App() {
 const [ownerEnquiries, setOwnerEnquiries] = useState([]);
 const [showEnquiryModal, setShowEnquiryModal] = useState(false);
 const [selectedProject, setSelectedProject] = useState(null);
-const [replyText, setReplyText] = useState("");
 
-const [enquiryForm, setEnquiryForm] = useState({
-  enquiry_type: "",
-  category: "",
-  location: "",
-  budget_min: "",
-  budget_max: "",
-  description: "",
-  priority: "Normal",
-});
+
+
   const toast$ = (msg, type = "ok") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
@@ -831,7 +823,7 @@ function Shell({ ctx, children }) {
    DASHBOARD
 ════════════════════════════════════════════════════════════════ */
 function Dashboard({ ctx }) {
-  const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects, setView, setSelectedProject, setShowEnquiryModal } = ctx;
+  const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects, setView, } = ctx;
   const isOwner = profile?.role === "owner";
   const [tab, setTab] = useState("active"); // "active" | "archived"
   const allPlots = projects.flatMap(p => p._plots || []);
