@@ -1189,7 +1189,7 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
    PROJECT VIEW
 ════════════════════════════════════════════════════════════════ */
 function ProjectView({ proj, ctx }) {
-  const { profile, plots, files, setView, openPlot, setModal, busy, profiles } = ctx;
+  const { profile, plots, files, setView, openPlot, setModal, busy, profiles, setSelectedProject, setShowEnquiryModal } = ctx;
   const isOwnerRole    = profile?.role === "owner";
   const total = plots.length, sold = plots.filter(p => p.status === "sold").length,
         bkd   = plots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
@@ -1240,6 +1240,17 @@ function ProjectView({ proj, ctx }) {
 
       <div className="flex g2 mb3 afu3 scroll-row">
         {files.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "view-files", proj })}>📎 Files ({files.length})</button>}
+        {!isOwnerRole && (
+  <button
+    className="btn-primary"
+    onClick={() => {
+      setSelectedProject(proj);
+      setShowEnquiryModal(true);
+    }}
+  >
+    📩 Request Information
+  </button>
+)}
         {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>⬆ Upload Layout</button>}
         {isOwnerRole    && <button className="btn-primary" onClick={() => setModal({ type: "add-plots", proj })}>+ Add Plots</button>}
         {isOwnerRole && plots.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "bulk-edit-plots", proj })}>✏️ Edit All Plots</button>}
