@@ -194,7 +194,10 @@ setView("dashboard");
     projHistory, setProjHistory,
     projId, setProjId, plotId, setPlotId,
     toast$, setView, setModal, busy, setBusy,
-    openProject, openPlot,
+    openProject, openPlot, buyerEnquiries,
+  ownerEnquiries,
+  setSelectedProject,
+  setShowEnquiryModal
   };
 
   if (view === "booting") return <Booting />;
@@ -1105,7 +1108,7 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
    PROJECT VIEW
 ════════════════════════════════════════════════════════════════ */
 function ProjectView({ proj, ctx }) {
-  const { profile, plots, files, setView, openPlot, setModal, busy, profiles } = ctx;
+  const { profile, plots, files, setView, openPlot, setModal, busy, profiles, setSelectedProject, setShowEnquiryModal } = ctx;
   const isOwnerRole    = profile?.role === "owner";
   const total = plots.length, sold = plots.filter(p => p.status === "sold").length,
         bkd   = plots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
