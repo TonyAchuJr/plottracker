@@ -10,6 +10,11 @@ import {
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
   sendOwnerCode, verifyOwnerCode,
+  createEnquiry,
+fetchBuyerEnquiries,
+fetchOwnerEnquiries,
+replyEnquiry,
+markEnquiryRead,
 } from "./supabaseClient";
 import FloatingAnnouncement from "./FloatingAnnouncement";
 /* ── Helpers ─────────────────────────────────────────────────────── */
@@ -38,6 +43,21 @@ export default function App() {
   const [modal, setModal]       = useState(null);
   const [busy, setBusy]         = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
+  const [buyerEnquiries, setBuyerEnquiries] = useState([]);
+const [ownerEnquiries, setOwnerEnquiries] = useState([]);
+const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+const [selectedProject, setSelectedProject] = useState(null);
+const [replyText, setReplyText] = useState("");
+
+const [enquiryForm, setEnquiryForm] = useState({
+  enquiry_type: "",
+  category: "",
+  location: "",
+  budget_min: "",
+  budget_max: "",
+  description: "",
+  priority: "Normal",
+});
   const toast$ = (msg, type = "ok") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
@@ -98,11 +118,23 @@ const closeUpdate = () => {
     }
 
     const { data: profs } = await fetchAllProfiles();
-    const { data: projs } = await fetchProjects();
-    setProfile(prof);
-    setProfiles(profs || []);
-    setProjects(projs || []);
-    setView("dashboard");
+const { data: projs } = await fetchProjects();
+
+setProfile(prof);
+setProfiles(profs || []);
+setProjects(projs || []);
+
+if (prof.role === "buyer") {
+  const { data } = await fetchBuyerEnquiries(prof.id);
+  setBuyerEnquiries(data || []);
+}
+
+if (prof.role === "owner") {
+  const { data } = await fetchOwnerEnquiries(prof.id);
+  setOwnerEnquiries(data || []);
+}
+
+setView("dashboard");
   }
 
   /* ── Theme ─────────────────────────────────────────────────────── */
