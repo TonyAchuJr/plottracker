@@ -120,7 +120,7 @@ onChange={(e)=>setForm({...form,budget_min:e.target.value})}
 type="number"
 placeholder="Maximum Budget"
 value={form.budget_max}
-onChange={(e)=>setForm({...form,budget_max:e.target.value})
+onChange={(e)=>setForm({...form,budget_max:e.target.value})}
 />
 <textarea
 maxLength={256}
