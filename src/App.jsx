@@ -1514,9 +1514,9 @@ const shownEnquiries =
 
     await replyEnquiry(item.id, reply);
 
-alert("Reply sent successfully.");
 
-const { data } = await fetchOwnerEnquiries(profile.id);
+
+const { data } = await fetchOwnerEnquiries();
 ctx.setOwnerEnquiries(data || []);
   }}
 >
