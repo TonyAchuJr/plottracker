@@ -112,74 +112,66 @@ export default function App() {
 }
   }
 
-  /* ── Boot ──────────────────────────────────────────────────────── */
-  useEffect(() => {
-    const checkRecovery = () => {
-  return (
-    window.location.hash.includes("type=recovery") ||
-    window.location.search.includes("type=recovery")
-  );
-};
+/* ── Boot ──────────────────────────────────────────────────────── */
+useEffect(() => {
+  const checkRecovery = () => {
+    const hash = window.location.hash;
+    const search = window.location.search;
+    return hash.includes("type=recovery") || hash.includes("recovery") ||
+           search.includes("type=recovery") || search.includes("recovery");
+  };
 
-    (async () => {
-      console.log("HASH:", window.location.hash);
-console.log("SEARCH:", window.location.search);
-console.log("HREF:", window.location.href);
-      const session = await getSession();
+  (async () => {
+    console.log("HASH:", window.location.hash);
+    console.log("SEARCH:", window.location.search);
 
-      if (checkRecovery()) {
-    console.log("RECOVERY DETECTED");
-    setView("reset-password");
-    return;
-}
+    const session = await getSession();
 
-      if (session?.user) {
-        await loadUser(session.user);
-      } else {
-        setView("landing");
-      }
-
-      const lastSeen = localStorage.getItem("pt_last_seen");
-      if (lastSeen !== APP_VERSION) {
-        setShowUpdate(true);
-      }
-    })();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log("AUTH EVENT:", event);
-      if (
-    event === "PASSWORD_RECOVERY" ||
-    window.location.hash.includes("type=recovery") ||
-    window.location.search.includes("type=recovery")
-) {
-  setView("reset-password");
-  return;
-}
-
-      if (event === "SIGNED_IN" && session?.user) {
-
-    const recovery =
-        window.location.hash.includes("type=recovery") ||
-        window.location.search.includes("type=recovery");
-
-    if (recovery) {
-        console.log("SIGNED_IN DURING RECOVERY");
-        return; // <-- DO NOT call loadUser()
+    if (checkRecovery()) {
+      console.log("RECOVERY DETECTED - STAYING ON RESET PAGE");
+      setView("reset-password");
+      return;
     }
 
-    await loadUser(session.user);
-}
+    if (session?.user) {
+      await loadUser(session.user);
+    } else {
+      setView("landing");
+    }
 
-      if (event === "SIGNED_OUT") {
-        setAuthUser(null);
-        setProfile(null);
-        setProjects([]);
-        setView("landing");
+    const lastSeen = localStorage.getItem("pt_last_seen");
+    if (lastSeen !== APP_VERSION) {
+      setShowUpdate(true);
+    }
+  })();
+
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log("AUTH EVENT:", event);
+
+    if (event === "PASSWORD_RECOVERY" || checkRecovery()) {
+      console.log("RECOVERY EVENT - FORCING RESET PAGE");
+      setView("reset-password");
+      return;
+    }
+
+    if (event === "SIGNED_IN" && session?.user) {
+      if (checkRecovery()) {
+        console.log("SIGNED_IN DURING RECOVERY - IGNORING");
+        return; // Do NOT call loadUser
       }
-    });
+      await loadUser(session.user);
+    }
 
-    return () => subscription.unsubscribe();
-  }, []);
+    if (event === "SIGNED_OUT") {
+      setAuthUser(null);
+      setProfile(null);
+      setProjects([]);
+      setView("landing");
+    }
+  });
+
+  return () => subscription.unsubscribe();
+}, []);
 
   /* ── Theme ─────────────────────────────────────────────────────── */
   useEffect(() => {
