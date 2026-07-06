@@ -123,7 +123,7 @@ if (prof.role === "buyer") {
 }
 
 if (prof.role === "owner") {
-  const { data } = await fetchOwnerEnquiries(prof.id);
+  const { data } = await fetchOwnerEnquiries();
   setOwnerEnquiries(data || []);
 }
 
@@ -1248,9 +1248,13 @@ function ProjectView({ proj, ctx }) {
   <button
     className="btn-primary"
     onClick={() => {
-      setSelectedProject(proj);
-      setShowEnquiryModal(true);
-    }}
+  if (!profile || profile.role !== "buyer") {
+    alert("Please sign in as a buyer to send enquiries.");
+    return;
+  }
+  setSelectedProject(proj);
+  setShowEnquiryModal(true);
+}}
   >
     📩 Request Information
   </button>
@@ -1359,7 +1363,7 @@ function BuyerNotifications({ ctx }) {
                 borderRadius: "12px"
               }}
             >
-              <h3>{item.project_name || "Project"}</h3>
+              <h3>{item.project?.name || "Project"}</h3>
 
               <p>
                 <strong>Status:</strong> {item.status}
@@ -1374,7 +1378,7 @@ function BuyerNotifications({ ctx }) {
               <hr />
 
               <p>
-                <strong>Owner Reply:</strong>
+                <strong>AIRAA Group Response:</strong>
               </p>
 
               <p>
@@ -1440,9 +1444,9 @@ function OwnerEnquiries({ ctx }) {
         borderRadius: "12px"
       }}
     >
-      <h3>{item.project_name || "Project"}</h3>
+      <h3>{item.project?.name || "Project"}</h3>
 
-      <p><strong>Buyer:</strong> {item.buyer_name || item.buyer_id}</p>
+      <p><strong>Buyer:</strong> {item.buyer_name || item.buyer?.name}</p>
 
       <p><strong>Category:</strong> {item.category}</p>
 
@@ -1485,7 +1489,7 @@ const { data } = await fetchOwnerEnquiries(profile.id);
 ctx.setOwnerEnquiries(data || []);
   }}
 >
-  Send Reply
+  Reply as AIRAA Group
 </button>
 
 </div>
