@@ -64,8 +64,19 @@ const [selectedProject, setSelectedProject] = useState(null);
   useEffect(() => {
     (async () => {
       const session = await getSession();
-      if (session?.user) await loadUser(session.user);
-      else setView("landing");
+
+if (
+    session?.user &&
+    window.location.hash.includes("type=recovery")
+) {
+    setView("reset-password");
+}
+else if (session?.user) {
+    await loadUser(session.user);
+}
+else {
+    setView("landing");
+}
       const lastSeen = localStorage.getItem("pt_last_seen");
 
 if (lastSeen !== APP_VERSION) {
@@ -78,7 +89,13 @@ if (lastSeen !== APP_VERSION) {
         setView("reset-password");
         return;
       }
-      if (event === "SIGNED_IN" && session?.user) await loadUser(session.user);
+      if (
+    event === "SIGNED_IN" &&
+    session?.user &&
+    !window.location.hash.includes("type=recovery")
+) {
+    await loadUser(session.user);
+}
       if (event === "SIGNED_OUT") { setAuthUser(null); setProfile(null); setProjects([]); setView("landing"); }
     });
     return () => subscription.unsubscribe();
