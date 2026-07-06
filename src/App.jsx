@@ -1404,15 +1404,14 @@ function OwnerEnquiries({ ctx }) {
     setView
   } = ctx;
 
-  if (!profile) return null;
-const [tab, setTab] = useState("pending");
-
+  const [tab, setTab] = useState("pending");
 const shownEnquiries =
   ownerEnquiries.filter(e =>
     tab === "pending"
-      ? e.status !== "Answered"
-      : e.status === "Answered"
-  );
+    ? e.status !== "Answered"
+    : e.status === "Answered"
+    );
+  if (!profile) return null;
   return (
     <div className="page">
 
