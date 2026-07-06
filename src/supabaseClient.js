@@ -186,11 +186,19 @@ export const fetchBuyerEnquiries = async (buyerId) => {
     .order("created_at", { ascending: false });
 };
 
-export const fetchOwnerEnquiries = async (ownerId) => {
+export const fetchOwnerEnquiries = async () => {
   return supabase
     .from("buyer_enquiries")
-    .select("*")
-    .eq("owner_id", ownerId)
+    .select(`
+      *,
+      buyer:profiles!buyer_id (
+        name,
+        phone
+      ),
+      project:projects!project_id (
+        name
+      )
+    `)
     .order("created_at", { ascending: false });
 };
 
