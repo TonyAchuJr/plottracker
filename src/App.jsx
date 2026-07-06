@@ -147,7 +147,9 @@ if (prof.role === "owner") {
 
     setOwnerEnquiries(data || []);
 }
-
+console.log("LOAD USER CALLED");
+console.log(window.location.href);
+console.log(window.location.hash);
 setView("dashboard");
   }
 
