@@ -135,10 +135,10 @@ export default function App() {
     })();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "PASSWORD_RECOVERY" || checkRecovery()) {
-        setView("reset-password");
-        return;
-      }
+      if (event === "PASSWORD_RECOVERY" || window.location.hash.includes("recovery")) {
+  setView("reset-password");
+  return;
+}
 
       if (event === "SIGNED_IN" && session?.user) {
         await loadUser(session.user);
@@ -575,9 +575,18 @@ function ResetPasswordPage({ ctx }) {
   const [done, setDone] = useState(false);
 
   const go = async () => {
-    if (!pass || !pass2) { setErr("Both fields are required."); return; }
-    if (pass.length < 6) { setErr("Password must be at least 6 characters."); return; }
-    if (pass !== pass2) { setErr("Passwords do not match."); return; }
+    if (!pass || !pass2) {
+      setErr("Both fields are required.");
+      return;
+    }
+    if (pass.length < 6) {
+      setErr("Password must be at least 6 characters.");
+      return;
+    }
+    if (pass !== pass2) {
+      setErr("Passwords do not match.");
+      return;
+    }
 
     setBusy(true);
     setErr("");
@@ -594,26 +603,12 @@ function ResetPasswordPage({ ctx }) {
     setDone(true);
     toast$("Password updated successfully!");
 
-    // Clean URL
-    window.history.replaceState(null, null, window.location.pathname);
-  };
+    // Clean the URL hash
+    window.history.replaceState(null, '', window.location.pathname);
 
-  if (done) {
-    return (
-      <div className="auth-wrap">
-        <div className="auth-card" style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--text)", marginBottom: 10 }}>Password Updated!</h2>
-          <p className="tmuted tsm" style={{ marginBottom: 20, lineHeight: 1.6 }}>
-            Your password has been reset successfully.
-          </p>
-          <button className="btn-primary btn-full" onClick={() => setView("login")}>
-            Sign in with new password
-          </button>
-        </div>
-      </div>
-    );
-  }
+    // Redirect to login after success
+    setTimeout(() => setView("login"), 1500);
+  };
 
   return (
     <div className="auth-wrap">
@@ -625,7 +620,9 @@ function ResetPasswordPage({ ctx }) {
           </div>
         </div>
 
-        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 25, color: "var(--text)", marginBottom: 6 }}>Set New Password</h2>
+        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 25, color: "var(--text)", marginBottom: 6 }}>
+          Set New Password
+        </h2>
         <p className="tmuted tsm mb3">Choose a strong password for your account.</p>
 
         <Fi label="New Password * (min 6)" value={pass} onChange={setPass} type="password" placeholder="Enter new password" />
@@ -636,6 +633,10 @@ function ResetPasswordPage({ ctx }) {
         <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>
           {busy ? "Updating…" : "Update Password"}
         </button>
+
+        <p className="tmuted tsm" style={{ textAlign: "center" }}>
+          <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("login")}>Back to Sign in</span>
+        </p>
       </div>
     </div>
   );
