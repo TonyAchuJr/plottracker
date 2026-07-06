@@ -1405,7 +1405,14 @@ function OwnerEnquiries({ ctx }) {
   } = ctx;
 
   if (!profile) return null;
+const [tab, setTab] = useState("pending");
 
+const shownEnquiries =
+  ownerEnquiries.filter(e =>
+    tab === "pending"
+      ? e.status !== "Answered"
+      : e.status === "Answered"
+  );
   return (
     <div className="page">
 
@@ -1418,7 +1425,28 @@ function OwnerEnquiries({ ctx }) {
         }}
       >
         <h2>🔔 Buyer Enquiries</h2>
+<div
+  style={{
+    display: "flex",
+    gap: "10px",
+    marginTop: "12px",
+    marginBottom: "18px"
+  }}
+>
+  <button
+    className={tab === "pending" ? "btn-primary" : "btn-secondary"}
+    onClick={() => setTab("pending")}
+  >
+    Pending ({ownerEnquiries.filter(e => e.status !== "Answered").length})
+  </button>
 
+  <button
+    className={tab === "answered" ? "btn-primary" : "btn-secondary"}
+    onClick={() => setTab("answered")}
+  >
+    Replied ({ownerEnquiries.filter(e => e.status === "Answered").length})
+  </button>
+</div>
         <button
           className="btn-secondary"
           onClick={() => setView("dashboard")}
@@ -1433,13 +1461,13 @@ function OwnerEnquiries({ ctx }) {
           gap: "16px"
         }}
       >
-        {ownerEnquiries.length === 0 ? (
+        {shownEnquiries.length === 0 ? (
   <div className="card">
     <h3>No enquiries</h3>
     <p>No buyers have contacted you yet.</p>
   </div>
 ) : (
-  ownerEnquiries.map((item) => (
+  shownEnquiries.map((item) => (
     <div
       key={item.id}
       className="card"
