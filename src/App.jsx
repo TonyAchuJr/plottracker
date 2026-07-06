@@ -123,8 +123,12 @@ if (prof.role === "buyer") {
 }
 
 if (prof.role === "owner") {
-  const { data } = await fetchOwnerEnquiries();
-  setOwnerEnquiries(data || []);
+    const { data, error } = await fetchOwnerEnquiries();
+
+    console.log("OWNER ENQUIRIES:", data);
+    console.log("OWNER ERROR:", error);
+
+    setOwnerEnquiries(data || []);
 }
 
 setView("dashboard");
