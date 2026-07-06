@@ -10,14 +10,14 @@ import {
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
   sendOwnerCode, verifyOwnerCode,
-createEnquiry,
-fetchBuyerEnquiries,
-fetchOwnerEnquiries,
-replyEnquiry
-
+  createEnquiry,
+  fetchBuyerEnquiries,
+  fetchOwnerEnquiries,
+  replyEnquiry
 } from "./supabaseClient";
 import FloatingAnnouncement from "./FloatingAnnouncement";
 import BuyerEnquiryModal from "./BuyerEnquiryModal";
+
 /* ── Helpers ─────────────────────────────────────────────────────── */
 const DFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" });
 const TFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" });
@@ -27,6 +27,7 @@ const inr  = v => v ? `₹${Number(v).toLocaleString("en-IN")}` : "";
    ROOT
 ════════════════════════════════════════════════════════════════ */
 const APP_VERSION = "2.3.3";
+
 export default function App() {
   const [dark, setDark]       = useState(() => localStorage.getItem("pt_theme") !== "light");
   const [view, setView]       = useState("booting");
@@ -45,68 +46,114 @@ export default function App() {
   const [busy, setBusy]         = useState(false);
   const [showUpdate, setShowUpdate] = useState(false);
   const [buyerEnquiries, setBuyerEnquiries] = useState([]);
-const [ownerEnquiries, setOwnerEnquiries] = useState([]);
-const [showEnquiryModal, setShowEnquiryModal] = useState(false);
-const [selectedProject, setSelectedProject] = useState(null);
-
-
+  const [ownerEnquiries, setOwnerEnquiries] = useState([]);
+  const [showEnquiryModal, setShowEnquiryModal] = useState(false);
+  const [selectedProject, setSelectedProject] = useState(null);
 
   const toast$ = (msg, type = "ok") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
   };
+
   const toggleDark = () => setDark(d => {
     localStorage.setItem("pt_theme", d ? "light" : "dark");
     return !d;
   });
 
-/* ── Boot ──────────────────────────────────────────────────────── */
-useEffect(() => {
-  const checkRecovery = () => {
-    const hash = window.location.hash;
-    return hash.includes("type=recovery") || hash.includes("recovery");
+  /* ── closeUpdate & loadUser ── (moved up) */
+  const closeUpdate = () => {
+    localStorage.setItem("pt_last_seen", APP_VERSION);
+    setShowUpdate(false);
   };
 
-  (async () => {
-    const session = await getSession();
+  async function loadUser(u) {
+    setAuthUser(u);
 
-    if (checkRecovery()) {
-      setView("reset-password");
-      return;
+    let prof = null;
+    for (let i = 0; i < 3; i++) {
+      const { data } = await fetchProfile(u.id);
+      if (data) { prof = data; break; }
+      await new Promise(r => setTimeout(r, 800));
     }
 
-    if (session?.user) {
-      await loadUser(session.user);
-    } else {
-      setView("landing");
+    if (!prof) {
+      const meta = u.user_metadata || {};
+      const { data: created } = await supabase.from("profiles").insert({
+        id: u.id,
+        name: meta.name || u.email?.split("@")[0] || "User",
+        phone: meta.phone || "",
+        role: meta.role || "buyer",
+      }).select().single();
+      prof = created;
     }
 
-    const lastSeen = localStorage.getItem("pt_last_seen");
-    if (lastSeen !== APP_VERSION) {
-      setShowUpdate(true);
-    }
-  })();
+    const { data: profs } = await fetchAllProfiles();
+    const { data: projs } = await fetchProjects();
 
-  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-    if (event === "PASSWORD_RECOVERY" || checkRecovery()) {
-      setView("reset-password");
-      return;
-    }
+    setProfile(prof);
+    setProfiles(profs || []);
+    setProjects(projs || []);
 
-    if (event === "SIGNED_IN" && session?.user) {
-      await loadUser(session.user);
+    if (prof.role === "buyer") {
+      const { data } = await fetchBuyerEnquiries(prof.id);
+      setBuyerEnquiries(data || []);
     }
 
-    if (event === "SIGNED_OUT") {
-      setAuthUser(null);
-      setProfile(null);
-      setProjects([]);
-      setView("landing");
+    if (prof.role === "owner") {
+      const { data } = await fetchOwnerEnquiries();
+      setOwnerEnquiries(data || []);
     }
-  });
 
-  return () => subscription.unsubscribe();
-}, []);
+    setView("dashboard");
+  }
+
+  /* ── Boot ──────────────────────────────────────────────────────── */
+  useEffect(() => {
+    const checkRecovery = () => {
+      const hash = window.location.hash;
+      return hash.includes("type=recovery") || hash.includes("recovery");
+    };
+
+    (async () => {
+      const session = await getSession();
+
+      if (checkRecovery()) {
+        setView("reset-password");
+        return;
+      }
+
+      if (session?.user) {
+        await loadUser(session.user);
+      } else {
+        setView("landing");
+      }
+
+      const lastSeen = localStorage.getItem("pt_last_seen");
+      if (lastSeen !== APP_VERSION) {
+        setShowUpdate(true);
+      }
+    })();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === "PASSWORD_RECOVERY" || checkRecovery()) {
+        setView("reset-password");
+        return;
+      }
+
+      if (event === "SIGNED_IN" && session?.user) {
+        await loadUser(session.user);
+      }
+
+      if (event === "SIGNED_OUT") {
+        setAuthUser(null);
+        setProfile(null);
+        setProjects([]);
+        setView("landing");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   /* ── Theme ─────────────────────────────────────────────────────── */
   useEffect(() => {
