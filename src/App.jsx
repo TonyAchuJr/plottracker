@@ -104,23 +104,34 @@ export default function App() {
       setOwnerEnquiries(data || []);
     }
 
-    setView("dashboard");
+    if (
+  !window.location.hash.includes("type=recovery") &&
+  !window.location.search.includes("type=recovery")
+) {
+  setView("dashboard");
+}
   }
 
   /* ── Boot ──────────────────────────────────────────────────────── */
   useEffect(() => {
     const checkRecovery = () => {
-      const hash = window.location.hash;
-      return hash.includes("type=recovery") || hash.includes("recovery");
-    };
+  return (
+    window.location.hash.includes("type=recovery") ||
+    window.location.search.includes("type=recovery")
+  );
+};
 
     (async () => {
+      console.log("HASH:", window.location.hash);
+console.log("SEARCH:", window.location.search);
+console.log("HREF:", window.location.href);
       const session = await getSession();
 
       if (checkRecovery()) {
-        setView("reset-password");
-        return;
-      }
+    console.log("RECOVERY DETECTED");
+    setView("reset-password");
+    return;
+}
 
       if (session?.user) {
         await loadUser(session.user);
@@ -135,14 +146,28 @@ export default function App() {
     })();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "PASSWORD_RECOVERY" || window.location.hash.includes("recovery")) {
+      console.log("AUTH EVENT:", event);
+      if (
+    event === "PASSWORD_RECOVERY" ||
+    window.location.hash.includes("type=recovery") ||
+    window.location.search.includes("type=recovery")
+) {
   setView("reset-password");
   return;
 }
 
       if (event === "SIGNED_IN" && session?.user) {
-        await loadUser(session.user);
-      }
+
+  if (
+    window.location.hash.includes("type=recovery") ||
+    window.location.search.includes("type=recovery")
+  ) {
+    setView("reset-password");
+    return;
+  }
+
+  await loadUser(session.user);
+}
 
       if (event === "SIGNED_OUT") {
         setAuthUser(null);
