@@ -60,7 +60,7 @@ const [selectedProject, setSelectedProject] = useState(null);
     return !d;
   });
 
-  /* ── Boot ──────────────────────────────────────────────────────── */
+/* ── Boot ──────────────────────────────────────────────────────── */
 useEffect(() => {
   const checkRecovery = () => {
     const hash = window.location.hash;
