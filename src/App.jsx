@@ -572,7 +572,6 @@ function ResetPasswordPage({ ctx }) {
   const [pass2, setPass2] = useState("");
   const [err, setErr] = useState("");
   const [busy, setBusy] = useState(false);
-  const [done, setDone] = useState(false);
 
   const go = async () => {
     if (!pass || !pass2) {
@@ -600,14 +599,9 @@ function ResetPasswordPage({ ctx }) {
       return;
     }
 
-    setDone(true);
     toast$("Password updated successfully!");
-
-    // Clean the URL hash
     window.history.replaceState(null, '', window.location.pathname);
-
-    // Redirect to login after success
-    setTimeout(() => setView("login"), 1500);
+    setTimeout(() => setView("login"), 1200);
   };
 
   return (
