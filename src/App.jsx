@@ -158,15 +158,16 @@ console.log("HREF:", window.location.href);
 
       if (event === "SIGNED_IN" && session?.user) {
 
-  if (
-    window.location.hash.includes("type=recovery") ||
-    window.location.search.includes("type=recovery")
-  ) {
-    setView("reset-password");
-    return;
-  }
+    const recovery =
+        window.location.hash.includes("type=recovery") ||
+        window.location.search.includes("type=recovery");
 
-  await loadUser(session.user);
+    if (recovery) {
+        console.log("SIGNED_IN DURING RECOVERY");
+        return; // <-- DO NOT call loadUser()
+    }
+
+    await loadUser(session.user);
 }
 
       if (event === "SIGNED_OUT") {
