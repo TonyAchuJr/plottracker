@@ -61,97 +61,52 @@ const [selectedProject, setSelectedProject] = useState(null);
   });
 
   /* ── Boot ──────────────────────────────────────────────────────── */
-  useEffect(() => {
-    (async () => {
-      const session = await getSession();
+useEffect(() => {
+  const checkRecovery = () => {
+    const hash = window.location.hash;
+    return hash.includes("type=recovery") || hash.includes("recovery");
+  };
 
-if (
-    session?.user &&
-    window.location.hash.includes("type=recovery")
-) {
-    setView("reset-password");
-}
-else if (session?.user) {
-    await loadUser(session.user);
-}
-else {
-    setView("landing");
-}
-      const lastSeen = localStorage.getItem("pt_last_seen");
+  (async () => {
+    const session = await getSession();
 
-if (lastSeen !== APP_VERSION) {
-    setShowUpdate(true);
-}
-    })();
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "PASSWORD_RECOVERY") {
-        // User clicked the reset link in their email — show the set-new-password page
-        setView("reset-password");
-        return;
-      }
-      if (
-    event === "SIGNED_IN" &&
-    session?.user &&
-    !window.location.hash.includes("type=recovery")
-) {
-    await loadUser(session.user);
-}
-      if (event === "SIGNED_OUT") { setAuthUser(null); setProfile(null); setProjects([]); setView("landing"); }
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-const closeUpdate = () => {
-    localStorage.setItem("pt_last_seen", APP_VERSION);
-    setShowUpdate(false);
-};
-  async function loadUser(u) {
-    setAuthUser(u);
-
-    // Retry profile fetch up to 3 times (trigger may be slightly delayed)
-    let prof = null;
-    for (let i = 0; i < 3; i++) {
-      const { data } = await fetchProfile(u.id);
-      if (data) { prof = data; break; }
-      await new Promise(r => setTimeout(r, 800)); // wait 800ms then retry
+    if (checkRecovery()) {
+      setView("reset-password");
+      return;
     }
 
-    // If profile still missing, create it manually from auth metadata -(random text)
-    if (!prof) {
-      const meta = u.user_metadata || {};
-      const { data: created } = await supabase.from("profiles").insert({
-        id: u.id,
-        name: meta.name || u.email?.split("@")[0] || "User",
-        phone: meta.phone || "",
-        role: meta.role || "buyer",
-      }).select().single();
-      prof = created;
+    if (session?.user) {
+      await loadUser(session.user);
+    } else {
+      setView("landing");
     }
 
-    const { data: profs } = await fetchAllProfiles();
-const { data: projs } = await fetchProjects();
+    const lastSeen = localStorage.getItem("pt_last_seen");
+    if (lastSeen !== APP_VERSION) {
+      setShowUpdate(true);
+    }
+  })();
 
-setProfile(prof);
-setProfiles(profs || []);
-setProjects(projs || []);
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === "PASSWORD_RECOVERY" || checkRecovery()) {
+      setView("reset-password");
+      return;
+    }
 
-if (prof.role === "buyer") {
-  const { data } = await fetchBuyerEnquiries(prof.id);
-  setBuyerEnquiries(data || []);
-}
+    if (event === "SIGNED_IN" && session?.user) {
+      await loadUser(session.user);
+    }
 
-if (prof.role === "owner") {
-    const { data, error } = await fetchOwnerEnquiries();
+    if (event === "SIGNED_OUT") {
+      setAuthUser(null);
+      setProfile(null);
+      setProjects([]);
+      setView("landing");
+    }
+  });
 
-    console.log("OWNER ENQUIRIES:", data);
-    console.log("OWNER ERROR:", error);
-
-    setOwnerEnquiries(data || []);
-}
-console.log("LOAD USER CALLED");
-console.log(window.location.href);
-console.log(window.location.hash);
-setView("dashboard");
-  }
+  return () => subscription.unsubscribe();
+}, []);
 
   /* ── Theme ─────────────────────────────────────────────────────── */
   useEffect(() => {
@@ -563,27 +518,37 @@ function ForgotPasswordPage({ ctx }) {
   );
 }
 
-/* ── Reset Password Page (user arrives here after clicking email link) ── */
+/* ── Reset Password Page ── */
 function ResetPasswordPage({ ctx }) {
   const { setView, toast$ } = ctx;
-  const [pass, setPass]   = useState("");
+  const [pass, setPass] = useState("");
   const [pass2, setPass2] = useState("");
-  const [err, setErr]     = useState("");
-  const [busy, setBusy]   = useState(false);
-  const [done, setDone]   = useState(false);
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
 
-  // Supabase automatically handles the token from the URL when the
-  // user lands on this page — we just need to call updateUser.
   const go = async () => {
-    if (!pass || !pass2)         { setErr("Both fields are required."); return; }
-    if (pass.length < 6)         { setErr("Password must be at least 6 characters."); return; }
-    if (pass !== pass2)          { setErr("Passwords do not match."); return; }
-    setBusy(true); setErr("");
+    if (!pass || !pass2) { setErr("Both fields are required."); return; }
+    if (pass.length < 6) { setErr("Password must be at least 6 characters."); return; }
+    if (pass !== pass2) { setErr("Passwords do not match."); return; }
+
+    setBusy(true);
+    setErr("");
+
     const { error } = await supabase.auth.updateUser({ password: pass });
+
     setBusy(false);
-    if (error) { setErr(error.message); return; }
+
+    if (error) {
+      setErr(error.message);
+      return;
+    }
+
     setDone(true);
     toast$("Password updated successfully!");
+
+    // Clean URL
+    window.history.replaceState(null, null, window.location.pathname);
   };
 
   if (done) {
@@ -591,11 +556,13 @@ function ResetPasswordPage({ ctx }) {
       <div className="auth-wrap">
         <div className="auth-card" style={{ textAlign: "center" }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--text)", marginBottom: 10 }}>Password updated!</h2>
+          <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 22, color: "var(--text)", marginBottom: 10 }}>Password Updated!</h2>
           <p className="tmuted tsm" style={{ marginBottom: 20, lineHeight: 1.6 }}>
-            Your password has been reset successfully. You can now sign in with your new password.
+            Your password has been reset successfully.
           </p>
-          <button className="btn-primary btn-full" onClick={() => setView("login")}>Sign in now</button>
+          <button className="btn-primary btn-full" onClick={() => setView("login")}>
+            Sign in with new password
+          </button>
         </div>
       </div>
     );
@@ -605,14 +572,20 @@ function ResetPasswordPage({ ctx }) {
     <div className="auth-wrap">
       <div className="auth-card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <div className="header-logo-icon">🏘️</div>
-          <span className="header-logo-text" style={{ fontSize: 15 }}>PlotTracker</span>
+          <div className="flex aic g2" style={{ cursor: "pointer" }} onClick={() => setView("login")}>
+            <div className="header-logo-icon">🏘️</div>
+            <span className="header-logo-text" style={{ fontSize: 15 }}>AIRAA GROUP</span>
+          </div>
         </div>
-        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 25, color: "var(--text)", marginBottom: 6 }}>Set new password</h2>
+
+        <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 25, color: "var(--text)", marginBottom: 6 }}>Set New Password</h2>
         <p className="tmuted tsm mb3">Choose a strong password for your account.</p>
-        <Fi label="New Password * (min 6)" value={pass}  onChange={setPass}  type="password" placeholder="Enter new password" />
-        <Fi label="Confirm Password *"     value={pass2} onChange={setPass2} type="password" placeholder="Repeat new password" />
+
+        <Fi label="New Password * (min 6)" value={pass} onChange={setPass} type="password" placeholder="Enter new password" />
+        <Fi label="Confirm Password *" value={pass2} onChange={setPass2} type="password" placeholder="Repeat new password" />
+
         {err && <Err>{err}</Err>}
+
         <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>
           {busy ? "Updating…" : "Update Password"}
         </button>
