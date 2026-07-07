@@ -186,3 +186,88 @@ input:focus, textarea:focus {
 
 /* Terminal feel */
 .mono { font-family: var(--font-mono) !important; }
+
+/* =============================================
+   HACKING THEME OVERRIDE (Added at the bottom)
+   ============================================= */
+
+:root {
+  --gold: #00ff41 !important;
+  --gold-light: #00ff9f !important;
+  --gold-dark: #00cc33 !important;
+  --gold-dim: rgba(0,255,65,0.15) !important;
+  --gold-glow: 0 0 24px rgba(0,255,65,0.6) !important;
+  --gold-glow-sm: 0 0 12px rgba(0,255,65,0.4) !important;
+}
+
+/* Force dark hacking background */
+body, .landing, .auth-wrap, #root {
+  background: #050505 !important;
+}
+
+/* Matrix Rain Canvas */
+#matrix {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: -1;
+  opacity: 0.13;
+  pointer-events: none;
+}
+
+/* Scanlines + CRT feel */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(0, 255, 70, 0.05) 3px,
+    rgba(0, 255, 70, 0.05) 6px
+  );
+  animation: scanline 7s linear infinite;
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+/* Main accent color override */
+.tgold, .btn-primary, .landing-title, .sheet-title, .header-logo-text, .logo-icon {
+  color: #00ff41 !important;
+  text-shadow: 0 0 15px #00ff41 !important;
+}
+
+/* Better scrolling */
+#root, .page, .dashboard-content {
+  min-height: 100vh;
+  overflow-y: auto;
+  padding-bottom: 80px;
+}
+
+/* Card glow */
+.project-card, .plot-card, .auth-card, .sheet {
+  border-color: rgba(0,255,65,0.3) !important;
+  box-shadow: 0 0 20px rgba(0,255,65,0.2) !important;
+}
+
+.project-card:hover, .plot-card:hover {
+  border-color: #00ff41 !important;
+  box-shadow: 0 0 30px rgba(0,255,65,0.5) !important;
+}
+
+/* Buttons */
+.btn-primary {
+  background: linear-gradient(135deg, #00ff9f, #00ff41, #00cc33) !important;
+  border: 2px solid #00ff41 !important;
+  box-shadow: 0 0 25px rgba(0,255,65,0.6) !important;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 0 40px rgba(0,255,65,0.9) !important;
+  transform: translateY(-2px) !important;
+}
