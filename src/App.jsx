@@ -49,7 +49,7 @@ export default function App() {
   const [ownerEnquiries, setOwnerEnquiries] = useState([]);
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [uploadType, setUploadType] = useState("layout");
+  
 
   const toast$ = (msg, type = "ok") => {
     setToast({ msg, type });
