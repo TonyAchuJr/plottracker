@@ -361,13 +361,15 @@ function UpdatePopup({ version, onClose }) {
 
                     <li>✅ Premium Homepage</li>
 
-                    <li>✅ Bugs in cards menu fixed</li>
+                    <li>✅ Bugs in cards menu and Forgot password fixed</li>
 
                     <li>✅ Added feature that any user with owner access can upload, archive, delete project</li>
 
                     <li>✅ Double-Click on the golden orb to view the updates</li>
 
-                    <li>⚠️ Bugs found in forgot password. reset link. It will be fixed in future.</li>
+                    <li>✅ Enquires can be sent for buyers and owners can respond to it</li>
+
+                    <li>⚠️ Now Videos can be uploaded (working on alignment)</li>
 
 
                 </ul>
