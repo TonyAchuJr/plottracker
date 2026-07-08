@@ -26,7 +26,7 @@ const inr  = v => v ? `₹${Number(v).toLocaleString("en-IN")}` : "";
 /* ════════════════════════════════════════════════════════════════
    ROOT
 ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "2.3.3";
+const APP_VERSION = "2.4.0";
 
 export default function App() {
   const [dark, setDark]       = useState(() => localStorage.getItem("pt_theme") !== "light");
@@ -249,22 +249,15 @@ setBuyerEnquiries,
     />
 )}
       <FloatingAnnouncement
-    version="2.3.3"
+    version="2.4.0"
     title="Latest Updates"
     message={`
-• Bugs in cards menu fixed
-
-• Any owner user login can now edit the projects
-
+• Bugs in cards menu and forgot password fixed
 • Buyers/Viewers can now send Enquiries. 
 Just click on the project card > click on Request Information and fill the fields and you'll reach it out from agents 
-
 • Owners can view the enquiries sent by buyers. 
 Just click on Enquires and respond to them (for Eg: we'll get back soon)
-
-• Added forgot password feature(bugs need to be fixed)
-
-• Orb for announcement pop up move anywhere on the screen.
+• Click on forgot password > check your main inbox > reset your password
 `}
 />
       {showEnquiryModal && selectedProject && (
@@ -1759,7 +1752,7 @@ function AboutModal({ ctx }) {
         </div>
         <div className="info-row">
           <span className="info-row-label">Version</span>
-          <span className="info-row-value mono">2.3.3</span>
+          <span className="info-row-value mono">2.4.0</span>
         </div>
         <div className="info-row">
           <span className="info-row-label">Built with</span>
