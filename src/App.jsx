@@ -49,6 +49,7 @@ export default function App() {
   const [ownerEnquiries, setOwnerEnquiries] = useState([]);
   const [showEnquiryModal, setShowEnquiryModal] = useState(false);
   const [selectedProject, setSelectedProject] = useState(null);
+  const [uploadType, setUploadType] = useState("layout");
 
   const toast$ = (msg, type = "ok") => {
     setToast({ msg, type });
@@ -2179,17 +2180,87 @@ function UploadFileModal({ ctx, proj }) {
   };
   return <>
     <h3 className="sheet-title">Upload Layout Files</h3>
-    <div onClick={()=>ref.current.click()} style={{border:"2px dashed var(--border2)",borderRadius:13,padding:"1.75rem",textAlign:"center",cursor:"pointer",marginBottom:"1rem",background:"var(--surface2)",transition:"border-color var(--ease)"}} onMouseEnter={e=>e.currentTarget.style.borderColor="var(--gold)"} onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border2)"}>
-      <div style={{fontSize:28,marginBottom:7}}>📎</div>
-      <div className="tmuted tsm">Tap to select PDF, JPG, PNG, DWG</div>
-      <input ref={ref} type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.dwg,.svg" style={{display:"none"}} onChange={e=>setPending(p=>[...p,...Array.from(e.target.files)])} />
-    </div>
-    {pending.map((f,i)=>(
-      <div key={i} style={{display:"flex",alignItems:"center",padding:"8px 12px",background:"var(--surface2)",borderRadius:9,marginBottom:6,gap:8}}>
-        <span className="trunc tsm" style={{flex:1,color:"var(--text)"}}>{f.name}</span>
-        <span className="txs tmuted">{(f.size/1024).toFixed(1)}KB</span>
-        <button onClick={()=>setPending(p=>p.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"var(--rose)",fontSize:20,padding:0}}>×</button>
-      </div>
+    <div style={{
+display:"flex",
+gap:18,
+marginBottom:20,
+justifyContent:"center"
+}}>
+
+<label className="gold-radio">
+<input
+type="radio"
+checked={uploadType==="layout"}
+onChange={()=>setUploadType("layout")}
+/>
+<span>Layout</span>
+</label>
+
+<label className="gold-radio">
+<input
+type="radio"
+checked={uploadType==="photo"}
+onChange={()=>setUploadType("photo")}
+/>
+<span>Photos</span>
+</label>
+
+<label className="gold-radio">
+<input
+type="radio"
+checked={uploadType==="video"}
+onChange={()=>setUploadType("video")}
+/>
+<span>Videos</span>
+</label>
+
+</div>
+
+<div
+onClick={()=>ref.current.click()}
+style={{
+border:"2px dashed var(--border2)",
+borderRadius:14,
+padding:"1.8rem",
+textAlign:"center",
+cursor:"pointer",
+background:"var(--surface2)"
+}}
+>
+
+<div style={{fontSize:30}}>📁</div>
+
+<div className="tmuted">
+
+{uploadType==="layout" &&
+"Upload PDF, DWG, SVG"}
+
+{uploadType==="photo" &&
+"Upload Images"}
+
+{uploadType==="video" &&
+"Upload Videos"}
+
+</div>
+
+<input
+ref={ref}
+type="file"
+multiple
+accept={
+uploadType==="layout"
+?".pdf,.dwg,.svg"
+
+:uploadType==="photo"
+?"image/*"
+
+:"video/*"
+}
+style={{display:"none"}}
+onChange={e=>setPending(p=>[...p,...Array.from(e.target.files)])}
+/>
+
+</div>
     ))}
     <Fi label="Label (optional)" value={label} onChange={setLabel} placeholder="Master Layout v2" />
     <Btns cancel={()=>setModal(null)} confirm={go} label={busy?"Uploading…":"Upload"} disabled={busy} />
