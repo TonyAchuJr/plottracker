@@ -1174,7 +1174,7 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const { data } = await uploadFile({
+    await uploadFile({
       projectId: proj.id,
       file,
       label: "Cover Image",
