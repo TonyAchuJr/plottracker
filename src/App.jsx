@@ -2145,7 +2145,7 @@ function BulkEditPlotsModal({ ctx, proj }) {
 
 function UploadFileModal({ ctx, proj }) {
   const { authUser, toast$, setModal, setFiles, setProjects, setProjHistory } = ctx;
-  const [uploadType,setUploadType] = useState("document");
+  
   const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [uploadType,setUploadType]=useState("document"); const [busy,setBusy]=useState(false); const ref=useRef();
   const go = async () => {
     if (!pending.length) return;
