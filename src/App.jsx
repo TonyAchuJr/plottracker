@@ -1316,7 +1316,7 @@ function ProjectView({ proj, ctx }) {
     📩 Request Information
   </button>
 )}
-        {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>⬆ Upload Layout</button>}
+        {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>📁 Upload Files</button>}
         {isOwnerRole    && <button className="btn-primary" onClick={() => setModal({ type: "add-plots", proj })}>+ Add Plots</button>}
         {isOwnerRole && plots.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "bulk-edit-plots", proj })}>✏️ Edit All Plots</button>}
         {isOwnerRole    && <ReportBtn projects={[proj]} allPlots={plots} profiles={ctx.profiles} single />}
@@ -2145,7 +2145,8 @@ function BulkEditPlotsModal({ ctx, proj }) {
 
 function UploadFileModal({ ctx, proj }) {
   const { authUser, toast$, setModal, setFiles, setProjects, setProjHistory } = ctx;
-  const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [uploadType,setUploadType]=useState("layout"); const [busy,setBusy]=useState(false); const ref=useRef();
+  const [uploadType,setUploadType] = useState("document");
+  const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [uploadType,setUploadType]=useState("document"); const [busy,setBusy]=useState(false); const ref=useRef();
   const go = async () => {
     if (!pending.length) return;
     setBusy(true);
@@ -2157,12 +2158,7 @@ function UploadFileModal({ ctx, proj }) {
     category: uploadType,
     userId: authUser.id
 });
-      if (file.type.startsWith("image/")) {
-        await supabase
-          .from("projects")
-          .update({ cover_image: data?.storage_path || data?.[0]?.storage_path })
-          .eq("id", proj.id);
-      }
+      
     }
     await insertProjectHistory({
       projectId: proj.id,
@@ -2180,39 +2176,43 @@ function UploadFileModal({ ctx, proj }) {
     setBusy(false); toast$(`${pending.length} file(s) uploaded!`); setModal(null);
   };
   return <>
-    <h3 className="sheet-title">Upload Layout Files</h3>
-    <div style={{
-display:"flex",
-gap:18,
-marginBottom:20,
-justifyContent:"center"
-}}>
+    <h3 className="sheet-title">Upload Project Files</h3>
+<div className="upload-types">
 
 <label className="gold-radio">
+
 <input
 type="radio"
-checked={uploadType==="layout"}
-onChange={()=>setUploadType("layout")}
+checked={uploadType==="document"}
+onChange={()=>setUploadType("document")}
 />
-<span>Layout</span>
+
+<span>Documents</span>
+
 </label>
 
 <label className="gold-radio">
+
 <input
 type="radio"
 checked={uploadType==="photo"}
 onChange={()=>setUploadType("photo")}
 />
+
 <span>Photos</span>
+
 </label>
 
 <label className="gold-radio">
+
 <input
 type="radio"
 checked={uploadType==="video"}
 onChange={()=>setUploadType("video")}
 />
+
 <span>Videos</span>
+
 </label>
 
 </div>
@@ -2231,17 +2231,14 @@ background:"var(--surface2)"
 
 <div style={{fontSize:30}}>📁</div>
 
-<div className="tmuted">
-
-{uploadType==="layout" &&
-"Upload PDF, DWG, SVG"}
-
-{uploadType==="photo" &&
-"Upload Images"}
-
-{uploadType==="video" &&
-"Upload Videos"}
-
+<div className="muted">
+{
+  uploadType === "document"
+    ? "Upload PDF, DWG, SVG"
+    : uploadType === "photo"
+    ? "Upload Images"
+    : "Upload Videos"
+}
 </div>
 
 <input
@@ -2249,13 +2246,13 @@ ref={ref}
 type="file"
 multiple
 accept={
-uploadType==="layout"
+uploadType==="document"
 ?".pdf,.dwg,.svg"
 
 :uploadType==="photo"
-?"image/*"
+?".jpg,.jpeg,.png,.webp"
 
-:"video/*"
+:".mp4,.mov,.avi,.mkv,.webm"
 }
 style={{display:"none"}}
 onChange={e=>setPending(p=>[...p,...Array.from(e.target.files)])}
