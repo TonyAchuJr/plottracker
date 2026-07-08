@@ -110,7 +110,7 @@ export const fetchFiles = (projectId) =>
     .eq("project_id", projectId)
     .order("created_at", { ascending: false });
 
-export const uploadFile = async ({ projectId, file, label, userId }) => {
+export const uploadFile = async ({ projectId, file, label, category, userId }) => {
   const ext  = file.name.split(".").pop();
   const path = `${userId}/${projectId}/${Date.now()}.${ext}`;
 
@@ -121,11 +121,16 @@ export const uploadFile = async ({ projectId, file, label, userId }) => {
   const { data: { publicUrl } } = supabase.storage.from("layouts").getPublicUrl(path);
 
   return supabase.from("project_files").insert({
-    project_id: projectId, name: file.name,
+    project_id: projectId,
+    name: file.name,
     label: label || file.name,
-    file_type: file.type, file_size: file.size,
-    storage_path: publicUrl, uploaded_by: userId,
-  }).select().single();
+    category: category || "layout",
+    file_type: file.type,
+    file_size: file.size,
+    storage_path: publicUrl,
+    uploaded_by: userId,
+})
+.select().single();
 };
 
 export const removeFile = async (fileId, storagePath) => {
