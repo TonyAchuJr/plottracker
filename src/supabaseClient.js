@@ -124,13 +124,12 @@ export const uploadFile = async ({ projectId, file, label, category, userId }) =
     project_id: projectId,
     name: file.name,
     label: label || file.name,
-    category: category || "layout",
+    category,
     file_type: file.type,
     file_size: file.size,
     storage_path: publicUrl,
-    uploaded_by: userId,
-})
-.select().single();
+    uploaded_by: userId
+}).select().single();
 };
 
 export const removeFile = async (fileId, storagePath) => {
