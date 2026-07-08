@@ -2152,7 +2152,7 @@ function UploadFileModal({ ctx, proj }) {
     if (!pending.length) return;
     setBusy(true);
     for (const file of pending) {
-      const { data } = await uploadFile({
+      await uploadFile({
     projectId: proj.id,
     file,
     label,
