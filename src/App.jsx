@@ -2145,17 +2145,18 @@ function BulkEditPlotsModal({ ctx, proj }) {
 
 function UploadFileModal({ ctx, proj }) {
   const { authUser, toast$, setModal, setFiles, setProjects, setProjHistory } = ctx;
-  const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [busy,setBusy]=useState(false); const ref=useRef();
+  const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [uploadType,setUploadType]=useState("layout"); const [busy,setBusy]=useState(false); const ref=useRef();
   const go = async () => {
     if (!pending.length) return;
     setBusy(true);
     for (const file of pending) {
       const { data } = await uploadFile({
-        projectId: proj.id,
-        file,
-        label,
-        userId: authUser.id
-      });
+    projectId: proj.id,
+    file,
+    label,
+    category: uploadType,
+    userId: authUser.id
+});
       if (file.type.startsWith("image/")) {
         await supabase
           .from("projects")
