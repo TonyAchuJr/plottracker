@@ -1174,12 +1174,13 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
     const file = e.target.files?.[0];
     if (!file) return;
 
-    await uploadFile({
-      projectId: proj.id,
-      file,
-      label: "Cover Image",
-      userId: authUser.id
-    });
+    const { data } = await uploadFile({
+  projectId: proj.id,
+  file,
+  label: "Cover Image",
+  category: "photo",
+  userId: authUser.id
+});
 
     await supabase
       .from("projects")
