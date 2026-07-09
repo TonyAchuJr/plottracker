@@ -2255,7 +2255,7 @@ onChange={e=>setPending(p=>[...p,...Array.from(e.target.files)])}
 />
 
 </div>
-    ))}
+    
     <Fi label="Label (optional)" value={label} onChange={setLabel} placeholder="Master Layout v2" />
     <Btns cancel={()=>setModal(null)} confirm={go} label={busy?"Uploading…":"Upload"} disabled={busy} />
   </>;
