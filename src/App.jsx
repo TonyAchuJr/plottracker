@@ -26,7 +26,7 @@ const inr  = v => v ? `₹${Number(v).toLocaleString("en-IN")}` : "";
 /* ════════════════════════════════════════════════════════════════
    ROOT
 ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "2.4.0";
+const APP_VERSION = "2.4.1";
 
 export default function App() {
   const [dark, setDark]       = useState(() => localStorage.getItem("pt_theme") !== "light");
@@ -249,7 +249,7 @@ setBuyerEnquiries,
     />
 )}
       <FloatingAnnouncement
-    version="2.4.0"
+    version="2.4.1"
     title="Latest Updates"
     message={`
 • Bugs in cards menu and forgot password fixed
@@ -369,7 +369,7 @@ function UpdatePopup({ version, onClose }) {
 
                     <li>✅ Enquires can be sent for buyers and owners can respond to it</li>
 
-                    <li>⚠️ Now Videos can be uploaded (working on alignment)</li>
+                    <li>⚠️ Now Videos can be uploaded. Files can be viewed now with filters</li>
 
 
                 </ul>
@@ -1771,7 +1771,7 @@ function AboutModal({ ctx }) {
         </div>
         <div className="info-row">
           <span className="info-row-label">Version</span>
-          <span className="info-row-value mono">2.4.0</span>
+          <span className="info-row-value mono">2.4.1</span>
         </div>
         <div className="info-row">
           <span className="info-row-label">Built with</span>
