@@ -2294,12 +2294,12 @@ function ViewFilesModal({ ctx, proj }) {
     return true;
   });
 
-  // Auto-select first file when tab changes
+  // Auto-select first file when tab or files change
   useEffect(() => {
-    if (visibleFiles.length > 0 && !selectedFile) {
+    if (visibleFiles.length > 0 && (!selectedFile || !visibleFiles.find(f => f.id === selectedFile.id))) {
       setSelectedFile(visibleFiles[0]);
     }
-  }, [activeTab, visibleFiles]);
+  }, [activeTab, visibleFiles]); // removed selectedFile from deps
 
   const del = async (id, path, label) => {
     await removeFile(id, path);
