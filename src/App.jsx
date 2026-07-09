@@ -2325,10 +2325,10 @@ const [selectedFile, setSelectedFile] = useState(null);
   <>
 <div
 style={{
-display:"grid",
-gridTemplateColumns:"320px 1fr",
-gap:24,
-height:"70vh"
+    borderRight: "1px solid var(--line)",
+    paddingRight: 18,
+    overflowY: "auto",
+    overflowX: "hidden"
 }}
 >
 
@@ -2481,12 +2481,15 @@ justifyContent:"space-between"
 
 <div
 style={{
-height:"100%",
-background:"var(--surface2)",
-borderRadius:18,
-display:"flex",
-alignItems:"center",
-justifyContent:"center"
+    height: "100%",
+    background: "#11121d",
+    border: "1px solid var(--line)",
+    borderRadius: 20,
+    padding: 18,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden"
 }}
 >
 
