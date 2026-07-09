@@ -2159,123 +2159,136 @@ function BulkEditPlotsModal({ ctx, proj }) {
 function UploadFileModal({ ctx, proj }) {
   const { authUser, toast$, setModal, setFiles, setProjects, setProjHistory } = ctx;
   
-  const [pending,setPending]=useState([]); const [label,setLabel]=useState(""); const [uploadType,setUploadType]=useState("document"); const [busy,setBusy]=useState(false); const ref=useRef();
+  const [pending, setPending] = useState([]);
+  const [label, setLabel] = useState("");
+  const [uploadType, setUploadType] = useState("document");
+  const [busy, setBusy] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const ref = useRef();
+
   const go = async () => {
     if (!pending.length) return;
+
     setBusy(true);
+    setUploading(true);
+
+    let successCount = 0;
+
     for (const file of pending) {
-      await uploadFile({
-    projectId: proj.id,
-    file,
-    label,
-    category: uploadType,
-    userId: authUser.id
-});
-      
+      try {
+        const { data } = await uploadFile({
+          projectId: proj.id,
+          file,
+          label,
+          category: uploadType,
+          userId: authUser.id
+        });
+
+        successCount++;
+      } catch (e) {
+        console.error("Upload failed for", file.name);
+      }
     }
+
+    // Refresh data
     await insertProjectHistory({
       projectId: proj.id,
-      action: `Uploaded ${pending.length} file(s)${label ? `: ${label}` : ""}`,
+      action: `Uploaded ${successCount} file(s)${label ? `: ${label}` : ""}`,
       actorId: authUser.id,
     });
+
     const [{ data: fi }, { data: ph }, { data: projectsData }] = await Promise.all([
       fetchFiles(proj.id),
       fetchProjectHistory(proj.id),
       fetchProjects(),
     ]);
+
     setFiles(fi || []);
     setProjHistory(ph || []);
     setProjects(projectsData || []);
-    setBusy(false); toast$(`${pending.length} file(s) uploaded!`); setModal(null);
+
+    setBusy(false);
+    setUploading(false);
+
+    toast$(`${successCount} file(s) uploaded successfully!`);
+    setModal(null);
+    setPending([]);
   };
-  return <>
-    <h3 className="sheet-title">Upload Project Files</h3>
-<div className="upload-types">
 
-<label className="gold-radio">
+  return (
+    <>
+      <h3 className="sheet-title">Upload Project Files</h3>
 
-<input
-type="radio"
-checked={uploadType==="document"}
-onChange={()=>setUploadType("document")}
-/>
+      <div style={{ marginBottom: "16px" }}>
+        <label className="flabel">File Type</label>
+        <div style={{ display: "flex", gap: "12px", marginBottom: "16px" }}>
+          {["document", "photo", "video"].map(type => (
+            <button
+              key={type}
+              className={uploadType === type ? "btn-primary" : "btn-ghost"}
+              onClick={() => setUploadType(type)}
+              style={{ padding: "8px 16px" }}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}s
+            </button>
+          ))}
+        </div>
+      </div>
 
-<span>Documents</span>
+      <div 
+        onClick={() => ref.current.click()} 
+        style={{
+          border: "2px dashed var(--border2)",
+          borderRadius: 14,
+          padding: "2rem",
+          textAlign: "center",
+          cursor: "pointer",
+          background: "var(--surface2)",
+          marginBottom: "16px"
+        }}
+      >
+        <div style={{ fontSize: 40, marginBottom: 12 }}>📁</div>
+        <div>Click to select files</div>
+        <div className="tmuted tsm">
+          {uploadType === "document" ? "PDF, DWG, SVG" : 
+           uploadType === "photo" ? "JPG, PNG, WebP" : "MP4, MOV, AVI"}
+        </div>
+        <input 
+          ref={ref} 
+          type="file" 
+          multiple 
+          accept={
+            uploadType === "document" ? ".pdf,.dwg,.svg" :
+            uploadType === "photo" ? ".jpg,.jpeg,.png,.webp" : 
+            ".mp4,.mov,.avi,.mkv,.webm"
+          }
+          style={{ display: "none" }} 
+          onChange={e => setPending(p => [...p, ...Array.from(e.target.files)])}
+        />
+      </div>
 
-</label>
+      {pending.length > 0 && (
+        <div style={{ marginBottom: "16px" }}>
+          <div className="flabel">Selected Files ({pending.length})</div>
+          {pending.map((f, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px", background: "var(--surface2)", borderRadius: 8, marginBottom: 6 }}>
+              <span className="trunc" style={{ maxWidth: "70%" }}>{f.name}</span>
+              <button onClick={() => setPending(p => p.filter((_, idx) => idx !== i))} style={{ color: "var(--rose)" }}>Remove</button>
+            </div>
+          ))}
+        </div>
+      )}
 
-<label className="gold-radio">
+      <Fi label="Label (optional)" value={label} onChange={setLabel} placeholder="Master Layout v2" />
 
-<input
-type="radio"
-checked={uploadType==="photo"}
-onChange={()=>setUploadType("photo")}
-/>
-
-<span>Photos</span>
-
-</label>
-
-<label className="gold-radio">
-
-<input
-type="radio"
-checked={uploadType==="video"}
-onChange={()=>setUploadType("video")}
-/>
-
-<span>Videos</span>
-
-</label>
-
-</div>
-
-<div
-onClick={()=>ref.current.click()}
-style={{
-border:"2px dashed var(--border2)",
-borderRadius:14,
-padding:"1.8rem",
-textAlign:"center",
-cursor:"pointer",
-background:"var(--surface2)"
-}}
->
-
-<div style={{fontSize:30}}>📁</div>
-
-<div className="muted">
-{
-  uploadType === "document"
-    ? "Upload PDF, DWG, SVG"
-    : uploadType === "photo"
-    ? "Upload Images"
-    : "Upload Videos"
-}
-</div>
-
-<input
-ref={ref}
-type="file"
-multiple
-accept={
-uploadType==="document"
-?".pdf,.dwg,.svg"
-
-:uploadType==="photo"
-?".jpg,.jpeg,.png,.webp"
-
-:".mp4,.mov,.avi,.mkv,.webm"
-}
-style={{display:"none"}}
-onChange={e=>setPending(p=>[...p,...Array.from(e.target.files)])}
-/>
-
-</div>
-    
-    <Fi label="Label (optional)" value={label} onChange={setLabel} placeholder="Master Layout v2" />
-    <Btns cancel={()=>setModal(null)} confirm={go} label={busy?"Uploading…":"Upload"} disabled={busy} />
-  </>;
+      <Btns 
+        cancel={() => setModal(null)} 
+        confirm={go} 
+        label={busy ? "Uploading..." : "Upload"} 
+        disabled={busy || pending.length === 0} 
+      />
+    </>
+  );
 }
 
 function ViewFilesModal({ ctx, proj }) {
