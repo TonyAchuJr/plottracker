@@ -2294,12 +2294,14 @@ function ViewFilesModal({ ctx, proj }) {
     return true;
   });
 
-  // Auto-select first file when tab or files change
+  // Auto-select first file
   useEffect(() => {
-    if (visibleFiles.length > 0 && (!selectedFile || !visibleFiles.find(f => f.id === selectedFile.id))) {
+    if (visibleFiles.length > 0) {
       setSelectedFile(visibleFiles[0]);
+    } else {
+      setSelectedFile(null);
     }
-  }, [activeTab, visibleFiles]); // removed selectedFile from deps
+  }, [activeTab, visibleFiles.length]); // safe dependency
 
   const del = async (id, path, label) => {
     await removeFile(id, path);
@@ -2358,7 +2360,7 @@ function ViewFilesModal({ ctx, proj }) {
           </div>
         </div>
 
-        {/* RIGHT: Preview Area */}
+        {/* RIGHT: Preview */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <div style={{
             flex: 1,
@@ -2368,33 +2370,18 @@ function ViewFilesModal({ ctx, proj }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            overflow: "hidden",
-            position: "relative"
+            overflow: "hidden"
           }}>
             {selectedFile ? (
               <>
                 {selectedFile.file_type.startsWith("image/") && (
-                  <img
-                    src={selectedFile.storage_path}
-                    alt={selectedFile.name}
-                    style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-                  />
+                  <img src={selectedFile.storage_path} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
                 )}
-
                 {selectedFile.file_type === "application/pdf" && (
-                  <iframe
-                    src={selectedFile.storage_path}
-                    title="PDF Preview"
-                    style={{ width: "100%", height: "100%", border: "none" }}
-                  />
+                  <iframe src={selectedFile.storage_path} title="PDF" style={{ width: "100%", height: "100%", border: "none" }} />
                 )}
-
                 {selectedFile.file_type.startsWith("video/") && (
-                  <video
-                    src={selectedFile.storage_path}
-                    controls
-                    style={{ maxWidth: "100%", maxHeight: "100%" }}
-                  />
+                  <video src={selectedFile.storage_path} controls style={{ maxWidth: "100%", maxHeight: "100%" }} />
                 )}
               </>
             ) : (
@@ -2402,30 +2389,12 @@ function ViewFilesModal({ ctx, proj }) {
             )}
           </div>
 
-          {/* Action Buttons */}
           <div style={{ display: "flex", gap: "12px", marginTop: "16px", justifyContent: "center" }}>
             <button className="btn-ghost" onClick={() => setModal(null)}>Close</button>
-
             {selectedFile && (
               <>
-                <a
-                  href={selectedFile.storage_path}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="btn-secondary"
-                  style={{ textDecoration: "none" }}
-                >
-                  Download
-                </a>
-
-                {isOwnerRole && (
-                  <button
-                    className="btn-danger"
-                    onClick={() => del(selectedFile.id, selectedFile.storage_path, selectedFile.label || selectedFile.name)}
-                  >
-                    Delete
-                  </button>
-                )}
+                <a href={selectedFile.storage_path} target="_blank" rel="noreferrer" className="btn-secondary" style={{ textDecoration: "none" }}>Download</a>
+                {isOwnerRole && <button className="btn-danger" onClick={() => del(selectedFile.id, selectedFile.storage_path, selectedFile.label || selectedFile.name)}>Delete</button>}
               </>
             )}
           </div>
