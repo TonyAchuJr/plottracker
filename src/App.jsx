@@ -1252,6 +1252,7 @@ function ProjectView({ proj, ctx }) {
         bkd   = plots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
+  const [showAllHistory, setShowAllHistory] = useState(false);
   const filtered = plots
   .filter(
     p =>
@@ -1322,7 +1323,11 @@ function ProjectView({ proj, ctx }) {
       {isOwnerRole && ctx.projHistory.length > 0 && (
         <div className="card afu3 mb3">
           <div className="sec-head">Project Activity</div>
-          {ctx.projHistory.map(h => (
+          
+          {(showAllHistory
+  ? ctx.projHistory
+  : ctx.projHistory.slice(0, 3)
+).map(h => (
             <div key={h.id} className="titem">
               <Av name={h.actor?.name || "?"} size={31} />
               <div style={{ minWidth: 0 }}>
@@ -1332,6 +1337,18 @@ function ProjectView({ proj, ctx }) {
               </div>
             </div>
           ))}
+          {ctx.projHistory.length > 3 && (
+      <div style={{ textAlign: "center", marginTop: 12 }}>
+        <button
+          className="btn-secondary"
+          onClick={() => setShowAllHistory(!showAllHistory)}
+        >
+          {showAllHistory
+            ? "Show Less"
+            : `Show More (${ctx.projHistory.length - 3})`}
+        </button>
+      </div>
+    )}
         </div>
       )}
 
