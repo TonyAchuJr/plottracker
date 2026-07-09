@@ -2300,7 +2300,8 @@ function ViewFilesModal({ ctx, proj }) {
     } else {
       setSelectedFile(null);
     }
-  }, [activeTab, visibleFiles.length]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const del = async (id, path, label) => {
     await removeFile(id, path);
