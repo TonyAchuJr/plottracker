@@ -2285,7 +2285,6 @@ function ViewFilesModal({ ctx, proj }) {
   const [activeTab, setActiveTab] = useState("all");
   const [selectedFile, setSelectedFile] = useState(null);
 
-  // Filter files by tab
   const visibleFiles = files.filter(f => {
     if (activeTab === "all") return true;
     if (activeTab === "document") return !f.file_type.startsWith("image/") && !f.file_type.startsWith("video/");
@@ -2294,14 +2293,14 @@ function ViewFilesModal({ ctx, proj }) {
     return true;
   });
 
-  // Auto-select first file
+  // Auto select
   useEffect(() => {
     if (visibleFiles.length > 0) {
       setSelectedFile(visibleFiles[0]);
     } else {
       setSelectedFile(null);
     }
-  }, [activeTab, visibleFiles.length]); // safe dependency
+  }, [activeTab, visibleFiles.length]);
 
   const del = async (id, path, label) => {
     await removeFile(id, path);
