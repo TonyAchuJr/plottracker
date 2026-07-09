@@ -2293,12 +2293,14 @@ function ViewFilesModal({ ctx, proj }) {
     return true;
   });
 
+  // Auto select
   useEffect(() => {
     if (visibleFiles.length > 0) {
       setSelectedFile(visibleFiles[0]);
     } else {
       setSelectedFile(null);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const del = async (id, path, label) => {
@@ -2320,7 +2322,7 @@ function ViewFilesModal({ ctx, proj }) {
       <h3 className="sheet-title">Files — {proj.name}</h3>
 
       <div style={{ display: "flex", height: "65vh", gap: "20px" }}>
-        {/* LEFT: File List with Real Thumbnails */}
+        {/* LEFT: File List */}
         <div style={{ width: "340px", borderRight: "1px solid var(--border2)", paddingRight: "16px", overflowY: "auto" }}>
           <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
             {["all", "document", "photo", "video"].map(tab => (
@@ -2356,19 +2358,13 @@ function ViewFilesModal({ ctx, proj }) {
                     <img
                       src={f.storage_path}
                       alt={f.name}
-                      style={{
-                        width: "100%",
-                        height: "90px",
-                        objectFit: "cover",
-                        borderRadius: "8px"
-                      }}
+                      style={{ width: "100%", height: "90px", objectFit: "cover", borderRadius: "8px" }}
                     />
                   ) : (
                     <div style={{ fontSize: "42px", height: "90px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {f.file_type.startsWith("video/") ? "🎥" : "📄"}
                     </div>
                   )}
-
                   <div className="trunc" style={{ fontSize: "12px", marginTop: "6px" }}>{f.label || f.name}</div>
                 </div>
               );
@@ -2376,7 +2372,7 @@ function ViewFilesModal({ ctx, proj }) {
           </div>
         </div>
 
-        {/* RIGHT: Big Preview */}
+        {/* RIGHT: Preview */}
         <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
           <div style={{
             flex: 1,
@@ -2391,11 +2387,7 @@ function ViewFilesModal({ ctx, proj }) {
             {selectedFile ? (
               <>
                 {selectedFile.file_type.startsWith("image/") && (
-                  <img
-                    src={selectedFile.storage_path}
-                    alt={selectedFile.name}
-                    style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
-                  />
+                  <img src={selectedFile.storage_path} alt="" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }} />
                 )}
                 {selectedFile.file_type === "application/pdf" && (
                   <iframe src={selectedFile.storage_path} title="PDF" style={{ width: "100%", height: "100%", border: "none" }} />
