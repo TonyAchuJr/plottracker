@@ -2280,39 +2280,27 @@ onChange={e=>setPending(p=>[...p,...Array.from(e.target.files)])}
 
 function ViewFilesModal({ ctx, proj }) {
   const { authUser, profile, toast$, setModal, files, setFiles } = ctx;
-  const [activeTab, setActiveTab] = useState("document");
-const [selectedFile, setSelectedFile] = useState(null);
-  const visibleFiles = files.filter(f => {
-    if (activeTab === "document")
-        return !f.file_type.startsWith("image/") &&
-               !f.file_type.startsWith("video/");
-
-    if (activeTab === "photo")
-        return f.file_type.startsWith("image/");
-
-    if (activeTab === "video")
-        return f.file_type.startsWith("video/");
-
-    return true;
-});
-  useEffect(() => {
-    const firstVisible = files.find(f => {
-        if (activeTab === "document")
-            return !f.file_type.startsWith("image/") &&
-                   !f.file_type.startsWith("video/");
-
-        if (activeTab === "photo")
-            return f.file_type.startsWith("image/");
-
-        if (activeTab === "video")
-            return f.file_type.startsWith("video/");
-
-        return true;
-    });
-
-    setSelectedFile(firstVisible || null);
-}, [activeTab, files]);
   const isOwnerRole = profile?.role === "owner";
+
+  const [activeTab, setActiveTab] = useState("all");
+  const [selectedFile, setSelectedFile] = useState(null);
+
+  // Filter files by tab
+  const visibleFiles = files.filter(f => {
+    if (activeTab === "all") return true;
+    if (activeTab === "document") return !f.file_type.startsWith("image/") && !f.file_type.startsWith("video/");
+    if (activeTab === "photo") return f.file_type.startsWith("image/");
+    if (activeTab === "video") return f.file_type.startsWith("video/");
+    return true;
+  });
+
+  // Auto-select first file when tab changes
+  useEffect(() => {
+    if (visibleFiles.length > 0 && !selectedFile) {
+      setSelectedFile(visibleFiles[0]);
+    }
+  }, [activeTab, visibleFiles]);
+
   const del = async (id, path, label) => {
     await removeFile(id, path);
     await insertProjectHistory({
@@ -2320,293 +2308,131 @@ const [selectedFile, setSelectedFile] = useState(null);
       action: `Deleted file: ${label}`,
       actorId: authUser.id,
     });
-    const { data } = await fetchFiles(proj.id); setFiles(data||[]); toast$("File removed.");
+    const { data } = await fetchFiles(proj.id);
+    setFiles(data || []);
+    toast$("File removed.");
+    if (selectedFile?.id === id) setSelectedFile(null);
   };
-  return <>
-    <h3 className="sheet-title">Layout Files — {proj.name}</h3>
-    {files.length === 0 ? (
-  <p
-    className="tmuted tsm"
-    style={{ textAlign: "center", padding: "2rem 0" }}
-  >
-    No files uploaded yet.
-  </p>
-) : (
-  <>
-<div
-style={{
-    borderRight: "1px solid var(--line)",
-    paddingRight: 18,
-    overflowY: "auto",
-    overflowX: "hidden"
-}}
->
 
-<div
-style={{
-borderRight:"1px solid var(--line)",
-paddingRight:18,
-overflowY:"auto"
-}}
->
+  return (
+    <div className="sheet sheet-wide" style={{ maxWidth: "1100px" }}>
+      <div className="sheet-handle" />
+      <h3 className="sheet-title">Files — {proj.name}</h3>
 
-<div
-style={{
-display:"flex",
-gap:16,
-marginBottom:18,
-fontWeight:600
-}}
->
+      <div style={{ display: "flex", height: "65vh", gap: "20px" }}>
+        {/* LEFT: File List */}
+        <div style={{ width: "320px", borderRight: "1px solid var(--border2)", paddingRight: "16px", overflowY: "auto" }}>
+          <div style={{ display: "flex", gap: "8px", marginBottom: "16px", flexWrap: "wrap" }}>
+            {["all", "document", "photo", "video"].map(tab => (
+              <button
+                key={tab}
+                className={activeTab === tab ? "btn-primary" : "btn-ghost"}
+                onClick={() => setActiveTab(tab)}
+                style={{ fontSize: "13px", padding: "6px 14px" }}
+              >
+                {tab === "all" ? "All" : tab.charAt(0).toUpperCase() + tab.slice(1) + "s"}
+              </button>
+            ))}
+          </div>
 
-<div
-style={{
-display:"flex",
-gap:16,
-marginBottom:18,
-fontWeight:600
-}}
->
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(90px, 1fr))", gap: "12px" }}>
+            {visibleFiles.map(f => (
+              <div
+                key={f.id}
+                onClick={() => setSelectedFile(f)}
+                style={{
+                  cursor: "pointer",
+                  padding: "8px",
+                  borderRadius: "10px",
+                  background: selectedFile?.id === f.id ? "var(--gold-dim)" : "var(--surface2)",
+                  border: selectedFile?.id === f.id ? "2px solid var(--gold)" : "1px solid var(--border2)",
+                  textAlign: "center"
+                }}
+              >
+                {f.file_type.startsWith("image/") && <div style={{ fontSize: "32px" }}>🖼️</div>}
+                {f.file_type === "application/pdf" && <div style={{ fontSize: "32px" }}>📄</div>}
+                {f.file_type.startsWith("video/") && <div style={{ fontSize: "32px" }}>🎥</div>}
+                <div className="trunc" style={{ fontSize: "12px", marginTop: "6px" }}>{f.label || f.name}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-<button
-className={activeTab==="document" ? "btn-primary" : "btn-ghost"}
-onClick={()=>setActiveTab("document")}
->
-Documents
-</button>
+        {/* RIGHT: Preview Area */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <div style={{
+            flex: 1,
+            background: "#11121d",
+            border: "1px solid var(--border2)",
+            borderRadius: "16px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            position: "relative"
+          }}>
+            {selectedFile ? (
+              <>
+                {selectedFile.file_type.startsWith("image/") && (
+                  <img
+                    src={selectedFile.storage_path}
+                    alt={selectedFile.name}
+                    style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain" }}
+                  />
+                )}
 
-<button
-className={activeTab==="photo" ? "btn-primary" : "btn-ghost"}
-onClick={()=>setActiveTab("photo")}
->
-Photos
-</button>
+                {selectedFile.file_type === "application/pdf" && (
+                  <iframe
+                    src={selectedFile.storage_path}
+                    title="PDF Preview"
+                    style={{ width: "100%", height: "100%", border: "none" }}
+                  />
+                )}
 
-<button
-className={activeTab==="video" ? "btn-primary" : "btn-ghost"}
-onClick={()=>setActiveTab("video")}
->
-Videos
-</button>
+                {selectedFile.file_type.startsWith("video/") && (
+                  <video
+                    src={selectedFile.storage_path}
+                    controls
+                    style={{ maxWidth: "100%", maxHeight: "100%" }}
+                  />
+                )}
+              </>
+            ) : (
+              <div style={{ color: "var(--text3)", fontSize: "18px" }}>Select a file to preview</div>
+            )}
+          </div>
 
-</div>
+          {/* Action Buttons */}
+          <div style={{ display: "flex", gap: "12px", marginTop: "16px", justifyContent: "center" }}>
+            <button className="btn-ghost" onClick={() => setModal(null)}>Close</button>
 
-</div>
+            {selectedFile && (
+              <>
+                <a
+                  href={selectedFile.storage_path}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="btn-secondary"
+                  style={{ textDecoration: "none" }}
+                >
+                  Download
+                </a>
 
-<div
-id="file-grid"
-style={{
-display:"grid",
-gridTemplateColumns:"repeat(3,1fr)",
-gap:14
-}}
->
-
-{visibleFiles.map(f => (
-<div
-key={f.id}
-onClick={() => setSelectedFile(f)}
-style={{
-    cursor: "pointer",
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 12,
-    background:
-        selectedFile?.id === f.id
-            ? "rgba(214,175,54,.18)"
-            : "var(--surface2)",
-    border:
-        selectedFile?.id === f.id
-            ? "2px solid var(--gold)"
-            : "2px solid transparent",
-    transition: "0.25s"
-}}
->
-
-{f.file_type.startsWith("image/") && (
-<img
-src={f.storage_path}
-alt=""
-style={{
-width:"100%",
-height:90,
-objectFit:"cover",
-borderRadius:10
-}}
-/>
-)}
-
-{f.file_type==="application/pdf" && (
-<div
-style={{
-height:90,
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:36
-}}
->
-📄
-</div>
-)}
-
-{f.file_type.startsWith("video/") && (
-<div
-style={{
-height:90,
-display:"flex",
-alignItems:"center",
-justifyContent:"center",
-fontSize:36
-}}
->
-🎥
-</div>
-)}
-
-<div
-style={{
-marginTop:8,
-fontSize:13,
-fontWeight:600
-}}
->
-{f.label || f.name}
-</div>
-
-</div>
-))}
-
-</div>
-
-</div>
-
-<div
-style={{
-display:"flex",
-flexDirection:"column",
-justifyContent:"space-between"
-}}
->
-
-<div
-style={{
-    height: "100%",
-    background: "#11121d",
-    border: "1px solid var(--line)",
-    borderRadius: 20,
-    padding: 18,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    overflow: "hidden"
-}}
->
-
-{selectedFile ? (
-<>
-{selectedFile.file_type.startsWith("image/") && (
-<img
-src={selectedFile.storage_path}
-alt=""
-style={{
-width:"100%",
-height:"100%",
-objectFit:"contain",
-borderRadius:14
-}}
-/>
-)}
-
-{selectedFile.file_type==="application/pdf" && (
-<iframe
-src={selectedFile.storage_path}
-title="PDF Preview"
-style={{
-width:"100%",
-height:"100%",
-border:"none",
-borderRadius:14
-}}
-/>
-)}
-
-{selectedFile.file_type.startsWith("video/") && (
-<video
-src={selectedFile.storage_path}
-controls
-style={{
-width:"100%",
-height:"100%",
-borderRadius:14
-}}
-/>
-)}
-</>
-) : (
-<div
-style={{
-color:"var(--muted)",
-fontSize:16
-}}
->
-Select a file to preview
-</div>
-)}
-
-</div>
-
-<div
-style={{
-display:"flex",
-justifyContent:"center",
-gap:12,
-marginTop:18
-}}
->
-
-<button
-className="btn-ghost"
-onClick={()=>setModal(null)}
->
-Close
-</button>
-
-<a
-href={selectedFile?.storage_path}
-download
-target="_blank"
-rel="noreferrer"
-className="btn-secondary"
-style={{ textDecoration:"none" }}
->
-Download
-</a>
-
-{isOwnerRole && selectedFile && (
-<button
-className="btn-danger"
-onClick={() =>
-del(
-selectedFile.id,
-selectedFile.storage_path,
-selectedFile.label || selectedFile.name
-)
-}
->
-Delete
-</button>
-)}
-
-</div>
-
-</div>
-
-</div>
-</>
-)}
-    
-  </>;
+                {isOwnerRole && (
+                  <button
+                    className="btn-danger"
+                    onClick={() => del(selectedFile.id, selectedFile.storage_path, selectedFile.label || selectedFile.name)}
+                  >
+                    Delete
+                  </button>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /* ════════════════════════════════════════════════════════════════
