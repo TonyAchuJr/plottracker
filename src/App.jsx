@@ -2163,27 +2163,24 @@ function UploadFileModal({ ctx, proj }) {
   const [label, setLabel] = useState("");
   const [uploadType, setUploadType] = useState("document");
   const [busy, setBusy] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const ref = useRef();
 
   const go = async () => {
     if (!pending.length) return;
 
     setBusy(true);
-    setUploading(true);
 
     let successCount = 0;
 
     for (const file of pending) {
       try {
-        const { data } = await uploadFile({
+        await uploadFile({
           projectId: proj.id,
           file,
           label,
           category: uploadType,
           userId: authUser.id
         });
-
         successCount++;
       } catch (e) {
         console.error("Upload failed for", file.name);
@@ -2208,7 +2205,6 @@ function UploadFileModal({ ctx, proj }) {
     setProjects(projectsData || []);
 
     setBusy(false);
-    setUploading(false);
 
     toast$(`${successCount} file(s) uploaded successfully!`);
     setModal(null);
@@ -2290,7 +2286,6 @@ function UploadFileModal({ ctx, proj }) {
     </>
   );
 }
-
 function ViewFilesModal({ ctx, proj }) {
   const { authUser, profile, toast$, setModal, files, setFiles } = ctx;
   const isOwnerRole = profile?.role === "owner";
