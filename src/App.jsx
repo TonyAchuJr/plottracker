@@ -2296,11 +2296,21 @@ const [selectedFile, setSelectedFile] = useState(null);
     return true;
 });
   useEffect(() => {
-    if (visibleFiles.length > 0) {
-        setSelectedFile(visibleFiles[0]);
-    } else {
-        setSelectedFile(null);
-    }
+    const firstVisible = files.find(f => {
+        if (activeTab === "document")
+            return !f.file_type.startsWith("image/") &&
+                   !f.file_type.startsWith("video/");
+
+        if (activeTab === "photo")
+            return f.file_type.startsWith("image/");
+
+        if (activeTab === "video")
+            return f.file_type.startsWith("video/");
+
+        return true;
+    });
+
+    setSelectedFile(firstVisible || null);
 }, [activeTab, files]);
   const isOwnerRole = profile?.role === "owner";
   const del = async (id, path, label) => {
