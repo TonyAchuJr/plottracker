@@ -609,15 +609,17 @@ a { color:var(--gold); text-decoration:none; }
 .overlay {
   position:fixed; inset:0; background:rgba(0,0,0,0.72);
   backdrop-filter:blur(6px); z-index:1000;
-  display:flex; align-items:flex-end; justify-content:center;
+  display:flex; align-items:center; justify-content:center;
   animation:fadeIn .22s ease both;
 }
-.sheet {
-  background:var(--surface); border-radius:22px 22px 0 0;
-  width:100%; max-width:600px;
+.sheet{
+    background:var(--surface);
+    border-radius:22px;
+
+    width:min(1200px,95vw);
   padding:1.5rem 1.5rem max(1.5rem, env(safe-area-inset-bottom,1rem));
   max-height:92vh; overflow-y:auto; -webkit-overflow-scrolling:touch;
-  position:relative; animation:slideUp .3s cubic-bezier(.4,0,.2,1) both;
+  position:relative; animation:fadeIn .25s ease;
   box-shadow:0 -8px 48px rgba(0,0,0,0.5);
 }
 .sheet::before {
