@@ -29,7 +29,7 @@ const inr  = v => v ? `₹${Number(v).toLocaleString("en-IN")}` : "";
 /* ════════════════════════════════════════════════════════════════
    ROOT
 ════════════════════════════════════════════════════════════════ */
-const APP_VERSION = "2.4.1";
+const APP_VERSION = "2.5.0";
 
 export default function App() {
   const [dark, setDark]       = useState(() => localStorage.getItem("pt_theme") !== "light");
@@ -268,15 +268,19 @@ setBuyerEnquiries,
     />
 )}
       <FloatingAnnouncement
-    version="2.4.1"
+    version="2.5.0"
     title="Latest Updates"
     message={`
-• Bugs in cards menu and forgot password fixed
 • Buyers/Viewers can now send Enquiries. 
 Just click on the project card > click on Request Information and fill the fields and you'll reach it out from agents 
 • Owners can view the enquiries sent by buyers. 
 Just click on Enquires and respond to them (for Eg: we'll get back soon)
 • Click on forgot password > check your main inbox > reset your password
+• If there are no projects visible or the data is not updates just refresh the page
+• click on project card > settings to upload master layout image
+• Click on settings > paint > connect the dots on the plot by selecting
+booked / sold and select plot # and finish - save .
+layout is updated in image
 `}
 />
       {showEnquiryModal && selectedProject && (
@@ -384,9 +388,11 @@ function UpdatePopup({ version, onClose }) {
 
                     <li>✅ Added feature that any user with owner access can upload, archive, delete project</li>
 
-                    <li>✅ Double-Click on the golden orb to view the updates</li>
+                    <li>✅ Double-Click on the golden orb to know the process steps owner/buyer</li>
 
                     <li>✅ Enquires can be sent for buyers and owners can respond to it</li>
+
+                    <li>✅ Layout upddates on image can be done</li>
 
                     <li>⚠️ Now Videos can be uploaded. Files can be viewed now with filters</li>
 
@@ -1847,7 +1853,7 @@ function AboutModal({ ctx }) {
         </div>
         <div className="info-row">
           <span className="info-row-label">Version</span>
-          <span className="info-row-value mono">2.4.1</span>
+          <span className="info-row-value mono">2.5.0</span>
         </div>
         <div className="info-row">
           <span className="info-row-label">Built with</span>
