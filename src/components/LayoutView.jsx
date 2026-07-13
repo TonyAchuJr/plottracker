@@ -1,8 +1,6 @@
-export default function LayoutView({ files }) {
+export default function LayoutView({ proj }) {
 
-  const layoutImage = files.find(
-    file => file.file_type?.startsWith("image/")
-  );
+  const layoutImage = proj.cover_image;
 
   if (!layoutImage) {
     return (
@@ -23,7 +21,7 @@ export default function LayoutView({ files }) {
     <div className="layout-view">
 
       <img
-        src={layoutImage.storage_path}
+    src={layoutImage}
         alt="Project Layout"
       />
 
