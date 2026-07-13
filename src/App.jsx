@@ -213,33 +213,19 @@ useEffect(() => {
   async function openProject(id) {
     setProjId(id); setPlotId(null); setBusy(true);
     const [
-
-    { data: pl },
-
-    { data: fi },
-
-    { data: ph },
-
-    { data: coords }
-
+{ data: pl },
+{ data: fi },
+{ data: ph },
+{ data: coords }
 ] = await Promise.all([
-
     fetchPlots(id),
-
     fetchFiles(id),
-
     fetchProjectHistory(id),
-
     fetchLayoutCoordinates(id)
-
 ]);
-
 setPlots(pl || []);
-
 setFiles(fi || []);
-
 setProjHistory(ph || []);
-
 setLayoutCoords(coords || []);
     setBusy(false); setView("project");
   }
@@ -249,10 +235,8 @@ setLayoutCoords(coords || []);
     setHistory(hi || []);
     setBusy(false); setView("plot");
   }
-
   const proj = projects.find(p => p.id === projId);
   const plot = plots.find(p => p.id === plotId);
-
   const ctx = {
     dark, toggleDark, authUser, profile, profiles,
     projects, setProjects, plots, layoutCoords, setPlots,
@@ -2042,7 +2026,7 @@ function AddPlotsModal({ ctx, proj }) {
 }
 
 function UpdatePlotModal({ ctx, plot, proj }) {
-  const { authUser, profile, toast$, setModal, setPlots, setHistory } = ctx;
+  const { authUser, profile, toast$, setModal, setPlots, setHistory, openProject} = ctx;
   const [status,setStatus]   = useState(plot.status);
   const [cName,setCName]     = useState(plot.contact_name||"");
   const [cPhone,setCPhone]   = useState(plot.contact_phone||"");
@@ -2081,7 +2065,7 @@ function UpdatePlotModal({ ctx, plot, proj }) {
     if (error) { toast$(error.message,"err"); setBusy(false); return; }
     await insertHistory({ plotId:plot.id, action, actorId:authUser.id, note:note.trim()||null });
     const [{ data: pl },{ data: hi }] = await Promise.all([fetchPlots(proj.id), fetchHistory(plot.id)]);
-    setPlots(pl||[]); setHistory(hi||[]);
+    setPlots(pl||[]); openProject(proj.id); setHistory(hi||[]);
     setBusy(false); toast$("Plot updated!"); setModal(null);
   };
   return <>
