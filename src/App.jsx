@@ -17,7 +17,7 @@ import {
 } from "./supabaseClient";
 import FloatingAnnouncement from "./FloatingAnnouncement";
 import BuyerEnquiryModal from "./BuyerEnquiryModal";
-import LayoutTabs from "./components/LayoutTabs";
+
 import LayoutView from "./components/LayoutView";
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
