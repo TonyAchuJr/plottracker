@@ -202,21 +202,21 @@ Plot {plot.number}
 />
 
       <svg
-        onClick={handleClick}
-        style={{
-          position: "absolute",
-          inset: 0,
-          width: "100%",
-          height: "100%",
-          cursor: "crosshair"
-        }}
-      >
+  viewBox="0 0 1 1"
+  preserveAspectRatio="none"
+  onClick={handleClick}
+  style={{
+    position: "absolute",
+    inset: 0,
+    width: "100%",
+    height: "100%",
+    cursor: "crosshair"
+  }}
+>
         <>
   {points.length > 1 && (
     <polyline
-      points={points
-  .map(p => `${p.x * 100}%,${p.y * 100}%`)
-  .join(" ")}
+      points={points.map(p => `${p.x},${p.y}`).join(" ")}
       fill="none"
       stroke="#FFD54A"
       strokeWidth="2"
@@ -225,9 +225,7 @@ Plot {plot.number}
 
   {closed && points.length > 2 && (
     <polygon
-    points={points
-  .map(p => `${p.x * 100}%,${p.y * 100}%`)
-  .join(" ")}
+    points={points.map(p => `${p.x},${p.y}`).join(" ")}
     fill={
         mode === "booked"
             ? "rgba(245,158,11,.35)"
@@ -249,8 +247,8 @@ Plot {plot.number}
   {points.map((p, i) => (
   <circle
     key={i}
-    cx={`${p.x * 100}%`}
-    cy={`${p.y * 100}%`}
+    cx={p.x}
+    cy={p.y}
     r="5"
     fill="#FFD54A"
     stroke="black"
