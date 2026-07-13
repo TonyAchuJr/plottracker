@@ -5,7 +5,7 @@ import {
   supabase, authSignUp, authSignIn, authSignOut, resetPassword, getSession,
   fetchProfile, fetchAllProfiles,
   fetchProjects, insertProject, deleteProject, archiveProject, updateProject,
-  fetchPlots, fetchLayoutCoordinates, insertPlots, patchPlot,
+  fetchPlots, fetchLayoutCoordinates, fetchLayoutPolygons, insertPlots, patchPlot,
   fetchHistory, insertHistory, fetchProjectHistory, insertProjectHistory,
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
@@ -40,6 +40,7 @@ export default function App() {
   const [projects, setProjects] = useState([]);
   const [plots, setPlots]       = useState([]);
   const [layoutCoords, setLayoutCoords] = useState([]);
+  const [layoutPolygons, setLayoutPolygons] = useState([]);
   const [files, setFiles]       = useState([]);
   const [history, setHistory]   = useState([]);
   const [projHistory, setProjHistory] = useState([]);
@@ -214,20 +215,23 @@ useEffect(() => {
   async function openProject(id) {
     setProjId(id); setPlotId(null); setBusy(true);
     const [
-{ data: pl },
-{ data: fi },
-{ data: ph },
-{ data: coords }
+  { data: pl },
+  { data: fi },
+  { data: ph },
+  { data: coords },
+  { data: polygons }
 ] = await Promise.all([
-    fetchPlots(id),
-    fetchFiles(id),
-    fetchProjectHistory(id),
-    fetchLayoutCoordinates(id)
+  fetchPlots(id),
+  fetchFiles(id),
+  fetchProjectHistory(id),
+  fetchLayoutCoordinates(id),
+  fetchLayoutPolygons(id)
 ]);
 setPlots(pl || []);
 setFiles(fi || []);
 setProjHistory(ph || []);
 setLayoutCoords(coords || []);
+setLayoutPolygons(polygons || []);    
     setBusy(false); setView("project");
   }
   async function openPlot(id) {
