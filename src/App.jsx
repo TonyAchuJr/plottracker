@@ -2555,22 +2555,12 @@ setBusy(false);
 
 toast$("Master Layout Updated!");
 };
-  const handleSaveDetails = async () => {
-    if (!name.trim()) { setEditErr("Project name required."); return; }
-    setSavingDetails(true); setEditErr("");
-    const { error } =await updateProject(proj.id,{
-    name:name.trim(),
-    location:loc.trim(),
-    mapUrl:mapUrl.trim(),
-    description:desc.trim(),
-    layoutImage
+  const { error } = await updateProject(proj.id,{
+    name: name.trim(),
+    location: loc.trim(),
+    mapUrl: mapUrl.trim(),
+    description: desc.trim()
 });
-    await updateProject(proj.id, {
-      name: name.trim(),
-      location: loc.trim(),
-      mapUrl: mapUrl.trim(),
-      description: desc.trim(),
-    });
     setSavingDetails(false);
     if (error) { setEditErr(error.message); return; }
     await insertProjectHistory({
