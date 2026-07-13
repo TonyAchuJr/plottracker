@@ -9,7 +9,7 @@ export default function LayoutView({ proj }) {
         <h3>No Layout Image</h3>
 
         <p>
-          Upload a layout image from the Files section.
+          Upload a Master Layout Image from Project Settings.
         </p>
 
       </div>
@@ -22,8 +22,13 @@ export default function LayoutView({ proj }) {
 
       <img
     src={layoutImage}
-        alt="Project Layout"
-      />
+    alt="Project Layout"
+    style={{
+        width: "100%",
+        borderRadius: "18px",
+        display: "block"
+    }}
+/>
 
     </div>
 
