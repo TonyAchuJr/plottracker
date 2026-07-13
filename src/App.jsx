@@ -1285,7 +1285,6 @@ function ProjectView({ proj, ctx }) {
 const [search, setSearch] = useState("");
 const [showAllHistory, setShowAllHistory] = useState(false);
 
-const [activeTab, setActiveTab] = useState("plots");
   const filtered = plots
   .filter(
     p =>
@@ -1384,12 +1383,9 @@ const [activeTab, setActiveTab] = useState("plots");
     )}
         </div>
       )}
-<LayoutTabs
-  activeTab={activeTab}
-  setActiveTab={setActiveTab}
-/>
 
-{activeTab === "plots" ? (
+
+
   <>
     <div className="flex g2 mb3 afu4 fw aic">
       <div className="srch">
@@ -1455,13 +1451,13 @@ const [activeTab, setActiveTab] = useState("plots");
       </div>
     )}
   </>
-) : (
-  <LayoutView
-    proj={proj}
-    plots={plots}
-    layoutCoords={layoutCoords}
-/>
-)}
+<div style={{ marginTop: 30 }}>
+    <LayoutView
+        proj={proj}
+        plots={plots}
+        layoutCoords={layoutCoords}
+    />
+</div>
 
 </div>
 );
