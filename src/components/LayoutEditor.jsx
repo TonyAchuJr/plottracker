@@ -1,8 +1,8 @@
 import { useState } from "react";
 
-export default function LayoutEditor({ image }) {
+export default function LayoutEditor({ proj, ctx }) {  
   const [points, setPoints] = useState([]);
-
+console.log(proj);
   const handleClick = (e) => {
     const rect = e.currentTarget.getBoundingClientRect();
 
@@ -24,7 +24,7 @@ export default function LayoutEditor({ image }) {
       }}
     >
       <img
-        src={image}
+        src={proj.layout_image}
         alt="Master Layout"
         style={{
           width: "100%",
