@@ -63,7 +63,21 @@ export const updateProject = (id, { name, location, mapUrl, description }) =>
 export const fetchPlots = (projectId) =>
   supabase.from("plots").select("*").eq("project_id", projectId)
     .order("number");
+// ── LAYOUT COORDINATES ─────────────────────────────────────────
 
+export const fetchLayoutCoordinates = (projectId) =>
+  supabase
+    .from("layout_coordinates")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("plot_number");
+
+export const saveLayoutCoordinate = (row) =>
+  supabase
+    .from("layout_coordinates")
+    .upsert(row)
+    .select()
+    .single();
 export const insertPlots = (rows) =>
   supabase.from("plots").insert(rows).select();
 
