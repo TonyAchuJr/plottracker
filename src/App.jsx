@@ -19,6 +19,7 @@ import FloatingAnnouncement from "./FloatingAnnouncement";
 import BuyerEnquiryModal from "./BuyerEnquiryModal";
 
 import LayoutView from "./components/LayoutView";
+import LayoutEditor from "./components/LayoutEditor";
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 const DFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" });
@@ -1801,6 +1802,12 @@ function ModalShell({ modal, ctx, proj, plot }) {
         {modal.type === "upload-file"    && <UploadFileModal ctx={ctx} proj={mp} />}
         {modal.type === "view-files"        && <ViewFilesModal ctx={ctx} proj={mp} />}
         {modal.type === "project-settings" && <ProjectSettingsModal ctx={ctx} proj={mp} />}
+        {modal.type === "layout-editor" && (
+    <LayoutEditor
+        ctx={ctx}
+        proj={mp}
+    />
+)}
         {modal.type === "info-about"   && <AboutModal ctx={ctx} />}
         {modal.type === "info-contact" && <ContactModal ctx={ctx} />}
         {modal.type === "info-privacy" && <PrivacyModal ctx={ctx} />}
@@ -2643,7 +2650,15 @@ const handleSaveDetails = async () => {
 
     }}
   />
-
+<button
+    className="btn-secondary"
+    onClick={() => setModal({
+        type: "layout-editor",
+        proj
+    })}
+>
+    🎨 Paint Layout
+</button>
 </div>
       {editErr && <Err>{editErr}</Err>}
       <button className="btn-primary btn-full" onClick={handleSaveDetails} disabled={savingDetails}>
