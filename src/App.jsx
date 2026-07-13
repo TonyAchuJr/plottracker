@@ -244,7 +244,7 @@ setLayoutPolygons(polygons || []);
   const plot = plots.find(p => p.id === plotId);
   const ctx = {
     dark, toggleDark, authUser, profile, profiles,
-    projects, setProjects, plots, layoutCoords, setPlots,
+    projects, setProjects, plots, layoutCoords, layoutPolygons, setLayoutPolygons, setPlots,
     files, setFiles, history, setHistory,
     projHistory, setProjHistory,
     projId, setProjId, plotId, setPlotId,
@@ -1445,6 +1445,7 @@ const [showAllHistory, setShowAllHistory] = useState(false);
     proj={proj}
     plots={plots}
     layoutCoords={layoutCoords}
+    layoutPolygons={layoutPolygons}
 />
 </div>
 
