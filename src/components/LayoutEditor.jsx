@@ -230,7 +230,14 @@ Plot {plot.number}
 
   {closed && points.length > 2 && (
     <polygon
-    points={points.map(p => `${p.x},${p.y}`).join(" ")}
+    points={
+  points
+    .map(
+      p =>
+        `${p.x * (imgRef.current?.clientWidth || 1000)},${p.y * (imgRef.current?.clientHeight || 700)}`
+    )
+    .join(" ")
+}
     fill={
         mode === "booked"
             ? "rgba(245,158,11,.35)"
