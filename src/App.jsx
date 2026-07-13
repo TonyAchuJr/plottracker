@@ -17,6 +17,8 @@ import {
 } from "./supabaseClient";
 import FloatingAnnouncement from "./FloatingAnnouncement";
 import BuyerEnquiryModal from "./BuyerEnquiryModal";
+import LayoutTabs from "./components/LayoutTabs";
+import LayoutView from "./components/LayoutView";
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 const DFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" });
@@ -1279,8 +1281,10 @@ function ProjectView({ proj, ctx }) {
   const total = plots.length, sold = plots.filter(p => p.status === "sold").length,
         bkd   = plots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
   const [filter, setFilter] = useState("all");
-  const [search, setSearch] = useState("");
-  const [showAllHistory, setShowAllHistory] = useState(false);
+const [search, setSearch] = useState("");
+const [showAllHistory, setShowAllHistory] = useState(false);
+
+const [activeTab, setActiveTab] = useState("plots");
   const filtered = plots
   .filter(
     p =>
@@ -1379,7 +1383,12 @@ function ProjectView({ proj, ctx }) {
     )}
         </div>
       )}
+<LayoutTabs
+    activeTab={activeTab}
+    setActiveTab={setActiveTab}
+/>
 
+{activeTab === "plots" && (
       <div className="flex g2 mb3 afu4 fw aic">
         <div className="srch">
           <span className="srch-icon">🔍</span>
@@ -1409,6 +1418,12 @@ function ProjectView({ proj, ctx }) {
           </div>
       }
     </div>
+    )}
+{activeTab === "layout" && (
+    <LayoutView
+        files={files}
+    />
+)}
   );
 }
 function BuyerNotifications({ ctx }) {
