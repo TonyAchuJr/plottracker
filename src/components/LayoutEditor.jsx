@@ -8,13 +8,13 @@ const [closed, setClosed] = useState(false);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
   const handleClick = (e) => {
-    console.log("CLICK");
+    
   if (closed) return;
 
   const rect = imgRef.current.getBoundingClientRect();
 
-  const x = (e.clientX - rect.left) / rect.width;
-  const y = (e.clientY - rect.top) / rect.height;
+  const x = e.clientX - rect.left;
+const y = e.clientY - rect.top;
 
   setPoints(prev => [...prev, { x, y }]);
 };
@@ -41,10 +41,7 @@ if (!img) {
   project_id: proj.id,
   plot_number: Number(plotNumber),
   status: mode,
-  points: points.map(p => ({
-  x: p.x,
-  y: p.y
-})),
+  points: points,
   image_width: img.clientWidth,
   image_height: img.clientHeight
 });
@@ -207,13 +204,13 @@ Plot {plot.number}
 
       <svg
     onClick={handleClick}
-    viewBox={`0 0 ${imgRef.current?.clientWidth || 1000} ${imgRef.current?.clientHeight || 700}`}
+    width={imgRef.current?.clientWidth || 1000}
+    height={imgRef.current?.clientHeight || 700}
     style={{
-        position: "absolute",
-        inset: 0,
-        width: "100%",
-        height: "100%",
-        cursor: "crosshair"
+        position:"absolute",
+        top:0,
+        left:0,
+        cursor:"crosshair"
     }}
 >
         <>
