@@ -19,6 +19,7 @@ import FloatingAnnouncement from "./FloatingAnnouncement";
 import BuyerEnquiryModal from "./BuyerEnquiryModal";
 
 import LayoutView from "./components/LayoutView";
+import LayoutEditor from "./components/LayoutEditor";
 
 /* ── Helpers ─────────────────────────────────────────────────────── */
 const DFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" });
@@ -1436,11 +1437,9 @@ const [showAllHistory, setShowAllHistory] = useState(false);
     )}
   </>
 <div style={{ marginTop: 30 }}>
-    <LayoutView
-        proj={proj}
-        plots={plots}
-        layoutCoords={layoutCoords}
-    />
+    <LayoutEditor
+    image={proj.layout_image}
+/>
 </div>
 
 </div>
