@@ -2519,7 +2519,42 @@ function ProjectSettingsModal({ ctx, proj }) {
   const [layoutImage, setLayoutImage] = useState(proj.layout_image || "");
   const [editErr, setEditErr] = useState("");
   const [savingDetails, setSavingDetails] = useState(false);
+const uploadLayout = async (file) => {
 
+  setBusy(true);
+
+  const { data } = await uploadFile({
+
+    projectId: proj.id,
+
+    file,
+
+    label: "Master Layout",
+
+    category: "layout",
+
+    userId: authUser.id
+
+  });
+
+  await supabase
+    .from("projects")
+    .update({
+      layout_image:
+        data?.storage_path || data?.[0]?.storage_path
+    })
+    .eq("id", proj.id);
+
+  const { data: projectsData } = await fetchProjects();
+
+setProjects(projectsData || []);
+
+openProject(proj.id);
+
+setBusy(false);
+
+toast$("Master Layout Updated!");
+};
   const handleSaveDetails = async () => {
     if (!name.trim()) { setEditErr("Project name required."); return; }
     setSavingDetails(true); setEditErr("");
@@ -2589,12 +2624,46 @@ function ProjectSettingsModal({ ctx, proj }) {
       <Fi label="Location / Address" value={loc} onChange={setLoc} />
       <Fi label="Google Maps URL (optional)" value={mapUrl} onChange={setMapUrl} placeholder="https://maps.google.com/..." />
       <Fi label="Description" value={desc} onChange={setDesc} textarea />
-      <Fi
-    label="Master Layout Image URL"
-    value={layoutImage}
-    onChange={setLayoutImage}
-    placeholder="https://..."
-/>
+      <div style={{ marginTop: 12 }}>
+
+  <div
+    className="mono txs semi tgold"
+    style={{
+      textTransform: "uppercase",
+      letterSpacing: ".08em",
+      marginBottom: 10
+    }}
+  >
+    Master Layout
+  </div>
+
+  <button
+    className="btn-primary"
+    onClick={() =>
+      document.getElementById(`layout-${proj.id}`).click()
+    }
+  >
+    📁 Upload Master Layout
+  </button>
+
+  <input
+    id={`layout-${proj.id}`}
+    type="file"
+    accept="image/*"
+    style={{ display: "none" }}
+
+    onChange={async (e) => {
+
+      const file = e.target.files?.[0];
+
+      if (!file) return;
+
+      await uploadLayout(file);
+
+    }}
+  />
+
+</div>
       {editErr && <Err>{editErr}</Err>}
       <button className="btn-primary btn-full" onClick={handleSaveDetails} disabled={savingDetails}>
         {savingDetails ? "Saving…" : "Save Details"}
