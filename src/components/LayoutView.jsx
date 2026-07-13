@@ -13,8 +13,10 @@ const [start, setStart] = useState({
   x: 0,
   y: 0
 });
-  const imgWidth = 1000;
-const imgHeight = 700;
+ const img = document.getElementById("layoutImage");
+
+const imgWidth = img?.clientWidth || 1000;
+const imgHeight = img?.clientHeight || 700;
   if (!proj?.layout_image) {
     return (
       <div className="layout-empty">
