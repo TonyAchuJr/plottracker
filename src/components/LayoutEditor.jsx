@@ -1,10 +1,11 @@
 import { useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 
 export default function LayoutEditor({ proj, ctx }) {  
   const [points, setPoints] = useState([]);
 const [mode, setMode] = useState("booked");
 const [closed, setClosed] = useState(false);
-
+const [plotNumber,setPlotNumber]=useState("");
   const handleClick = (e) => {
 
   if(closed) return;
@@ -17,7 +18,38 @@ const [closed, setClosed] = useState(false);
   setPoints(prev=>[...prev,{x,y}]);
 
 };
+const savePolygon = async () => {
 
+  if (points.length < 3) {
+    alert("Need at least 3 points.");
+    return;
+  }
+
+  if (!plotNumber) {
+    alert("Select a plot.");
+    return;
+  }
+
+  const { error } = await supabase
+    .from("layout_polygons")
+    .insert({
+      project_id: proj.id,
+      plot_number: Number(plotNumber),
+      status: mode,
+      points
+    });
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert("Polygon saved.");
+
+  setPoints([]);
+  setClosed(false);
+
+};
   return (
 <>
   <div
@@ -65,18 +97,6 @@ borderRadius:8
 >
 ⚪ Clear
 </button>
-
-<button
-onClick={()=>setPoints(p=>p.slice(0,-1))}
->
-↩ Undo
-</button>
-
-<button
-onClick={()=>setClosed(true)}
->
-✔ Finish Shape
-</button>
 <button
   onClick={() => setClosed(true)}
   style={{
@@ -116,8 +136,40 @@ onClick={()=>setClosed(true)}
 >
 ↩ Undo Last Point
 </button>
+    <button
+onClick={savePolygon}
+style={{
+background:"#16a34a",
+color:"white",
+padding:"10px 18px",
+borderRadius:8
+}}
+>
+💾 Save Polygon
+</button>
 </div>
-    <div
+  <select
+value={plotNumber}
+onChange={e=>setPlotNumber(e.target.value)}
+>
+
+<option value="">Select Plot</option>
+
+{ctx.plots.map(plot=>(
+
+<option
+key={plot.id}
+value={plot.number}
+>
+
+Plot {plot.number}
+
+</option>
+
+))}
+
+</select>  
+  <div
       style={{
         position: "relative",
         width: "100%",
