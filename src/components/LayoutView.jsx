@@ -33,15 +33,18 @@ const [start, setStart] = useState({
 
   onWheel={(e) => {
 
+    // Scroll the page normally unless Ctrl is pressed
+    if (!e.ctrlKey) return;
+
     e.preventDefault();
 
     const delta = e.deltaY > 0 ? -0.1 : 0.1;
 
     setScale(s =>
-      Math.min(3, Math.max(0.5, s + delta))
+        Math.min(3, Math.max(0.5, s + delta))
     );
 
-  }}
+}}
 
   onMouseDown={(e) => {
 
