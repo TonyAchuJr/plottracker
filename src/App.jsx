@@ -5,7 +5,7 @@ import {
   supabase, authSignUp, authSignIn, authSignOut, resetPassword, getSession,
   fetchProfile, fetchAllProfiles,
   fetchProjects, insertProject, deleteProject, archiveProject, updateProject,
-  fetchPlots, insertPlots, patchPlot,
+  fetchPlots, fetchLayoutCoordinates, insertPlots, patchPlot,
   fetchHistory, insertHistory, fetchProjectHistory, insertProjectHistory,
   fetchFiles, uploadFile, removeFile,
   subPlots, subProjects,
@@ -36,6 +36,7 @@ export default function App() {
   const [profiles, setProfiles] = useState([]);
   const [projects, setProjects] = useState([]);
   const [plots, setPlots]       = useState([]);
+  const [layoutCoords, setLayoutCoords] = useState([]);
   const [files, setFiles]       = useState([]);
   const [history, setHistory]   = useState([]);
   const [projHistory, setProjHistory] = useState([]);
@@ -209,8 +210,35 @@ useEffect(() => {
   /* ── Navigation helpers ────────────────────────────────────────── */
   async function openProject(id) {
     setProjId(id); setPlotId(null); setBusy(true);
-    const [{ data: pl }, { data: fi }, { data: ph }] = await Promise.all([fetchPlots(id), fetchFiles(id), fetchProjectHistory(id)]);
-    setPlots(pl || []); setFiles(fi || []); setProjHistory(ph || []);
+    const [
+
+    { data: pl },
+
+    { data: fi },
+
+    { data: ph },
+
+    { data: coords }
+
+] = await Promise.all([
+
+    fetchPlots(id),
+
+    fetchFiles(id),
+
+    fetchProjectHistory(id),
+
+    fetchLayoutCoordinates(id)
+
+]);
+
+setPlots(pl || []);
+
+setFiles(fi || []);
+
+setProjHistory(ph || []);
+
+setLayoutCoords(coords || []);
     setBusy(false); setView("project");
   }
   async function openPlot(id) {
@@ -225,7 +253,7 @@ useEffect(() => {
 
   const ctx = {
     dark, toggleDark, authUser, profile, profiles,
-    projects, setProjects, plots, setPlots,
+    projects, setProjects, plots, layoutCoords, setPlots,
     files, setFiles, history, setHistory,
     projHistory, setProjHistory,
     projId, setProjId, plotId, setPlotId,
