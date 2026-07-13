@@ -1277,7 +1277,7 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
    PROJECT VIEW
 ════════════════════════════════════════════════════════════════ */
 function ProjectView({ proj, ctx }) {
-  const { profile, plots, files, setView, openPlot, setModal, busy, profiles, setSelectedProject, setShowEnquiryModal } = ctx;
+  const { profile, plots, layoutCoords, files, setView, openPlot, setModal, busy, profiles, setSelectedProject, setShowEnquiryModal } = ctx;
   const isOwnerRole    = profile?.role === "owner";
   const total = plots.length, sold = plots.filter(p => p.status === "sold").length,
         bkd   = plots.filter(p => p.status === "booked").length, avail = total - sold - bkd;
