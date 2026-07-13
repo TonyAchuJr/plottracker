@@ -8,16 +8,15 @@ const [closed, setClosed] = useState(false);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
   const handleClick = (e) => {
-
-  if(closed) return;
+    console.log("CLICK");
+  if (closed) return;
 
   const rect = imgRef.current.getBoundingClientRect();
 
   const x = (e.clientX - rect.left) / rect.width;
-const y = (e.clientY - rect.top) / rect.height;
+  const y = (e.clientY - rect.top) / rect.height;
 
-  setPoints(prev=>[...prev,{x,y}]);
-
+  setPoints(prev => [...prev, { x, y }]);
 };
 const savePolygon = async () => {
 
@@ -202,21 +201,20 @@ Plot {plot.number}
   alt="Master Layout"
   style={{
     width: "100%",
-    display: "block",
-    pointerEvents: "none"
+    display: "block"
   }}
 />
 
       <svg
-  onClick={handleClick}
-  style={{
-    position: "absolute",
-    inset: 0,
-    width: "100%",
-    height: "100%",
-    cursor: "crosshair",
-    pointerEvents: "auto"
-  }}
+    onClick={handleClick}
+    viewBox={`0 0 ${imgRef.current?.clientWidth || 1000} ${imgRef.current?.clientHeight || 700}`}
+    style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        cursor: "crosshair"
+    }}
 >
         <>
   {points.length > 1 && (
