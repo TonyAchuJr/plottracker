@@ -2516,7 +2516,7 @@ function ProjectSettingsModal({ ctx, proj }) {
   const [loc, setLoc] = useState(proj.location || "");
   const [mapUrl, setMapUrl] = useState(proj.map_url || "");
   const [desc, setDesc] = useState(proj.description || "");
-  const [layoutImage, setLayoutImage] = useState(proj.layout_image || "");
+  
   const [editErr, setEditErr] = useState("");
   const [savingDetails, setSavingDetails] = useState(false);
 const uploadLayout = async (file) => {
