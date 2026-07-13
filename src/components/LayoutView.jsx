@@ -1,5 +1,5 @@
 import { useState } from "react";
-export default function LayoutView({ proj, plots, layoutCoords }) {
+export default function LayoutView({ proj, plots, layoutCoords, layoutPolygons }) {
   const [scale, setScale] = useState(1);
 
 const [offset, setOffset] = useState({
@@ -89,61 +89,73 @@ const [start, setStart] = useState({
           borderRadius: 18
         }}
       />
-
       {layoutCoords.map(coord => {
-
         const plot = plots.find(
           p => Number(p.number) === Number(coord.plot_number)
         );
-
         let color = "#22c55e";
-
         if (plot?.status === "booked")
           color = "#f59e0b";
-
         if (plot?.status === "sold")
           color = "#ef4444";
-
-        return (
+       return (
           <div
             key={coord.id}
             style={{
               position: "absolute",
-
               left: coord.x,
-
               top: coord.y,
-
               width: coord.width,
-
               height: coord.height,
-
               background: color,
-
               opacity: .45,
-
               border: `2px solid ${color}`,
-
               borderRadius: 8,
-
               color: "white",
-
               display: "flex",
-
               justifyContent: "center",
-
               alignItems: "center",
-
               fontWeight: "bold",
-
               cursor: "pointer"
             }}
           >
             {coord.plot_number}
           </div>
         );
-
       })}
+        {layoutPolygons?.map(poly => {
+
+    const color =
+        poly.status === "sold"
+            ? "#ef4444"
+            : poly.status === "booked"
+            ? "#f59e0b"
+            : "transparent";
+
+    return (
+        <svg
+            key={poly.id}
+            style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                pointerEvents: "none"
+            }}
+        >
+            <polygon
+                points={poly.points
+                    .map(p => `${p.x},${p.y}`)
+                    .join(" ")}
+                fill={color}
+                fillOpacity={0.35}
+                stroke={color}
+                strokeWidth="2"
+            />
+        </svg>
+    );
+
+})}
     </div>
   </div>
   );
