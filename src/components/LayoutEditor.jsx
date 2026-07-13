@@ -58,7 +58,8 @@ if (!img) {
   alert("Polygon saved.");
 
   setPoints([]);
-  setClosed(false);
+setClosed(false);
+setPlotNumber("");
 
 };
   return (
@@ -109,7 +110,11 @@ borderRadius:8
 ⚪ Clear
 </button>
 <button
-  onClick={() => setClosed(true)}
+  onClick={() => {
+  if (points.length >= 3) {
+    setClosed(true);
+  }
+}}
   style={{
     background: "#2563eb",
     color: "white",
@@ -197,7 +202,8 @@ Plot {plot.number}
   alt="Master Layout"
   style={{
     width: "100%",
-    display: "block"
+    display: "block",
+    pointerEvents: "none"
   }}
 />
 
@@ -208,7 +214,8 @@ Plot {plot.number}
     inset: 0,
     width: "100%",
     height: "100%",
-    cursor: "crosshair"
+    cursor: "crosshair",
+    pointerEvents: "auto"
   }}
 >
         <>
