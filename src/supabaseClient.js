@@ -94,6 +94,12 @@ export const saveLayoutCoordinate = (row) =>
     .upsert(row)
     .select()
     .single();
+export const fetchLayoutPolygons = (projectId) =>
+  supabase
+    .from("layout_polygons")
+    .select("*")
+    .eq("project_id", projectId)
+    .order("plot_number");
 export const insertPlots = (rows) =>
   supabase.from("plots").insert(rows).select();
 
