@@ -13,6 +13,8 @@ const [start, setStart] = useState({
   x: 0,
   y: 0
 });
+  const imgWidth = 1000;
+const imgHeight = 700;
   if (!proj?.layout_image) {
     return (
       <div className="layout-empty">
@@ -81,7 +83,8 @@ const [start, setStart] = useState({
   }}
 >
       <img
-        src={proj.layout_image}
+    id="layoutImage"
+    src={proj.layout_image}
         alt="Master Layout"
         style={{
           width: "100%",
@@ -144,9 +147,11 @@ const [start, setStart] = useState({
             }}
         >
             <polygon
-                points={poly.points
-                    .map(p => `${p.x},${p.y}`)
-                    .join(" ")}
+              points={
+    poly.points
+        .map(p => `${p.x * imgWidth},${p.y * imgHeight}`)
+        .join(" ")
+}
                 fill={color}
                 fillOpacity={0.35}
                 stroke={color}
