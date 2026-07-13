@@ -42,8 +42,6 @@ if (!img) {
   plot_number: Number(plotNumber),
   status: mode,
   points: points,
-  image_width: img.clientWidth,
-  image_height: img.clientHeight
 });
 
   if (error) {
