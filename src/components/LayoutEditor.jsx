@@ -214,7 +214,14 @@ Plot {plot.number}
         <>
   {points.length > 1 && (
     <polyline
-      points={points.map(p => `${p.x},${p.y}`).join(" ")}
+      points={
+  points
+    .map(
+      p =>
+        `${p.x * (imgRef.current?.clientWidth || 1000)},${p.y * (imgRef.current?.clientHeight || 700)}`
+    )
+    .join(" ")
+}
       fill="none"
       stroke="#FFD54A"
       strokeWidth="2"
@@ -245,8 +252,8 @@ Plot {plot.number}
   {points.map((p, i) => (
   <circle
     key={i}
-    cx={p.x}
-    cy={p.y}
+    cx={p.x * (imgRef.current?.clientWidth || 1000)}
+cy={p.y * (imgRef.current?.clientHeight || 700)}
     r="5"
     fill="#FFD54A"
     stroke="black"
