@@ -1383,84 +1383,85 @@ const [activeTab, setActiveTab] = useState("plots");
     )}
         </div>
       )}
-
 <LayoutTabs
-    activeTab={activeTab}
-    setActiveTab={setActiveTab}
+  activeTab={activeTab}
+  setActiveTab={setActiveTab}
 />
 
 {activeTab === "plots" ? (
-    <>
-        <div className="flex g2 mb3 afu4 fw aic">
-            <div className="srch">
-                <span className="srch-icon">🔍</span>
+  <>
+    <div className="flex g2 mb3 afu4 fw aic">
+      <div className="srch">
+        <span className="srch-icon">🔍</span>
 
-                <input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search plot..."
-                    style={{ paddingLeft: 29, fontSize: 14 }}
-                />
-            </div>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search plot..."
+          style={{ paddingLeft: 29, fontSize: 14 }}
+        />
+      </div>
 
-            <div className="flex g2 fw">
-                {["all", "available", "booked", "sold"].map((s) => (
-                    <button
-                        key={s}
-                        className={`chip${filter === s ? " active" : ""}`}
-                        onClick={() => setFilter(s)}
-                    >
-                        {s}
-                    </button>
-                ))}
-            </div>
+      <div className="flex g2 fw">
+        {["all", "available", "booked", "sold"].map((s) => (
+          <button
+            key={s}
+            className={`chip${filter === s ? " active" : ""}`}
+            onClick={() => setFilter(s)}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+    </div>
+
+    {busy ? (
+      <Spin />
+    ) : filtered.length === 0 ? (
+      <div className="empty">
+        <div className="empty-icon">📋</div>
+
+        <div>
+          {plots.length === 0
+            ? (isOwnerRole
+                ? "No plots yet. Tap + Add Plots."
+                : "Owner hasn't added plots yet.")
+            : "No plots match."}
         </div>
-
-        {busy ? (
-            <Spin />
-        ) : filtered.length === 0 ? (
-            <div className="empty">
-                <div className="empty-icon">📋</div>
-
-                <div>
-                    {plots.length === 0
-                        ? isOwnerRole
-                            ? "No plots yet. Tap + Add Plots."
-                            : "Owner hasn't added plots yet."
-                        : "No plots match."}
-                </div>
-            </div>
-        ) : (
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                        "repeat(auto-fill,minmax(min(100%,150px),1fr))",
-                    gap: 8,
-                }}
-            >
-                {filtered.map((pl, i) => (
-                    <PlotTile
-                        key={pl.id}
-                        plot={pl}
-                        i={i}
-                        isOwnerRole={isOwnerRole}
-                        onClick={() => {
-                            if (profile?.role === "owner") {
-                                openPlot(pl.id);
-                            }
-                        }}
-                    />
-                ))}
-            </div>
-        )}
-    </>
+      </div>
+    ) : (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "repeat(auto-fill,minmax(min(100%,150px),1fr))",
+          gap: 8
+        }}
+      >
+        {filtered.map((pl, i) => (
+          <PlotTile
+            key={pl.id}
+            plot={pl}
+            i={i}
+            isOwnerRole={isOwnerRole}
+            onClick={() => {
+              if (profile?.role === "owner") {
+                openPlot(pl.id);
+              }
+            }}
+          />
+        ))}
+      </div>
+    )}
+  </>
 ) : (
-    <LayoutView proj={proj} />
+  <LayoutView proj={proj} />
 )}
-        );
-}
 
+</div>
+);
+}
+            
 function BuyerNotifications({ ctx }) {
   const {
     profile,
