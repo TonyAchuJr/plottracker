@@ -29,15 +29,22 @@ const savePolygon = async () => {
     alert("Select a plot.");
     return;
   }
+const img = document.getElementById("layoutImage");
 
+if (!img) {
+  alert("Layout image not found.");
+  return;
+}
   const { error } = await supabase
     .from("layout_polygons")
     .insert({
-      project_id: proj.id,
-      plot_number: Number(plotNumber),
-      status: mode,
-      points
-    });
+  project_id: proj.id,
+  plot_number: Number(plotNumber),
+  status: mode,
+  points,
+  image_width: img.clientWidth,
+  image_height: img.clientHeight
+});
 
   if (error) {
     alert(error.message);
@@ -180,13 +187,15 @@ Plot {plot.number}
       }}
     >
       <img
-        src={proj.layout_image}
-        alt="Master Layout"
-        style={{
-          width: "100%",
-          display: "block"
-        }}
-      />
+    id="layoutImage"
+    src={proj.layout_image}
+    alt="Master Layout"
+    style={{
+        width: "100%",
+        display: "block",
+        borderRadius: 18
+    }}
+/>
 
       <svg
         onClick={handleClick}
@@ -210,7 +219,25 @@ Plot {plot.number}
 
   {closed && points.length > 2 && (
     <polygon
-      points={points.map(p => `${p.x},${p.y}`).join(" ")}
+      points={
+poly.points
+.map(p => {
+
+const img = document.getElementById("layoutImage");
+
+if (!img) return "";
+
+const x =
+(p.x / poly.image_width) * img.clientWidth;
+
+const y =
+(p.y / poly.image_height) * img.clientHeight;
+
+return `${x},${y}`;
+
+})
+.join(" ")
+}
       fill={
         mode === "booked"
           ? "rgba(245,158,11,.35)"
