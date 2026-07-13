@@ -202,8 +202,6 @@ Plot {plot.number}
 />
 
       <svg
-  viewBox="0 0 1 1"
-  preserveAspectRatio="none"
   onClick={handleClick}
   style={{
     position: "absolute",
