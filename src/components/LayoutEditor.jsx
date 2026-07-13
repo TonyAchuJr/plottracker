@@ -219,41 +219,23 @@ Plot {plot.number}
 
   {closed && points.length > 2 && (
     <polygon
-      points={
-poly.points
-.map(p => {
-
-const img = document.getElementById("layoutImage");
-
-if (!img) return "";
-
-const x =
-(p.x / poly.image_width) * img.clientWidth;
-
-const y =
-(p.y / poly.image_height) * img.clientHeight;
-
-return `${x},${y}`;
-
-})
-.join(" ")
-}
-      fill={
+    points={points.map(p => `${p.x},${p.y}`).join(" ")}
+    fill={
         mode === "booked"
-          ? "rgba(245,158,11,.35)"
-          : mode === "sold"
-          ? "rgba(239,68,68,.35)"
-          : "transparent"
-      }
-      stroke={
+            ? "rgba(245,158,11,.35)"
+            : mode === "sold"
+            ? "rgba(239,68,68,.35)"
+            : "transparent"
+    }
+    stroke={
         mode === "booked"
-          ? "#f59e0b"
-          : mode === "sold"
-          ? "#ef4444"
-          : "#888"
-      }
-      strokeWidth="2"
-    />
+            ? "#f59e0b"
+            : mode === "sold"
+            ? "#ef4444"
+            : "#888"
+    }
+    strokeWidth="2"
+/>
   )}
 
   {points.map((p, i) => (
