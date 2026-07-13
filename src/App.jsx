@@ -2515,13 +2515,21 @@ function ProjectSettingsModal({ ctx, proj }) {
   const [loc, setLoc] = useState(proj.location || "");
   const [mapUrl, setMapUrl] = useState(proj.map_url || "");
   const [desc, setDesc] = useState(proj.description || "");
+  const [layoutImage, setLayoutImage] = useState(proj.layout_image || "");
   const [editErr, setEditErr] = useState("");
   const [savingDetails, setSavingDetails] = useState(false);
 
   const handleSaveDetails = async () => {
     if (!name.trim()) { setEditErr("Project name required."); return; }
     setSavingDetails(true); setEditErr("");
-    const { error } = await updateProject(proj.id, {
+    const { error } =await updateProject(proj.id,{
+    name:name.trim(),
+    location:loc.trim(),
+    mapUrl:mapUrl.trim(),
+    description:desc.trim(),
+    layoutImage
+});
+    await updateProject(proj.id, {
       name: name.trim(),
       location: loc.trim(),
       mapUrl: mapUrl.trim(),
@@ -2580,6 +2588,12 @@ function ProjectSettingsModal({ ctx, proj }) {
       <Fi label="Location / Address" value={loc} onChange={setLoc} />
       <Fi label="Google Maps URL (optional)" value={mapUrl} onChange={setMapUrl} placeholder="https://maps.google.com/..." />
       <Fi label="Description" value={desc} onChange={setDesc} textarea />
+      <Fi
+    label="Master Layout Image URL"
+    value={layoutImage}
+    onChange={setLayoutImage}
+    placeholder="https://..."
+/>
       {editErr && <Err>{editErr}</Err>}
       <button className="btn-primary btn-full" onClick={handleSaveDetails} disabled={savingDetails}>
         {savingDetails ? "Saving…" : "Save Details"}
