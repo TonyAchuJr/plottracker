@@ -2582,7 +2582,6 @@ const handleSaveDetails = async () => {
 
 };
 
-const handleArchive = async () => {
     const handleArchive = async () => {
     setBusy(true);
     const { error } = await archiveProject(proj.id, !proj.archived);
@@ -2773,7 +2772,7 @@ function Fi({ label, value, onChange, type="text", placeholder, textarea }) {
 function Btns({ cancel, confirm, label="Save", disabled=false }) {
   return (
     <div className="flex g2" style={{ marginTop: 4 }}>
-      <button className="btn-primary btn-full" onClick={confirm} disabled={disabled} style={{opacity:disabled?.7:1}}>{label}</button>
+      <button className="btn-primary btn-full" onClick={confirm} disabled={disabled} style={{ opacity: disabled ? 0.7 : 1 }}>{label}</button>
       <button className="btn-ghost btn-full" onClick={cancel}>Cancel</button>
     </div>
   );
