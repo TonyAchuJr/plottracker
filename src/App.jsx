@@ -1207,6 +1207,7 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
   userId: authUser.id
 });
 
+
     await supabase
       .from("projects")
       .update({
