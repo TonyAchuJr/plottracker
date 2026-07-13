@@ -1456,7 +1456,11 @@ const [activeTab, setActiveTab] = useState("plots");
     )}
   </>
 ) : (
-  <LayoutView proj={proj} />
+  <LayoutView
+    proj={proj}
+    plots={plots}
+    layoutCoords={layoutCoords}
+/>
 )}
 
 </div>
