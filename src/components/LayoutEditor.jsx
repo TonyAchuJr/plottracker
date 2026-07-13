@@ -13,8 +13,8 @@ const [plotNumber,setPlotNumber]=useState("");
 
   const rect = imgRef.current.getBoundingClientRect();
 
-  const x = e.clientX - rect.left;
-const y = e.clientY - rect.top;
+  const x = (e.clientX - rect.left) / rect.width;
+const y = (e.clientY - rect.top) / rect.height;
 
   setPoints(prev => [...prev, { x, y }]);
 };
