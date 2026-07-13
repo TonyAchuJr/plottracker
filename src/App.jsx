@@ -1421,8 +1421,8 @@ const [activeTab, setActiveTab] = useState("plots");
     )}
 {activeTab === "layout" && (
     <LayoutView
-        files={files}
-    />
+    proj={proj}
+/>
 )}
   );
 }
