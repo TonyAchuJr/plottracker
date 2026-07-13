@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { supabase } from "../lib/supabaseClient";
+import { supabase } from "../supabaseClient";
 
 export default function LayoutEditor({ proj, ctx }) {  
   const [points, setPoints] = useState([]);
