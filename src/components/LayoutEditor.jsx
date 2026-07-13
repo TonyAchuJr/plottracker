@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { supabase } from "../supabaseClient";
 
 export default function LayoutEditor({ proj, ctx }) {  
@@ -6,14 +6,15 @@ export default function LayoutEditor({ proj, ctx }) {
 const [mode, setMode] = useState("booked");
 const [closed, setClosed] = useState(false);
 const [plotNumber,setPlotNumber]=useState("");
+  const imgRef = useRef(null);
   const handleClick = (e) => {
 
   if(closed) return;
 
-  const rect = e.currentTarget.getBoundingClientRect();
+  const rect = imgRef.current.getBoundingClientRect();
 
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
+  const x = (e.clientX - rect.left) / rect.width;
+const y = (e.clientY - rect.top) / rect.height;
 
   setPoints(prev=>[...prev,{x,y}]);
 
@@ -29,7 +30,7 @@ const savePolygon = async () => {
     alert("Select a plot.");
     return;
   }
-const img = document.getElementById("layoutImage");
+const img = imgRef.current;
 
 if (!img) {
   alert("Layout image not found.");
@@ -41,7 +42,10 @@ if (!img) {
   project_id: proj.id,
   plot_number: Number(plotNumber),
   status: mode,
-  points,
+  points: points.map(p => ({
+  x: p.x,
+  y: p.y
+})),
   image_width: img.clientWidth,
   image_height: img.clientHeight
 });
@@ -187,14 +191,14 @@ Plot {plot.number}
       }}
     >
       <img
-    id="layoutImage"
-    src={proj.layout_image}
-    alt="Master Layout"
-    style={{
-        width: "100%",
-        display: "block",
-        borderRadius: 18
-    }}
+  ref={imgRef}
+  id="layoutImage"
+  src={proj.layout_image}
+  alt="Master Layout"
+  style={{
+    width: "100%",
+    display: "block"
+  }}
 />
 
       <svg
