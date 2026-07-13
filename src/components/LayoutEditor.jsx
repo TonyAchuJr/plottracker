@@ -214,7 +214,9 @@ Plot {plot.number}
         <>
   {points.length > 1 && (
     <polyline
-      points={points.map(p => `${p.x},${p.y}`).join(" ")}
+      points={points
+  .map(p => `${p.x * 100}%,${p.y * 100}%`)
+  .join(" ")}
       fill="none"
       stroke="#FFD54A"
       strokeWidth="2"
@@ -223,7 +225,9 @@ Plot {plot.number}
 
   {closed && points.length > 2 && (
     <polygon
-    points={points.map(p => `${p.x},${p.y}`).join(" ")}
+    points={points
+  .map(p => `${p.x * 100}%,${p.y * 100}%`)
+  .join(" ")}
     fill={
         mode === "booked"
             ? "rgba(245,158,11,.35)"
@@ -243,15 +247,15 @@ Plot {plot.number}
   )}
 
   {points.map((p, i) => (
-    <circle
-      key={i}
-      cx={p.x}
-      cy={p.y}
-      r="5"
-      fill="#FFD54A"
-      stroke="black"
-    />
-  ))}
+  <circle
+    key={i}
+    cx={`${p.x * 100}%`}
+    cy={`${p.y * 100}%`}
+    r="5"
+    fill="#FFD54A"
+    stroke="black"
+  />
+))}
 </>
 </svg>
 </div>
