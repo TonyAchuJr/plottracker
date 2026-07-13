@@ -2520,62 +2520,70 @@ function ProjectSettingsModal({ ctx, proj }) {
   const [editErr, setEditErr] = useState("");
   const [savingDetails, setSavingDetails] = useState(false);
 const uploadLayout = async (file) => {
-
-  setBusy(true);
-
+setBusy(true);
   const { data } = await uploadFile({
-
     projectId: proj.id,
-
     file,
-
     label: "Master Layout",
-
     category: "layout",
-
     userId: authUser.id
-
   });
-
-  await supabase
+await supabase
     .from("projects")
     .update({
       layout_image:
         data?.storage_path || data?.[0]?.storage_path
     })
     .eq("id", proj.id);
-
-  const { data: projectsData } = await fetchProjects();
-
+const { data: projectsData } = await fetchProjects();
 setProjects(projectsData || []);
-
 openProject(proj.id);
-
 setBusy(false);
-
 toast$("Master Layout Updated!");
 };
-  const { error } = await updateProject(proj.id,{
+
+const handleSaveDetails = async () => {
+
+    if (!name.trim()) {
+        setEditErr("Project name required.");
+        return;
+    }
+
+    setSavingDetails(true);
+    setEditErr("");
+
+    const { error } = await updateProject(proj.id, {
     name: name.trim(),
     location: loc.trim(),
     mapUrl: mapUrl.trim(),
     description: desc.trim()
 });
+
     setSavingDetails(false);
-    if (error) { setEditErr(error.message); return; }
+
+    if (error) {
+        setEditErr(error.message);
+        return;
+    }
+
     await insertProjectHistory({
-      projectId: proj.id,
-      action: "Project details edited",
-      actorId: authUser.id,
+        projectId: proj.id,
+        action: "Project details edited",
+        actorId: authUser.id,
     });
+
     const { data } = await fetchProjects();
     setProjects(data || []);
+
     toast$("Project details updated!");
+
     setModal(null);
     openProject(proj.id);
-  };
 
-  const handleArchive = async () => {
+};
+
+const handleArchive = async () => {
+    const handleArchive = async () => {
     setBusy(true);
     const { error } = await archiveProject(proj.id, !proj.archived);
     setBusy(false);
