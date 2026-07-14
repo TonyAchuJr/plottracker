@@ -416,7 +416,32 @@ Plot {plot.number}
 
         return;
     }
+if (tool === "erase") {
 
+    const confirmDelete = window.confirm(
+        "Delete this polygon permanently?"
+    );
+
+    if (!confirmDelete) return;
+
+    const { error } = await supabase
+        .from("layout_polygons")
+        .delete()
+        .eq("id", poly.id);
+
+    if (!error) {
+
+        if (selectedPolygon?.id === poly.id) {
+            setSelectedPolygon(null);
+            setEditingPoints([]);
+            setDragIndex(null);
+        }
+
+        await loadPolygons();
+    }
+
+    return;
+}
     if (tool === "select" || tool === "edit") {
         setSelectedPolygon(poly);
         setEditingPoints([...poly.points]);
