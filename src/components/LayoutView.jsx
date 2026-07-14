@@ -131,11 +131,13 @@ const imgHeight = img?.clientHeight || 700;
         {layoutPolygons?.map(poly => {
 
     const color =
-        poly.status === "sold"
-            ? "#ef4444"
-            : poly.status === "booked"
-            ? "#f59e0b"
-            : "transparent";
+    poly.status === "sold"
+        ? "#ef4444"
+        : poly.status === "booked"
+        ? "#f59e0b"
+        : poly.status === "clear"
+        ? "#22c55e"
+        : "transparent";
 
     return (
         <svg
