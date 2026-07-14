@@ -35,14 +35,56 @@ if (!img) {
   alert("Layout image not found.");
   return;
 }
-  const { error } = await supabase
-    .from("layout_polygons")
-    .insert({
-  project_id: proj.id,
-  plot_number: Number(plotNumber),
-  status: mode,
-  points: points,
-});
+  const { data: existing } = await supabase
+.from("layout_polygons")
+.select("id")
+.eq("project_id", proj.id)
+.eq("plot_number", Number(plotNumber))
+.maybeSingle();
+  let error;
+
+if (mode === "clear") {
+
+    ({ error } = await supabase
+        .from("layout_polygons")
+        .delete()
+        .eq("project_id", proj.id)
+        .eq("plot_number", Number(plotNumber)));
+
+}
+else if (existing) {
+
+    ({ error } = await supabase
+        .from("layout_polygons")
+        .update({
+            status: mode,
+            points: points.map(p => ({
+                x: p.x,
+                y: p.y
+            })),
+            image_width: img.clientWidth,
+            image_height: img.clientHeight
+        })
+        .eq("id", existing.id));
+
+}
+else {
+
+    ({ error } = await supabase
+        .from("layout_polygons")
+        .insert({
+            project_id: proj.id,
+            plot_number: Number(plotNumber),
+            status: mode,
+            points: points.map(p => ({
+                x: p.x,
+                y: p.y
+            })),
+            image_width: img.clientWidth,
+            image_height: img.clientHeight
+        }));
+
+}
 
   if (error) {
     alert(error.message);
