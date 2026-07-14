@@ -6,6 +6,7 @@ export default function LayoutEditor({ proj, ctx }) {
 const [mode, setMode] = useState("booked");
 const [closed, setClosed] = useState(false);
   const [savedPolygons, setSavedPolygons] = useState([]);
+  const [selectedPolygon, setSelectedPolygon] = useState(null);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
 useEffect(() => {
@@ -285,6 +286,7 @@ Plot {plot.number}
 
         <polygon
             key={poly.id}
+          onClick={() => setSelectedPolygon(poly)}
             points={
                 poly.points
                     .map(
@@ -295,8 +297,8 @@ Plot {plot.number}
             }
             fill={color}
             fillOpacity={0.35}
-            stroke={color}
-            strokeWidth="2"
+            stroke={selectedPolygon?.id === poly.id ? "#00BFFF" : color}
+            strokeWidth={selectedPolygon?.id === poly.id ? 4 : 2}
         />
 
     );
