@@ -8,20 +8,23 @@ const [closed, setClosed] = useState(false);
   const [savedPolygons, setSavedPolygons] = useState([]);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
-  useEffect(() => {
-    loadPolygons();
-}, [proj.id]);
+useEffect(() => {
 
-async function loadPolygons() {
-    const { data, error } = await supabase
-        .from("layout_polygons")
-        .select("*")
-        .eq("project_id", proj.id);
+    async function loadPolygons() {
 
-    if (!error) {
-        setSavedPolygons(data || []);
+        const { data, error } = await supabase
+            .from("layout_polygons")
+            .select("*")
+            .eq("project_id", proj.id);
+
+        if (!error) {
+            setSavedPolygons(data || []);
+        }
     }
-}
+
+    loadPolygons();
+
+}, [proj.id]);
   const handleClick = (e) => {
     
   if (closed) return;
