@@ -7,6 +7,7 @@ const [mode, setMode] = useState("booked");
 const [closed, setClosed] = useState(false);
   const [savedPolygons, setSavedPolygons] = useState([]);
   const [selectedPolygon, setSelectedPolygon] = useState(null);
+  const [tool, setTool] = useState("select");
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
 useEffect(() => {
@@ -128,7 +129,65 @@ setPlotNumber("");
     flexWrap: "wrap"
   }}
 >
+<button
+onClick={()=>setTool("select")}
+style={{
+background:tool==="select"?"#2563eb":"#222",
+color:"white",
+padding:"10px 18px",
+borderRadius:8
+}}
+>
+🖱 Select
+</button>
 
+<button
+onClick={()=>setTool("draw")}
+style={{
+background:tool==="draw"?"#16a34a":"#222",
+color:"white",
+padding:"10px 18px",
+borderRadius:8
+}}
+>
+➕ Draw
+</button>
+
+<button
+onClick={()=>setTool("edit")}
+style={{
+background:tool==="edit"?"#f59e0b":"#222",
+color:"white",
+padding:"10px 18px",
+borderRadius:8
+}}
+>
+✏ Edit
+</button>
+
+<button
+onClick={()=>setTool("paint")}
+style={{
+background:tool==="paint"?"#9333ea":"#222",
+color:"white",
+padding:"10px 18px",
+borderRadius:8
+}}
+>
+🎨 Paint
+</button>
+
+<button
+onClick={()=>setTool("erase")}
+style={{
+background:tool==="erase"?"#dc2626":"#222",
+color:"white",
+padding:"10px 18px",
+borderRadius:8
+}}
+>
+🧽 Erase
+</button>
 <button
 onClick={()=>setMode("booked")}
 style={{
@@ -262,7 +321,13 @@ Plot {plot.number}
 />
 
       <svg
-    onClick={handleClick}
+    onClick={(e)=>{
+
+    if(tool==="draw"){
+        handleClick(e);
+    }
+
+}}
     width={imgRef.current?.clientWidth || 1000}
     height={imgRef.current?.clientHeight || 700}
     style={{
@@ -287,7 +352,13 @@ Plot {plot.number}
 
         <polygon
             key={poly.id}
-            onClick={() => setSelectedPolygon(poly)}
+            onClick={() => {
+
+    if(tool==="select"){
+        setSelectedPolygon(poly);
+    }
+
+}}
             points={
                 poly.points
                     .map(
