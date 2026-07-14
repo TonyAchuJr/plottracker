@@ -23,11 +23,8 @@ const [plotNumber,setPlotNumber]=useState("");
     }
 }
 useEffect(() => {
-
-    
-
     loadPolygons();
-
+// eslint-disable-next-line react-hooks/exhaustive-deps
 }, [proj.id]);
   const handleClick = (e) => {
     
