@@ -397,9 +397,25 @@ Plot {plot.number}
 
         <polygon
             key={poly.id}
-            onClick={() => {
+            onClick={async () => {
 
-    if(tool==="select" || tool==="edit"){
+    if (tool === "paint") {
+
+        const { error } = await supabase
+            .from("layout_polygons")
+            .update({
+                status: mode
+            })
+            .eq("id", poly.id);
+
+        if (!error) {
+            await loadPolygons();
+        }
+
+        return;
+    }
+
+    if (tool === "select" || tool === "edit") {
         setSelectedPolygon(poly);
         setEditingPoints([...poly.points]);
     }
