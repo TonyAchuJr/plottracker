@@ -292,17 +292,19 @@ borderRadius:8
 >
 ↩ Undo Last Point
 </button>
+    {(tool === "draw" || tool === "edit") && (
     <button
-onClick={savePolygon}
-style={{
-background:"#16a34a",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-💾 Save Polygon
-</button>
+        onClick={savePolygon}
+        style={{
+            background:"#16a34a",
+            color:"white",
+            padding:"10px 18px",
+            borderRadius:8
+        }}
+    >
+        💾 Save Polygon
+    </button>
+)}
 </div>
   <select
 value={plotNumber}
