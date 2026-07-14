@@ -312,8 +312,9 @@ onChange={e=>setPlotNumber(e.target.value)}
 >
 
 <option value="">Select Plot</option>
-
-{ctx.plots.map(plot=>(
+{ctx.plots
+    .sort((a, b) => Number(a.number) - Number(b.number))
+    .map(plot => ({ctx.plots.map(plot=>(
 
 <option
 key={plot.id}
