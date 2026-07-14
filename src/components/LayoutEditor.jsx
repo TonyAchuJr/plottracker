@@ -283,10 +283,11 @@ Plot {plot.number}
             : "#22c55e";
 
     return (
+    <>
 
         <polygon
             key={poly.id}
-          onClick={() => setSelectedPolygon(poly)}
+            onClick={() => setSelectedPolygon(poly)}
             points={
                 poly.points
                     .map(
@@ -301,7 +302,24 @@ Plot {plot.number}
             strokeWidth={selectedPolygon?.id === poly.id ? 4 : 2}
         />
 
-    );
+        {selectedPolygon?.id === poly.id &&
+            poly.points.map((p, index) => (
+
+                <circle
+                    key={`vertex-${index}`}
+                    cx={p.x * (imgRef.current?.clientWidth || 1000)}
+                    cy={p.y * (imgRef.current?.clientHeight || 700)}
+                    r="6"
+                    fill="#00BFFF"
+                    stroke="white"
+                    strokeWidth="2"
+                />
+
+            ))
+        }
+
+    </>
+);
 
 })}        
   {points.length > 1 && (
