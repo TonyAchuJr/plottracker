@@ -1,12 +1,27 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { supabase } from "../supabaseClient";
 
 export default function LayoutEditor({ proj, ctx }) {  
   const [points, setPoints] = useState([]);
 const [mode, setMode] = useState("booked");
 const [closed, setClosed] = useState(false);
+  const [savedPolygons, setSavedPolygons] = useState([]);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
+  useEffect(() => {
+    loadPolygons();
+}, [proj.id]);
+
+async function loadPolygons() {
+    const { data, error } = await supabase
+        .from("layout_polygons")
+        .select("*")
+        .eq("project_id", proj.id);
+
+    if (!error) {
+        setSavedPolygons(data || []);
+    }
+}
   const handleClick = (e) => {
     
   if (closed) return;
@@ -254,6 +269,36 @@ Plot {plot.number}
     }}
 >
         <>
+  {savedPolygons.map(poly => {
+
+    const color =
+        poly.status === "sold"
+            ? "#ef4444"
+            : poly.status === "booked"
+            ? "#f59e0b"
+            : "#22c55e";
+
+    return (
+
+        <polygon
+            key={poly.id}
+            points={
+                poly.points
+                    .map(
+                        p =>
+                            `${p.x * (imgRef.current?.clientWidth || 1000)},${p.y * (imgRef.current?.clientHeight || 700)}`
+                    )
+                    .join(" ")
+            }
+            fill={color}
+            fillOpacity={0.35}
+            stroke={color}
+            strokeWidth="2"
+        />
+
+    );
+
+})}        
   {points.length > 1 && (
     <polyline
       points={
