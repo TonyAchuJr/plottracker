@@ -8,6 +8,8 @@ const [closed, setClosed] = useState(false);
   const [savedPolygons, setSavedPolygons] = useState([]);
   const [selectedPolygon, setSelectedPolygon] = useState(null);
   const [tool, setTool] = useState("select");
+  const [editingPoints, setEditingPoints] = useState([]);
+const [dragIndex, setDragIndex] = useState(null);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
 useEffect(() => {
@@ -55,6 +57,33 @@ if (!img) {
   alert("Layout image not found.");
   return;
 }
+  if (tool === "edit" && selectedPolygon) {
+
+    const { error } = await supabase
+        .from("layout_polygons")
+        .update({
+            points: editingPoints,
+            status: mode,
+            image_width: img.clientWidth,
+            image_height: img.clientHeight
+        })
+        .eq("id", selectedPolygon.id);
+
+    if (error) {
+        alert(error.message);
+        return;
+    }
+
+    await loadPolygons();
+
+    setSelectedPolygon(null);
+    setEditingPoints([]);
+    setDragIndex(null);
+
+    alert("Polygon updated.");
+
+    return;
+}
   const { data: existing } = await supabase
 .from("layout_polygons")
 .select("id")
@@ -78,7 +107,7 @@ else if (existing) {
         .from("layout_polygons")
         .update({
             status: mode,
-            points: points.map(p => ({
+            points: (tool === "edit" ? editingPoints : points).map(p => ({
                 x: p.x,
                 y: p.y
             })),
@@ -322,12 +351,31 @@ Plot {plot.number}
 
       <svg
     onClick={(e)=>{
+        if(tool==="draw"){
+            handleClick(e);
+        }
+    }}
 
-    if(tool==="draw"){
-        handleClick(e);
-    }
+    onMouseMove={(e)=>{
+        if(tool!=="edit") return;
+        if(dragIndex===null) return;
 
-}}
+        const rect = imgRef.current.getBoundingClientRect();
+
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+
+        setEditingPoints(prev=>{
+            const pts=[...prev];
+            pts[dragIndex]={ x, y };
+            return pts;
+        });
+    }}
+
+    onMouseUp={()=>{
+        setDragIndex(null);
+    }}
+
     width={imgRef.current?.clientWidth || 1000}
     height={imgRef.current?.clientHeight || 700}
     style={{
@@ -354,8 +402,9 @@ Plot {plot.number}
             key={poly.id}
             onClick={() => {
 
-    if(tool==="select"){
+    if(tool==="select" || tool==="edit"){
         setSelectedPolygon(poly);
+        setEditingPoints([...poly.points]);
     }
 
 }}
@@ -374,17 +423,22 @@ Plot {plot.number}
         />
 
         {selectedPolygon?.id === poly.id &&
-            poly.points.map((p, index) => (
+            editingPoints.map((p, index) => (
 
                 <circle
-                    key={`vertex-${index}`}
-                    cx={p.x * (imgRef.current?.clientWidth || 1000)}
-                    cy={p.y * (imgRef.current?.clientHeight || 700)}
-                    r="6"
-                    fill="#00BFFF"
-                    stroke="white"
-                    strokeWidth="2"
-                />
+    key={`vertex-${index}`}
+    cx={p.x * (imgRef.current?.clientWidth || 1000)}
+    cy={p.y * (imgRef.current?.clientHeight || 700)}
+    r="6"
+    fill="#00BFFF"
+    stroke="white"
+    strokeWidth="2"
+    onMouseDown={()=>{
+        if(tool==="edit"){
+            setDragIndex(index);
+        }
+    }}
+/>
 
             ))
         }
