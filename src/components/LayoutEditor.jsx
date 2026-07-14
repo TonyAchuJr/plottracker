@@ -1,479 +1,223 @@
-import { useState, useRef, useEffect } from "react";
-import { supabase } from "../supabaseClient";
+import { useState, useRef } from "react";
+import { supabase } from "../lib/supabaseClient";
 
-export default function LayoutEditor({ proj, ctx }) {  
+export default function LayoutEditor({ proj, ctx }) {
   const [points, setPoints] = useState([]);
-const [mode, setMode] = useState("booked");
-const [closed, setClosed] = useState(false);
-  const [savedPolygons, setSavedPolygons] = useState([]);
+  const [tool, setTool] = useState("select"); // select, draw, edit
   const [selectedPolygon, setSelectedPolygon] = useState(null);
-  const [tool, setTool] = useState("select");
   const [dragIndex, setDragIndex] = useState(null);
-const [editingPoints, setEditingPoints] = useState([]);
-const [plotNumber,setPlotNumber]=useState("");
-  const imgRef = useRef(null);
-useEffect(() => {
+  const [plotNumber, setPlotNumber] = useState("");
+  const [mode, setMode] = useState("booked");
 
-    async function loadPolygons() {
+  const svgRef = useRef(null);
 
-        const { data, error } = await supabase
-            .from("layout_polygons")
-            .select("*")
-            .eq("project_id", proj.id);
+  const handleClick = (e) => {
+    if (tool !== "draw") return;
 
-        if (!error) {
-            setSavedPolygons(data || []);
-        }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setPoints((prev) => [...prev, { x, y }]);
+  };
+
+  const handleMouseMove = (e) => {
+    if (tool !== "edit" || dragIndex === null || !selectedPolygon) return;
+
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    setSelectedPolygon((prev) => {
+      if (!prev) return prev;
+      const updatedPoints = [...prev.points];
+      updatedPoints[dragIndex] = { x, y };
+      return { ...prev, points: updatedPoints };
+    });
+  };
+
+  const handleMouseUp = () => {
+    setDragIndex(null);
+  };
+
+  const savePolygon = async () => {
+    if (points.length < 3 && !selectedPolygon) {
+      alert("Need at least 3 points to save.");
+      return;
     }
 
-    loadPolygons();
+    if (!plotNumber) {
+      alert("Please select a plot number.");
+      return;
+    }
 
-}, [proj.id]);
-  const handleClick = (e) => {
-    
-  if (closed) return;
-
-  const rect = imgRef.current.getBoundingClientRect();
-
-  const x = (e.clientX - rect.left) / rect.width;
-const y = (e.clientY - rect.top) / rect.height;
-
-  setPoints(prev => [...prev, { x, y }]);
-};
-const savePolygon = async () => {
-
-  if (points.length < 3) {
-    alert("Need at least 3 points.");
-    return;
-  }
-
-  if (!plotNumber) {
-    alert("Select a plot.");
-    return;
-  }
-const img = imgRef.current;
-
-if (!img) {
-  alert("Layout image not found.");
-  return;
-}
-  const { data: existing } = await supabase
-.from("layout_polygons")
-.select("id")
-.eq("project_id", proj.id)
-.eq("plot_number", Number(plotNumber))
-.maybeSingle();
-  let error;
-
-if (mode === "clear") {
-
-    ({ error } = await supabase
-        .from("layout_polygons")
-        .delete()
-        .eq("project_id", proj.id)
-        .eq("plot_number", Number(plotNumber)));
-
-}
-else if (existing) {
-
-    ({ error } = await supabase
-        .from("layout_polygons")
-        .update({
+    try {
+      if (selectedPolygon) {
+        // Update existing polygon
+        const { error } = await supabase
+          .from("layout_polygons")
+          .update({
+            points: selectedPolygon.points,
             status: mode,
-            points: points.map(p => ({
-                x: p.x,
-                y: p.y
-            })),
-            image_width: img.clientWidth,
-            image_height: img.clientHeight
-        })
-        .eq("id", existing.id));
+          })
+          .eq("id", selectedPolygon.id);
 
-}
-else {
-
-    ({ error } = await supabase
-        .from("layout_polygons")
-        .insert({
+        if (error) throw error;
+        alert("Polygon updated successfully!");
+      } else {
+        // Create new polygon
+        const { error } = await supabase
+          .from("layout_polygons")
+          .insert({
             project_id: proj.id,
             plot_number: Number(plotNumber),
             status: mode,
-            points: points.map(p => ({
-                x: p.x,
-                y: p.y
-            })),
-            image_width: img.clientWidth,
-            image_height: img.clientHeight
-        }));
+            points: points,
+          });
 
-}
+        if (error) throw error;
+        alert("Polygon saved successfully!");
+      }
 
-  if (error) {
-    alert(error.message);
-    return;
-  }
+      // Reset
+      setPoints([]);
+      setSelectedPolygon(null);
+      setDragIndex(null);
+      setPlotNumber("");
+    } catch (error) {
+      alert("Error: " + error.message);
+    }
+  };
 
-  alert("Polygon saved.");
-
-  setPoints([]);
-setClosed(false);
-setPlotNumber("");
-
-};
-  return (
-<>
-  <div
-  style={{
-    display: "flex",
-    gap: 10,
-    marginBottom: 15,
-    justifyContent: "center",
-    flexWrap: "wrap"
-  }}
->
-<button
-onClick={()=>setTool("select")}
-style={{
-background:tool==="select"?"#2563eb":"#222",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-🖱 Select
-</button>
-
-<button
-onClick={()=>setTool("draw")}
-style={{
-background:tool==="draw"?"#16a34a":"#222",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-➕ Draw
-</button>
-
-<button
-onClick={()=>setTool("edit")}
-style={{
-background:tool==="edit"?"#f59e0b":"#222",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-✏ Edit
-</button>
-
-<button
-onClick={()=>setTool("paint")}
-style={{
-background:tool==="paint"?"#9333ea":"#222",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-🎨 Paint
-</button>
-
-<button
-onClick={()=>setTool("erase")}
-style={{
-background:tool==="erase"?"#dc2626":"#222",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-🧽 Erase
-</button>
-<button
-onClick={()=>setMode("booked")}
-style={{
-background:mode==="booked"?"#f59e0b":"#222",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-🟠 Booked
-</button>
-
-<button
-onClick={()=>setMode("sold")}
-style={{
-background:mode==="sold"?"#ef4444":"#222",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-🔴 Sold
-</button>
-
-<button
-onClick={()=>setMode("clear")}
-style={{
-background:mode==="clear"?"#666":"#222",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-⚪ Clear
-</button>
-<button
-  onClick={() => {
-  if (points.length >= 3) {
-    setClosed(true);
-  }
-}}
-  style={{
-    background: "#2563eb",
-    color: "white",
-    padding: "10px 18px",
-    borderRadius: 8
-  }}
->
-✔ Finish Shape
-</button>
-
-<button
-  onClick={()=>{
+  const clearPoints = () => {
     setPoints([]);
-    setClosed(false);
-  }}
-  style={{
-    background:"#444",
-    color:"white",
-    padding:"10px 18px",
-    borderRadius:8
-  }}
->
-🗑 Clear Points
-</button>
-    <button
-  onClick={()=>{
-    setPoints(prev=>prev.slice(0,-1));
-  }}
-  style={{
-    background:"#f59e0b",
-    color:"white",
-    padding:"10px 18px",
-    borderRadius:8
-  }}
->
-↩ Undo Last Point
-</button>
-    <button
-onClick={savePolygon}
-style={{
-background:"#16a34a",
-color:"white",
-padding:"10px 18px",
-borderRadius:8
-}}
->
-💾 Save Polygon
-</button>
-</div>
-  <select
-value={plotNumber}
-onChange={e=>setPlotNumber(e.target.value)}
->
-
-<option value="">Select Plot</option>
-
-{ctx.plots.map(plot=>(
-
-<option
-key={plot.id}
-value={plot.number}
->
-
-Plot {plot.number}
-
-</option>
-
-))}
-
-</select>  
-  <div
-      style={{
-        position: "relative",
-        width: "100%",
-        maxWidth: "1000px",
-        margin: "auto",
-        border: "1px solid #444",
-        overflow: "hidden"
-      }}
-    >
-      <img
-  ref={imgRef}
-  id="layoutImage"
-  src={proj.layout_image}
-  alt="Master Layout"
-  style={{
-    width: "100%",
-    display: "block"
-  }}
-/>
-
-      <svg
-    onClick={(e)=>{
-onMouseMove={(e)=>{
-
-    if(tool!=="edit") return;
-
-    if(dragIndex===null) return;
-
-}}
-
-onMouseUp={()=>{
+    setSelectedPolygon(null);
     setDragIndex(null);
-}}
-    if(tool==="draw"){
-        handleClick(e);
-    }
+  };
 
-}}
-    width={imgRef.current?.clientWidth || 1000}
-    height={imgRef.current?.clientHeight || 700}
-    style={{
-        position:"absolute",
-        top:0,
-        left:0,
-        cursor:"crosshair"
-    }}
->
-        <>
-  {savedPolygons.map(poly => {
-
-    const color =
-        poly.status === "sold"
-            ? "#ef4444"
-            : poly.status === "booked"
-            ? "#f59e0b"
-            : "#22c55e";
-
-    return (
+  return (
     <>
+      {/* Toolbar */}
+      <div style={{ display: "flex", gap: 10, marginBottom: 15, flexWrap: "wrap", justifyContent: "center" }}>
+        <button onClick={() => setTool("select")} style={{ background: tool === "select" ? "#3b82f6" : "#444", color: "white", padding: "10px 16px", borderRadius: 8 }}>
+          Select
+        </button>
+        <button onClick={() => setTool("draw")} style={{ background: tool === "draw" ? "#eab308" : "#444", color: "white", padding: "10px 16px", borderRadius: 8 }}>
+          Draw
+        </button>
+        <button onClick={() => setTool("edit")} style={{ background: tool === "edit" ? "#22c55e" : "#444", color: "white", padding: "10px 16px", borderRadius: 8 }}>
+          Edit
+        </button>
 
-        <polygon
-            key={poly.id}
-            onClick={() => {
+        <button onClick={() => setMode("booked")} style={{ background: mode === "booked" ? "#f59e0b" : "#444", color: "white", padding: "10px 16px", borderRadius: 8 }}>
+          Booked
+        </button>
+        <button onClick={() => setMode("sold")} style={{ background: mode === "sold" ? "#ef4444" : "#444", color: "white", padding: "10px 16px", borderRadius: 8 }}>
+          Sold
+        </button>
 
-    if(tool==="select" || tool==="edit"){
+        <button onClick={clearPoints} style={{ background: "#666", color: "white", padding: "10px 16px", borderRadius: 8 }}>
+          Clear
+        </button>
+        <button onClick={savePolygon} style={{ background: "#16a34a", color: "white", padding: "10px 16px", borderRadius: 8 }}>
+          💾 Save Polygon
+        </button>
+      </div>
 
-        setSelectedPolygon(poly);
+      {/* Plot Selector */}
+      <div style={{ marginBottom: 15, textAlign: "center" }}>
+        <select value={plotNumber} onChange={(e) => setPlotNumber(e.target.value)} style={{ padding: "10px", borderRadius: 8 }}>
+          <option value="">Select Plot</option>
+          {ctx.plots?.map((plot) => (
+            <option key={plot.id} value={plot.number}>
+              Plot {plot.number}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        setEditingPoints(poly.points);
-
-    }
-
-}}
-            points={
-                poly.points
-                    .map(
-                        p =>
-                            `${p.x * (imgRef.current?.clientWidth || 1000)},${p.y * (imgRef.current?.clientHeight || 700)}`
-                    )
-                    .join(" ")
-            }
-            fill={color}
-            fillOpacity={0.35}
-            stroke={selectedPolygon?.id === poly.id ? "#00BFFF" : color}
-            strokeWidth={selectedPolygon?.id === poly.id ? 4 : 2}
+      {/* Layout Image + SVG Overlay */}
+      <div style={{ position: "relative", maxWidth: "1000px", margin: "auto", border: "2px solid #444", borderRadius: 12, overflow: "hidden" }}>
+        <img
+          src={proj.layout_image}
+          alt="Master Layout"
+          style={{ width: "100%", display: "block" }}
         />
 
-        {selectedPolygon?.id === poly.id &&
-    editingPoints.map((p,index)=>(
+        <svg
+          ref={svgRef}
+          onClick={handleClick}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            cursor: tool === "draw" ? "crosshair" : "default",
+          }}
+        >
+          {/* Existing Polygons */}
+          {ctx.layoutPolygons?.map((poly) => {
+            const isSelected = selectedPolygon?.id === poly.id;
+            return (
+              <g key={poly.id}>
+                <polygon
+                  points={poly.points.map((p) => `${p.x},${p.y}`).join(" ")}
+                  fill={poly.status === "booked" ? "rgba(245,158,11,0.4)" : poly.status === "sold" ? "rgba(239,68,68,0.4)" : "transparent"}
+                  stroke={isSelected ? "#3b82f6" : "#fff"}
+                  strokeWidth={isSelected ? 4 : 2}
+                  onClick={() => {
+                    if (tool === "select" || tool === "edit") {
+                      setSelectedPolygon(poly);
+                    }
+                  }}
+                />
+                {/* Vertices for selected polygon */}
+                {isSelected &&
+                  poly.points.map((point, index) => (
+                    <circle
+                      key={index}
+                      cx={point.x}
+                      cy={point.y}
+                      r={6}
+                      fill="#3b82f6"
+                      stroke="white"
+                      strokeWidth={2}
+                      style={{ cursor: "pointer" }}
+                      onMouseDown={() => {
+                        if (tool === "edit") setDragIndex(index);
+                      }}
+                    />
+                  ))}
+              </g>
+            );
+          })}
 
-                <circle
-    key={`vertex-${index}`}
-    cx={p.x * (imgRef.current?.clientWidth || 1000)}
-    cy={p.y * (imgRef.current?.clientHeight || 700)}
-    r="6"
-    fill="#00BFFF"
-    stroke="white"
-    strokeWidth="2"
-
-    onMouseDown={()=>{
-        if(tool==="edit"){
-            setDragIndex(index);
-        }
-    }}
-/>
-
-            ))
-        }
-
+          {/* Currently drawing polygon */}
+          {points.length > 1 && (
+            <polyline
+              points={points.map((p) => `${p.x},${p.y}`).join(" ")}
+              fill="none"
+              stroke="#eab308"
+              strokeWidth={3}
+            />
+          )}
+          {points.length > 2 && (
+            <polygon
+              points={points.map((p) => `${p.x},${p.y}`).join(" ")}
+              fill="rgba(234,179,8,0.3)"
+              stroke="#eab308"
+              strokeWidth={2}
+            />
+          )}
+          {points.map((p, i) => (
+            <circle key={i} cx={p.x} cy={p.y} r={5} fill="#eab308" />
+          ))}
+        </svg>
+      </div>
     </>
-);
-
-})}        
-  {points.length > 1 && (
-    <polyline
-      points={
-  points
-    .map(
-      p =>
-        `${p.x * (imgRef.current?.clientWidth || 1000)},${p.y * (imgRef.current?.clientHeight || 700)}`
-    )
-    .join(" ")
-}
-      fill="none"
-      stroke="#FFD54A"
-      strokeWidth="2"
-    />
-  )}
-
-  {closed && points.length > 2 && (
-    <polygon
-    points={
-  points
-    .map(
-      p =>
-        `${p.x * (imgRef.current?.clientWidth || 1000)},${p.y * (imgRef.current?.clientHeight || 700)}`
-    )
-    .join(" ")
-}
-    fill={
-        mode === "booked"
-            ? "rgba(245,158,11,.35)"
-            : mode === "sold"
-            ? "rgba(239,68,68,.35)"
-            : "transparent"
-    }
-    stroke={
-        mode === "booked"
-            ? "#f59e0b"
-            : mode === "sold"
-            ? "#ef4444"
-            : "#888"
-    }
-    strokeWidth="2"
-/>
-  )}
-
-  {points.map((p, i) => (
-  <circle
-    key={i}
-    cx={p.x * (imgRef.current?.clientWidth || 1000)}
-cy={p.y * (imgRef.current?.clientHeight || 700)}
-    r="5"
-    fill="#FFD54A"
-    stroke="black"
-  />
-))}
-</>
-</svg>
-</div>
-
-</>
-
-);
+  );
 }
