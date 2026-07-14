@@ -12,19 +12,19 @@ const [closed, setClosed] = useState(false);
 const [dragIndex, setDragIndex] = useState(null);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
+  async function loadPolygons() {
+    const { data, error } = await supabase
+        .from("layout_polygons")
+        .select("*")
+        .eq("project_id", proj.id);
+
+    if (!error) {
+        setSavedPolygons(data || []);
+    }
+}
 useEffect(() => {
 
-    async function loadPolygons() {
-
-        const { data, error } = await supabase
-            .from("layout_polygons")
-            .select("*")
-            .eq("project_id", proj.id);
-
-        if (!error) {
-            setSavedPolygons(data || []);
-        }
-    }
+    
 
     loadPolygons();
 
