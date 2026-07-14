@@ -8,6 +8,8 @@ const [closed, setClosed] = useState(false);
   const [savedPolygons, setSavedPolygons] = useState([]);
   const [selectedPolygon, setSelectedPolygon] = useState(null);
   const [tool, setTool] = useState("select");
+  const [dragIndex, setDragIndex] = useState(null);
+const [editingPoints, setEditingPoints] = useState([]);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
 useEffect(() => {
@@ -322,7 +324,17 @@ Plot {plot.number}
 
       <svg
     onClick={(e)=>{
+onMouseMove={(e)=>{
 
+    if(tool!=="edit") return;
+
+    if(dragIndex===null) return;
+
+}}
+
+onMouseUp={()=>{
+    setDragIndex(null);
+}}
     if(tool==="draw"){
         handleClick(e);
     }
@@ -354,8 +366,12 @@ Plot {plot.number}
             key={poly.id}
             onClick={() => {
 
-    if(tool==="select"){
+    if(tool==="select" || tool==="edit"){
+
         setSelectedPolygon(poly);
+
+        setEditingPoints(poly.points);
+
     }
 
 }}
@@ -374,17 +390,23 @@ Plot {plot.number}
         />
 
         {selectedPolygon?.id === poly.id &&
-            poly.points.map((p, index) => (
+    editingPoints.map((p,index)=>(
 
                 <circle
-                    key={`vertex-${index}`}
-                    cx={p.x * (imgRef.current?.clientWidth || 1000)}
-                    cy={p.y * (imgRef.current?.clientHeight || 700)}
-                    r="6"
-                    fill="#00BFFF"
-                    stroke="white"
-                    strokeWidth="2"
-                />
+    key={`vertex-${index}`}
+    cx={p.x * (imgRef.current?.clientWidth || 1000)}
+    cy={p.y * (imgRef.current?.clientHeight || 700)}
+    r="6"
+    fill="#00BFFF"
+    stroke="white"
+    strokeWidth="2"
+
+    onMouseDown={()=>{
+        if(tool==="edit"){
+            setDragIndex(index);
+        }
+    }}
+/>
 
             ))
         }
