@@ -2137,7 +2137,7 @@ function EditPlotModal({ ctx, plot, proj }) {
     <div className="flex g2"><Fi label="Area" value={area} onChange={setArea} placeholder="1200 sq.ft" /><Fi label="Price (₹)" value={price} onChange={setPrice} type="number" /></div>
     <div className="flex g2"><Fi label="Facing" value={facing} onChange={setFacing} placeholder="North, East…" /><Fi label="Category" value={cat} onChange={setCat} placeholder="Residential…" /></div>
     <Fi label="Notes" value={notes} onChange={setNotes} textarea />
-    <Btns cancel={()=>setModal(null)} confirm={go} label={busy?"Saving…":"ᝰ.ᐟSave Changes"} disabled={busy} />
+    <Btns cancel={()=>setModal(null)} confirm={go} label={busy?"Saving…":"Save Changes"} disabled={busy} />
   </>;
 }
 
