@@ -2288,7 +2288,24 @@ function BulkEditPlotsModal({ ctx, proj }) {
       </table>
     </div>
 
-    <Btns cancel={() => setModal(null)} confirm={saveAll} label={busy ? "Saving…" : "Save All Changes"} disabled={busy} />
+    <div
+  style={{
+    position: "sticky",
+    bottom: 0,
+    background: "var(--surface)",
+    padding: "16px 0",
+    marginTop: 10,
+    borderTop: "1px solid var(--border)",
+    zIndex: 20
+  }}
+>
+  <Btns
+    cancel={() => setModal(null)}
+    confirm={saveAll}
+    label={busy ? "Saving…" : "Save All Changes"}
+    disabled={busy}
+  />
+</div>
   </>;
 }
 
