@@ -2852,14 +2852,36 @@ function Fi({ label, value, onChange, type="text", placeholder, textarea }) {
 }
 function Btns({ cancel, confirm, label="Save", disabled=false }) {
   return (
-    <div className="flex g2" style={{ marginTop: 4 }}>
-      <button className="btn-primary btn-full" onClick={confirm} disabled={disabled} style={{ opacity: disabled ? 0.7 : 1 }}>{label}</button>
-      <button className="btn-ghost btn-full" onClick={cancel}>Cancel</button>
+    <div
+      className="flex g2"
+      style={{
+        marginTop: 4,
+        display: "flex",
+        gap: 12,
+        width: "100%"
+      }}
+    >
+      <button
+        className="btn-ghost"
+        onClick={cancel}
+        style={{
+          flex: "0 0 140px"
+        }}
+      >
+        Cancel
+      </button>
+
+      <button
+        className="btn-primary"
+        onClick={confirm}
+        disabled={disabled}
+        style={{
+          flex: 1,
+          opacity: disabled ? 0.7 : 1
+        }}
+      >
+        {label}
+      </button>
     </div>
   );
-}
-function Err({ children }) { return <p style={{ color:"var(--rose)", fontSize:13, margin:"-6px 0 12px" }}>{children}</p>; }
-function Av({ name, size=36 }) {
-  const i=(name||"?").split(" ").map(w=>w[0]).join("").slice(0,2).toUpperCase();
-  return <div style={{width:size,height:size,borderRadius:"50%",background:"linear-gradient(135deg,var(--gold),#7a5618)",color:"#090909",display:"flex",alignItems:"center",justifyContent:"center",fontSize:size*.36,fontWeight:700,flexShrink:0}}>{i}</div>;
 }
