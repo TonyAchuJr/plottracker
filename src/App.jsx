@@ -2143,6 +2143,35 @@ function EditPlotModal({ ctx, plot, proj }) {
 
 function BulkEditPlotsModal({ ctx, proj }) {
   const { toast$, setModal, setPlots, plots } = ctx;
+  const deletePlot = async (plot) => {
+  const ok = window.confirm(
+    `Delete Plot #${plot.number}?\n\nThis cannot be undone.`
+  );
+
+  if (!ok) return;
+
+  // delete polygon
+  await supabase
+    .from("layout_polygons")
+    .delete()
+    .eq("plot_id", plot.id);
+
+  // delete plot
+  const { error } = await supabase
+    .from("plots")
+    .delete()
+    .eq("id", plot.id);
+
+  if (error) {
+    toast$(error.message, "err");
+    return;
+  }
+
+  const { data } = await fetchPlots(proj.id);
+  setPlots(data || []);
+
+  toast$("Plot deleted.");
+};
   const [busy, setBusy] = useState(false);
 
   const sorted = [...plots].sort((a, b) => {
@@ -2222,7 +2251,32 @@ function BulkEditPlotsModal({ ctx, proj }) {
         <tbody>
           {sorted.map(p => (
             <tr key={p.id}>
-              <td className="bulk-edit-plotnum">#{p.number}</td>
+              <td className="bulk-edit-plotnum">
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: 10
+    }}
+  >
+    <span>#{p.number}</span>
+
+    <button
+      onClick={() => deletePlot(p)}
+      title="Delete Plot"
+      style={{
+        border: "none",
+        background: "transparent",
+        cursor: "pointer",
+        color: "#ff5c5c",
+        fontSize: 18
+      }}
+    >
+      🗑️
+    </button>
+  </div>
+</td>
               <td><input value={rows[p.id].area} onChange={e => updateRow(p.id, "area", e.target.value)} placeholder="1200 sq.ft" /></td>
               <td><input value={rows[p.id].price} onChange={e => updateRow(p.id, "price", e.target.value)} type="number" placeholder="0" /></td>
               <td><input value={rows[p.id].facing} onChange={e => updateRow(p.id, "facing", e.target.value)} placeholder="North…" /></td>
