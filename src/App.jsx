@@ -2273,7 +2273,7 @@ function BulkEditPlotsModal({ ctx, proj }) {
         fontSize: 18
       }}
     >
-      🗑️
+      🗑
     </button>
   </div>
 </td>
