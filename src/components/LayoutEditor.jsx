@@ -12,6 +12,7 @@ const [closed, setClosed] = useState(false);
 const [dragIndex, setDragIndex] = useState(null);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
+  const [zoom, setZoom] = useState(1);
   async function loadPolygons() {
     const { data, error } = await supabase
         .from("layout_polygons")
@@ -305,6 +306,41 @@ borderRadius:8
         💾 Save Polygon
     </button>
 )}
+ <button
+  onClick={() => setZoom(z => Math.min(3, z + 0.2))}
+  style={{
+    background: "#2563eb",
+    color: "white",
+    padding: "10px 18px",
+    borderRadius: 8
+  }}
+>
+  🔍+
+</button>
+
+<button
+  onClick={() => setZoom(z => Math.max(0.5, z - 0.2))}
+  style={{
+    background: "#2563eb",
+    color: "white",
+    padding: "10px 18px",
+    borderRadius: 8
+  }}
+>
+  🔍-
+</button>
+
+<button
+  onClick={() => setZoom(1)}
+  style={{
+    background: "#444",
+    color: "white",
+    padding: "10px 18px",
+    borderRadius: 8
+  }}
+>
+  ⌂ Reset
+</button>   
 </div>
   <select
 value={plotNumber}
@@ -327,24 +363,25 @@ onChange={e=>setPlotNumber(e.target.value)}
 
 </select>  
   <div
-      style={{
-        position: "relative",
-        width: "100%",
-        maxWidth: "1000px",
-        margin: "auto",
-        border: "1px solid #444",
-        overflow: "hidden"
-      }}
-    >
+  style={{
+    position: "relative",
+    width: "100%",
+    maxWidth: "1000px",
+    margin: "auto",
+    border: "1px solid #444",
+    overflow: "auto"
+  }}
+>
       <img
   ref={imgRef}
   id="layoutImage"
   src={proj.layout_image}
   alt="Master Layout"
   style={{
-    width: "100%",
-    display: "block"
-  }}
+  width: `${zoom * 100}%`,
+  display: "block",
+  transition: "width .2s ease"
+}}
 />
 
       <svg
