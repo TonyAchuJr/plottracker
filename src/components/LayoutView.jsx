@@ -32,33 +32,49 @@ const printLayout = async () => {
         backgroundColor: "#ffffff",
         scale: 3
     });
+
     const imgData = canvas.toDataURL("image/png");
+
     const win = window.open("", "_blank");
+
     win.document.write(`
         <html>
         <head>
             <title>Master Layout</title>
             <style>
                 body{
-                    margin:20px;
+                    margin:0;
+                    padding:20px;
                     text-align:center;
-                    font-family:Arial;
+                    background:white;
                 }
+
                 img{
                     width:100%;
                     height:auto;
+                }
+
+                @page{
+                    size:auto;
+                    margin:10mm;
                 }
             </style>
         </head>
         <body>
             <h2>${proj.name}</h2>
-            <img src="${imgData}" />
+            <img id="printImage" src="${imgData}">
         </body>
         </html>
     `);
+
     win.document.close();
-    win.focus();
-    win.print();
+
+    const img = win.document.getElementById("printImage");
+
+    img.onload = () => {
+        win.focus();
+        win.print();
+    };
 };
   if (!proj?.layout_image) {
     return (
