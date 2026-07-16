@@ -1,22 +1,65 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
+import html2canvas from "html2canvas";
 export default function LayoutView({ proj, plots, layoutCoords, layoutPolygons }) {
   const [scale, setScale] = useState(1);
-
+const exportRef = useRef(null);
 const [offset, setOffset] = useState({
   x: 0,
   y: 0
 });
-
 const [dragging, setDragging] = useState(false);
-
 const [start, setStart] = useState({
   x: 0,
   y: 0
 });
  const img = document.getElementById("layoutImage");
-
 const imgWidth = img?.clientWidth || 1000;
 const imgHeight = img?.clientHeight || 700;
+  const downloadLayout = async () => {
+    const canvas = await html2canvas(exportRef.current, {
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        scale: 3
+    });
+    const link = document.createElement("a");
+    link.download = `${proj.name || "MasterLayout"}.png`;
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+};
+const printLayout = async () => {
+    const canvas = await html2canvas(exportRef.current, {
+        useCORS: true,
+        backgroundColor: "#ffffff",
+        scale: 3
+    });
+    const imgData = canvas.toDataURL("image/png");
+    const win = window.open("", "_blank");
+    win.document.write(`
+        <html>
+        <head>
+            <title>Master Layout</title>
+            <style>
+                body{
+                    margin:20px;
+                    text-align:center;
+                    font-family:Arial;
+                }
+                img{
+                    width:100%;
+                    height:auto;
+                }
+            </style>
+        </head>
+        <body>
+            <h2>${proj.name}</h2>
+            <img src="${imgData}" />
+        </body>
+        </html>
+    `);
+    win.document.close();
+    win.focus();
+    win.print();
+};
   if (!proj?.layout_image) {
     return (
       <div className="layout-empty">
@@ -27,8 +70,60 @@ const imgHeight = img?.clientHeight || 700;
   }
 
   return (
-    <div
-  style={{
+
+<div>
+
+<div
+style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 15
+}}
+>
+
+<h3 style={{ margin: 0 }}>
+    Master Layout
+</h3>
+
+<div style={{ display: "flex", gap: 10 }}>
+
+<button
+onClick={downloadLayout}
+style={{
+    background: "#16a34a",
+    color: "#fff",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: 8,
+    cursor: "pointer"
+}}
+>
+⬇ Download
+</button>
+
+<button
+onClick={printLayout}
+style={{
+    background: "#2563eb",
+    color: "#fff",
+    border: "none",
+    padding: "10px 18px",
+    borderRadius: 8,
+    cursor: "pointer"
+}}
+>
+🖨 Print
+</button>
+
+</div>
+
+</div>
+
+<div ref={exportRef}>
+
+<div
+style={{
     overflow: "hidden",
     borderRadius: 18,
     cursor: dragging ? "grabbing" : "grab",
@@ -165,7 +260,17 @@ const imgHeight = img?.clientHeight || 700;
     );
 
 })}
-    </div>
-  </div>
-  );
+   </div>
+
+</div>
+
+</div>
+
+);
 }
+
+
+
+
+
+  
