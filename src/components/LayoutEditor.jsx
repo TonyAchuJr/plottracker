@@ -13,6 +13,10 @@ const [dragIndex, setDragIndex] = useState(null);
 const [plotNumber,setPlotNumber]=useState("");
   const imgRef = useRef(null);
   const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+const [dragging, setDragging] = useState(false);
+const [start, setStart] = useState({ x: 0, y: 0 });
+const containerRef = useRef(null);
   async function loadPolygons() {
     const { data, error } = await supabase
         .from("layout_polygons")
@@ -363,13 +367,47 @@ onChange={e=>setPlotNumber(e.target.value)}
 
 </select>  
   <div
+  ref={containerRef}
+  onMouseDown={(e) => {
+    if (zoom <= 1) return;
+
+    setDragging(true);
+
+    setStart({
+      x: e.clientX - offset.x,
+      y: e.clientY - offset.y
+    });
+  }}
+
+  onMouseMove={(e) => {
+    if (!dragging) return;
+
+    setOffset({
+      x: e.clientX - start.x,
+      y: e.clientY - start.y
+    });
+  }}
+
+  onMouseUp={() => setDragging(false)}
+  onMouseLeave={() => setDragging(false)}
+
   style={{
     position: "relative",
     width: "100%",
     maxWidth: "1000px",
     margin: "auto",
     border: "1px solid #444",
-    overflow: "auto"
+    overflow: "hidden",
+    cursor: zoom > 1
+      ? (dragging ? "grabbing" : "grab")
+      : "default"
+  }}
+>
+    <div
+  style={{
+    transform: `translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+    transformOrigin: "top left",
+    transition: dragging ? "none" : "transform .1s"
   }}
 >
       <img
@@ -580,7 +618,7 @@ cy={p.y * (imgRef.current?.clientHeight || 700)}
 </>
 </svg>
 </div>
-
+</div>
 </>
 
 );
