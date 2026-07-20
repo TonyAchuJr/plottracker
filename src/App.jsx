@@ -492,7 +492,7 @@ function AuthTop({ ctx, title, sub }) {
           <div className="header-logo-icon">🏘️</div>
           <span className="header-logo-text" style={{ fontSize: 15 }}>AIRAA GROUP</span>
         </div>
-        <button className="theme-btn" onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
+        <button type="button" className="theme-btn" onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
       </div>
       <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 25, color: "var(--text)", marginBottom: 5 }}>{title}</h2>
       <p className="tmuted tsm mb3">{sub}</p>
@@ -593,7 +593,7 @@ function ForgotPasswordPage({ ctx }) {
             <div className="header-logo-icon">🏘️</div>
             <span className="header-logo-text" style={{ fontSize: 15 }}>PlotTracker</span>
           </div>
-          <button className="theme-btn" onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
+          <button type="button" className="theme-btn" onClick={toggleDark}>{dark ? "☀️" : "🌙"}</button>
         </div>
         <h2 style={{ fontFamily: "var(--font-serif)", fontSize: 25, color: "var(--text)", marginBottom: 6 }}>Forgot password?</h2>
         <p className="tmuted tsm mb3">Enter the email address linked to your account. We'll send you a reset link.</p>
