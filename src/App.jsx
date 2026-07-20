@@ -525,12 +525,18 @@ function LoginPage({ ctx }) {
   };
   return (
     <div className="auth-wrap" style={{ backgroundImage: `url(${process.env.PUBLIC_URL}/login-bg.jpg)` }}>
-      <div className="auth-card">
+      <form
+  className="auth-card"
+  onSubmit={(e) => {
+    e.preventDefault();
+    go();
+  }}
+>
         <AuthTop ctx={ctx} title="Welcome back" sub="Sign in to your PlotTracker account" />
         <Fi label="Email" value={email} onChange={setEmail} type="email" />
         <Fi label="Password" value={pass} onChange={setPass} type="password" />
         {err && <Err>{err}</Err>}
-        <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
+        <button className="btn-primary btn-full mb3" type="submit" disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
         <p className="tmuted tsm" style={{ textAlign: "center", marginBottom: 10 }}>
           <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("forgot-password")}>Forgot password?</span>
         </p>
@@ -538,7 +544,7 @@ function LoginPage({ ctx }) {
           No account? <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("register")}>Register</span>
           {" · "}<span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("landing")}>Back</span>
         </p>
-      </div>
+      </form>
     </div>
   );
 }
