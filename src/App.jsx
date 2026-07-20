@@ -114,7 +114,7 @@ export default function App() {
   !window.location.hash.includes("type=recovery") &&
   !window.location.search.includes("type=recovery")
 ) {
-  setView("dashboard");
+  goto("dashboard");
 }
   }
 
@@ -184,7 +184,23 @@ useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     document.body.style.background = dark ? "#09090f" : "#f6f4ee";
   }, [dark]);
+/* ── Browser Back Support ───────────────────────────────────────── */
 
+useEffect(() => {
+  window.history.replaceState({ view: "landing" }, "");
+}, []);
+
+useEffect(() => {
+  const onBack = (e) => {
+    if (e.state?.view) {
+      setView(e.state.view);
+    }
+  };
+
+  window.addEventListener("popstate", onBack);
+
+  return () => window.removeEventListener("popstate", onBack);
+}, []);
   /* ── Realtime ──────────────────────────────────────────────────── */
   useEffect(() => {
   const loadProjects = async () => {
@@ -232,14 +248,18 @@ setFiles(fi || []);
 setProjHistory(ph || []);
 setLayoutCoords(coords || []);
 setLayoutPolygons(polygons || []);    
-    setBusy(false); setView("project");
+    setBusy(false); goto("project");
   }
   async function openPlot(id) {
     setPlotId(id); setBusy(true);
     const { data: hi } = await fetchHistory(id);
     setHistory(hi || []);
-    setBusy(false); setView("plot");
+    setBusy(false); goto("plot");
   }
+  function goto(viewName) {
+  window.history.pushState({ view: viewName }, "");
+  setView(viewName);
+}
   const proj = projects.find(p => p.id === projId);
   const plot = plots.find(p => p.id === plotId);
   const ctx = {
@@ -248,7 +268,7 @@ setLayoutPolygons(polygons || []);
     files, setFiles, history, setHistory,
     projHistory, setProjHistory,
     projId, setProjId, plotId, setPlotId,
-    toast$, setView, setModal, busy, setBusy,
+    toast$, setView, goto, setModal, busy, setBusy,
     openProject, openPlot, buyerEnquiries,
   ownerEnquiries,
     setOwnerEnquiries,
@@ -447,16 +467,16 @@ function Landing({ ctx }) {
         <h1 className="landing-title afu1">AIRAA GROUP</h1>
         <p className="landing-sub afu2">AIRAA Group of Projects. Premium real estate layout management — track sales, bookings and share verified layouts with your entire team. Data syncs live across all devices.</p>
         <div className="flex g3 afu3" style={{ justifyContent: "center", flexWrap: "wrap", marginBottom: "2.2rem" }}>
-          <button className="btn-land-primary" onClick={() => setView("dashboard")}>
+          <button className="btn-land-primary" onClick={() => goto("dashboard")}>
   View Projects
 </button>
 
-<button className="btn-land-secondary" onClick={() => setView("login")}>
+<button className="btn-land-secondary" onClick={() => goto("login")}>
   Sign in
 </button>
 
 
-<button className="btn-land-secondary" onClick={() => setView("register")}>
+<button className="btn-land-secondary" onClick={() => goto("register")}>
   Create account
 </button>
         </div>
@@ -541,7 +561,7 @@ function LoginPage({ ctx }) {
           <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("forgot-password")}>Forgot password?</span>
         </p>
         <p className="tmuted tsm" style={{ textAlign: "center" }}>
-          No account? <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("register")}>Register</span>
+          No account? <span className="tgold" style={{ cursor: "pointer" }} onClick={() => goto("register")}>Register</span>
           {" · "}<span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("landing")}>Back</span>
         </p>
       </form>
@@ -579,7 +599,7 @@ function ForgotPasswordPage({ ctx }) {
           <div style={{ background: "var(--gold-dim)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "var(--gold-light)", lineHeight: 1.6 }}>
             Check your spam/junk folder if you do not see it. The link expires in 1 hour.
           </div>
-          <button className="btn-primary btn-full" onClick={() => setView("login")}>Back to Sign in</button>
+          <button className="btn-primary btn-full" onClick={() => goto("login")}>Back to Sign in</button>
         </div>
       </div>
     );
@@ -603,7 +623,7 @@ function ForgotPasswordPage({ ctx }) {
           {busy ? "Sending…" : "Send Reset Link"}
         </button>
         <p className="tmuted tsm" style={{ textAlign: "center" }}>
-          Remembered it? <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("login")}>Back to Sign in</span>
+          Remembered it? <span className="tgold" style={{ cursor: "pointer" }} onClick={() => goto("login")}>Back to Sign in</span>
         </p>
       </div>
     </div>
@@ -646,14 +666,14 @@ function ResetPasswordPage({ ctx }) {
 
     toast$("Password updated successfully!");
     window.history.replaceState(null, '', window.location.pathname);
-    setTimeout(() => setView("login"), 1200);
+    setTimeout(() => goto("login"), 1200);
   };
 
   return (
     <div className="auth-wrap">
       <div className="auth-card">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-          <div className="flex aic g2" style={{ cursor: "pointer" }} onClick={() => setView("login")}>
+          <div className="flex aic g2" style={{ cursor: "pointer" }} onClick={() => goto("login")}>
             <div className="header-logo-icon">🏘️</div>
             <span className="header-logo-text" style={{ fontSize: 15 }}>AIRAA GROUP</span>
           </div>
@@ -674,7 +694,7 @@ function ResetPasswordPage({ ctx }) {
         </button>
 
         <p className="tmuted tsm" style={{ textAlign: "center" }}>
-          <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("login")}>Back to Sign in</span>
+          <span className="tgold" style={{ cursor: "pointer" }} onClick={() => goto("login")}>Back to Sign in</span>
         </p>
       </div>
     </div>
@@ -696,7 +716,7 @@ function PublicProjects({ ctx }) {
 
   <button
     className="btn-land-primary"
-    onClick={() => setView("login")}
+    onClick={() => goto("login")}
   >
     Sign In
   </button>
@@ -792,7 +812,7 @@ function RegisterPage({ ctx }) {
           <div style={{ background: "var(--gold-dim)", border: "1px solid rgba(201,168,76,0.3)", borderRadius: 10, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "var(--gold-light)" }}>
             Check your spam/junk folder if you do not see it.
           </div>
-          <button className="btn-primary btn-full" onClick={() => setView("login")}>Go to Sign in</button>
+          <button className="btn-primary btn-full" onClick={() => goto("login")}>Go to Sign in</button>
         </div>
       </div>
     );
@@ -868,7 +888,7 @@ function RegisterPage({ ctx }) {
           Have an account? <span style={{
   color: "var(--text)",
   cursor: "pointer"
-}} onClick={() => setView("login")}>Sign in</span>
+}} onClick={() => goto("login")}>Sign in</span>
         </p>
       </div>
     </div>
@@ -885,7 +905,7 @@ function Shell({ ctx, children }) {
   return (
     <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
       <header className="app-header">
-        <div className="header-logo" onClick={() => setView("dashboard")}>
+        <div className="header-logo" onClick={() => goto("dashboard")}>
           <div className="header-logo-icon">🏘️</div>
           <span className="header-logo-text">AIRAA GROUP</span>
         </div>
@@ -1004,7 +1024,7 @@ function Dashboard({ ctx }) {
 
     <button
       className="btn-land-primary"
-      onClick={() => setView("login")}
+      onClick={() => goto("login")}
     >
       Sign In
     </button>
@@ -1298,7 +1318,7 @@ const [showAllHistory, setShowAllHistory] = useState(false);
   return (
     <div>
       <div className="bc afu">
-        <span className="bc-link" onClick={() => setView("dashboard")}>← Dashboard</span>
+        <span className="bc-link" onClick={() => goto("dashboard")}>← Dashboard</span>
         <span style={{ color: "var(--text3)" }}>/</span>
         <span className="trunc semi" style={{ color: "var(--text)", maxWidth: "58vw" }}>{proj.name}</span>
       </div>
@@ -1488,7 +1508,7 @@ function BuyerNotifications({ ctx }) {
 
         <button
           className="btn-secondary"
-          onClick={() => setView("dashboard")}
+          onClick={() => goto("dashboard")}
         >
           ← Back
         </button>
@@ -1596,7 +1616,7 @@ const shownEnquiries =
 </div>
         <button
           className="btn-secondary"
-          onClick={() => setView("dashboard")}
+          onClick={() => goto("dashboard")}
         >
           ← Back
         </button>
@@ -2674,7 +2694,7 @@ const handleSaveDetails = async () => {
     const { data } = await fetchProjects();
     setProjects(data || []);
     toast$(proj.archived ? "Project restored!" : "Project archived.");
-    setModal(null); setView("dashboard");
+    setModal(null); goto("dashboard");
   };
 
   const handleDelete = async () => {
@@ -2685,7 +2705,7 @@ const handleSaveDetails = async () => {
     if (error) { toast$(error.message, "err"); return; }
     const { data } = await fetchProjects();
     setProjects(data || []);
-    toast$("Project deleted."); setModal(null); setView("dashboard");
+    toast$("Project deleted."); setModal(null); goto("dashboard");
   };
 
   return <>
