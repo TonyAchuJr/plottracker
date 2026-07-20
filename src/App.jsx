@@ -431,7 +431,7 @@ function Landing({ ctx }) {
     >
       <div className="orb" style={{ width: 480, height: 480, background: "rgba(201,168,76,0.06)", top: "-18%", left: "50%", transform: "translateX(-50%)" }} />
       <div className="orb" style={{ width: 280, height: 280, background: "rgba(56,189,248,0.05)", bottom: "8%", right: "4%" }} />
-      <button className="theme-btn" onClick={toggleDark} style={{ position: "absolute", top: 14, right: 14 }}>{dark ? "☀️" : "🌙"}</button>
+      <button type="button" className="theme-btn" onClick={toggleDark} style={{ position: "absolute", top: 14, right: 14 }}>{dark ? "☀️" : "🌙"}</button>
       <div
   style={{
     textAlign:"center",
