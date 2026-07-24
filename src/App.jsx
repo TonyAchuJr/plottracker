@@ -1341,7 +1341,7 @@ const [showAllHistory, setShowAllHistory] = useState(false);
   </button>
 )}
         {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "upload-file", proj })}>📁 Upload Files</button>}
-        {isOwnerRole    && <button className="btn-primary" onClick={() => setModal({ type: "add-plots", proj })}>+ Add Plots</button>}
+        {isOwnerRole    && <button className="btn-primary" onClick={() => setModal({ type: "upload-file", proj })}>+ Add Plots</button>}
         {isOwnerRole && plots.length > 0 && <button className="btn-secondary" onClick={() => setModal({ type: "bulk-edit-plots", proj })}>✏️ Edit All Plots</button>}
         {isOwnerRole    && <ReportBtn projects={[proj]} allPlots={plots} profiles={ctx.profiles} single />}
         {isOwnerRole && <button className="btn-ghost" onClick={() => setModal({ type: "project-settings", proj })}>⚙️ Settings</button>}
