@@ -21,14 +21,12 @@ import BuyerEnquiryModal from "./BuyerEnquiryModal";
 import LayoutView from "./components/LayoutView";
 import LayoutEditor from "./components/LayoutEditor";
 
-/* ── Helpers ─────────────────────────────────────────────────────── */
+
 const DFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium" });
 const TFMT = new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" });
 const inr  = v => v ? `₹${Number(v).toLocaleString("en-IN")}` : "";
 
-/* ════════════════════════════════════════════════════════════════
-   ROOT
-════════════════════════════════════════════════════════════════ */
+
 const APP_VERSION = "2.5.0";
 
 export default function App() {
@@ -66,7 +64,7 @@ export default function App() {
     return !d;
   });
 
-  /* ── closeUpdate & loadUser ── (moved up) */
+
   const closeUpdate = () => {
     localStorage.setItem("pt_last_seen", APP_VERSION);
     setShowUpdate(false);
@@ -118,7 +116,7 @@ export default function App() {
 }
   }
 
-/* ── Boot ──────────────────────────────────────────────────────── */
+
 useEffect(() => {
   const checkRecovery = () => {
     const hash = window.location.hash;
@@ -163,7 +161,7 @@ useEffect(() => {
     if (event === "SIGNED_IN" && session?.user) {
       if (checkRecovery()) {
         console.log("SIGNED_IN DURING RECOVERY - IGNORING");
-        return; // Do NOT call loadUser
+        return; 
       }
       await loadUser(session.user);
     }
@@ -179,13 +177,11 @@ useEffect(() => {
   return () => subscription.unsubscribe();
 }, []);
 
-  /* ── Theme ─────────────────────────────────────────────────────── */
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
     document.body.style.background = dark ? "#09090f" : "#f6f4ee";
   }, [dark]);
 
-  /* ── Realtime ──────────────────────────────────────────────────── */
   useEffect(() => {
   const loadProjects = async () => {
     const { data } = await fetchProjects();
@@ -211,7 +207,7 @@ useEffect(() => {
     return () => supabase.removeChannel(ch);
   }, [projId]);
 
-  /* ── Navigation helpers ────────────────────────────────────────── */
+
   async function openProject(id) {
     setProjId(id); setPlotId(null); setBusy(true);
     const [
@@ -356,7 +352,6 @@ layout is updated in image
   );
 }
 
-/* ── Booting screen ──────────────────────────────────────────────── */
 function Booting() {
   return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#09090f", flexDirection: "column", gap: 16 }}>
@@ -411,21 +406,17 @@ function UpdatePopup({ version, onClose }) {
         </div>
     );
 }
-/* ── Spinner ─────────────────────────────────────────────────────── */
+
 function Spin() {
   return <div className="spinner-wrap"><div className="spinner" /></div>;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   LANDING
-════════════════════════════════════════════════════════════════ */
 function Landing({ ctx }) {
   const { setView, toggleDark, dark, setModal } = ctx;
   return (
     <div
       className="landing"
       style={{
-        /* ▼▼▼ PUT YOUR IMAGE HERE — keep the file in /public, reference it like this ▼▼▼ */
         backgroundImage: `url(${process.env.PUBLIC_URL}/plot.jpg)`,
       }}
     >
@@ -480,9 +471,7 @@ function Landing({ ctx }) {
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   AUTH
-════════════════════════════════════════════════════════════════ */
+
 function AuthTop({ ctx, title, sub }) {
   const { setView, dark, toggleDark } = ctx;
   return (
@@ -543,7 +532,7 @@ function LoginPage({ ctx }) {
   );
 }
 
-/* ── Forgot Password Page ─────────────────────────────────────── */
+
 function ForgotPasswordPage({ ctx }) {
   const { setView, dark, toggleDark } = ctx;
   const [email, setEmail] = useState("");
@@ -604,7 +593,7 @@ function ForgotPasswordPage({ ctx }) {
   );
 }
 
-/* ── Reset Password Page ── */
+
 function ResetPasswordPage({ ctx }) {
   const { setView, toast$ } = ctx;
   const [pass, setPass] = useState("");
@@ -714,7 +703,6 @@ function RegisterPage({ ctx }) {
   const [err, setErr]     = useState(""); const [busy, setBusy]   = useState(false);
   const [done, setDone]   = useState(false);
 
-  // Owner access code flow state
   const [ownerCode, setOwnerCode]   = useState("");
   const [codeSent, setCodeSent]     = useState(false);
   const [codeVerified, setCodeVerified] = useState(false);
@@ -723,7 +711,6 @@ function RegisterPage({ ctx }) {
   const [secondsLeft, setSecondsLeft]   = useState(0);
   const [codeErr, setCodeErr]           = useState("");
 
-  // 10-minute countdown after a code is sent
   useEffect(() => {
     if (!codeSent || secondsLeft <= 0) return;
     const t = setInterval(() => setSecondsLeft(s => (s > 0 ? s - 1 : 0)), 1000);
@@ -869,9 +856,6 @@ function RegisterPage({ ctx }) {
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   SHELL
-════════════════════════════════════════════════════════════════ */
 function Shell({ ctx, children }) {
   const { dark, toggleDark, profile, authUser, setView, setModal } = ctx;
   const [menu, setMenu] = useState(false);
@@ -939,9 +923,7 @@ function Shell({ ctx, children }) {
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   DASHBOARD
-════════════════════════════════════════════════════════════════ */
+
 function Dashboard({ ctx }) {
   const { profile, authUser, projects, openProject, setModal, busy, toast$, setProjects, setView, ownerEnquiries } = ctx;
   const isOwner = profile?.role === "owner";
@@ -1268,9 +1250,7 @@ function ProjCard({ proj, profiles, authUser, onClick, isOwner, onArchive, onDel
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   PROJECT VIEW
-════════════════════════════════════════════════════════════════ */
+
 function ProjectView({ proj, ctx }) {
   const { profile, plots, layoutCoords, layoutPolygons, files, setView, openPlot, setModal, busy, profiles, setSelectedProject, setShowEnquiryModal } = ctx;
   const isOwnerRole    = profile?.role === "owner";
@@ -1698,9 +1678,7 @@ function PlotTile({ plot, i, onClick, isOwnerRole }) {
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   PLOT DETAIL
-════════════════════════════════════════════════════════════════ */
+
 function PlotView({ plot, proj, ctx }) {
   const { profile, profiles, history, setView, setModal, busy } = ctx;
   const isOwnerRole = profile?.role === "owner";
@@ -1794,9 +1772,7 @@ function PlotView({ plot, proj, ctx }) {
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   MODALS
-════════════════════════════════════════════════════════════════ */
+
 function ModalShell({ modal, ctx, proj, plot }) {
   const mp = modal.proj || proj, mpl = modal.plot || plot;
   const isInfo = modal.type?.startsWith("info-");
@@ -1828,7 +1804,7 @@ function ModalShell({ modal, ctx, proj, plot }) {
   );
 }
 
-/* ── Info Modal shared header ── */
+
 function InfoHeader({ icon, title, setModal }) {
   return (
     <div className="flex jsb aic mb3">
@@ -2150,13 +2126,11 @@ function BulkEditPlotsModal({ ctx, proj }) {
 
   if (!ok) return;
 
-  // delete polygon
   await supabase
     .from("layout_polygons")
     .delete()
     .eq("plot_id", plot.id);
 
-  // delete plot
   const { error } = await supabase
     .from("plots")
     .delete()
@@ -2340,7 +2314,7 @@ function UploadFileModal({ ctx, proj }) {
       }
     }
 
-    // Refresh data
+
     await insertProjectHistory({
       projectId: proj.id,
       action: `Uploaded ${successCount} file(s)${label ? `: ${label}` : ""}`,
@@ -2454,14 +2428,14 @@ function ViewFilesModal({ ctx, proj }) {
     return true;
   });
 
-  // Auto select
+
   useEffect(() => {
     if (visibleFiles.length > 0) {
       setSelectedFile(visibleFiles[0]);
     } else {
       setSelectedFile(null);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [activeTab]);
 
   const del = async (id, path, label) => {
@@ -2577,14 +2551,11 @@ function ViewFilesModal({ ctx, proj }) {
   );
 }
 
-/* ════════════════════════════════════════════════════════════════
-   PROJECT SETTINGS MODAL (Archive / Delete)
-════════════════════════════════════════════════════════════════ */
 function ProjectSettingsModal({ ctx, proj }) {
   const { authUser, toast$, setModal, setView, setProjects, openProject } = ctx;
   const [busy, setBusy] = useState(false);
 
-  // Editable details state
+ 
   const [name, setName] = useState(proj.name || "");
   const [loc, setLoc] = useState(proj.location || "");
   const [mapUrl, setMapUrl] = useState(proj.map_url || "");
@@ -2778,19 +2749,13 @@ const handleSaveDetails = async () => {
   </>;
 }
 
-/* ════════════════════════════════════════════════════════════════
-   REPORT DOWNLOAD (Excel + CSV)
-════════════════════════════════════════════════════════════════ */
 function ReportBtn({ projects=[], allPlots=[], profiles=[], single=false }) {
   const [open,setOpen]=useState(false);
-  // profiles available for future use
   const rows=()=>{const out=[];for(const p of projects){const pl=single?allPlots:(p._plots||[]);for(const x of pl){out.push({"Project":p.name,"Location":p.location||"","Plot No.":x.number,"Status":(x.status||"").charAt(0).toUpperCase()+(x.status||"").slice(1),"Area":x.area||"","Price (₹)":x.price||"","Contact Name":x.contact_name||"","Contact Phone":x.contact_phone||"","Advance Paid":x.advance_paid===true?"Yes":x.advance_paid===false?"No":"","Notes":x.transaction_notes||""});}}return out;};
   const summ=()=>projects.map(p=>{const pl=single?allPlots:(p._plots||[]);const s=pl.filter(x=>x.status==="sold"),b=pl.filter(x=>x.status==="booked"),a=pl.filter(x=>x.status==="available");return{"Project":p.name,"Location":p.location||"","Total":pl.length,"Sold":s.length,"Booked":b.length,"Available":a.length,"% Sold":pl.length?Math.round(s.length/pl.length*100)+"%":"0%","Revenue (₹)":s.reduce((acc,x)=>acc+Number(x.price||0),0)};});
   const dlCSV=()=>{const r=rows();if(!r.length)return;const h=Object.keys(r[0]);const csv=[h.join(","),...r.map(row=>h.map(k=>{const v=String(row[k]??"").replace(/"/g,'""');return v.includes(",")||v.includes('"')?`"${v}"`:v;}).join(","))].join("\n");const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv"}));a.download=`PlotTracker_${Date.now()}.csv`;a.click();setOpen(false);};
   const dlXLSX = () => {
     const wb = XLSX.utils.book_new();
-
-    // Sheet 1: Summary
     const sm = summ();
     if (sm.length) {
       const ws1 = XLSX.utils.json_to_sheet(sm);
@@ -2798,15 +2763,12 @@ function ReportBtn({ projects=[], allPlots=[], profiles=[], single=false }) {
       XLSX.utils.book_append_sheet(wb, ws1, "Summary");
     }
 
-    // Sheet 2: All Plots
     const r = rows();
     if (r.length) {
       const ws2 = XLSX.utils.json_to_sheet(r);
       ws2["!cols"] = Object.keys(r[0]).map(k => ({ wch: Math.max(k.length + 2, 16) }));
       XLSX.utils.book_append_sheet(wb, ws2, "All Plots");
     }
-
-    // Sheet 3: Transactions only
     const txn = rows().filter(row => ["Sold","Booked"].includes(row["Status"]));
     if (txn.length) {
       const ws3 = XLSX.utils.json_to_sheet(txn);
@@ -2836,10 +2798,6 @@ function ReportBtn({ projects=[], allPlots=[], profiles=[], single=false }) {
     </div>
   );
 }
-
-/* ════════════════════════════════════════════════════════════════
-   ATOMS
-════════════════════════════════════════════════════════════════ */
 function Fi({ label, value, onChange, type="text", placeholder, textarea }) {
   return (
     <div style={{ flex: 1, marginBottom: "1rem" }}>
