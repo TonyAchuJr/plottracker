@@ -2732,14 +2732,11 @@ const handleSaveDetails = async () => {
 
     }}
   />
-<button
-    className="btn-secondary"
-    onClick={() => setModal({
-        type: "layout-editor",
-        proj
-    })}
+        <button
+  className="btn-secondary"
+  onClick={() => setView("login")}
 >
-    🎨 Paint Layout
+  🎨 Paint Layout
 </button>
 </div>
       {editErr && <Err>{editErr}</Err>}
