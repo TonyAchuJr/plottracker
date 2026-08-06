@@ -999,7 +999,7 @@ function Dashboard({ ctx }) {
 
     <button
       className="btn-land-primary"
-      onClick={() => setView("login")}
+      onClick={() => setView("landing")}
     >
       Sign In
     </button>
