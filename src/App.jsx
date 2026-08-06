@@ -452,7 +452,7 @@ function Landing({ ctx }) {
   View Projects
 </button>
 
-<button className="btn-land-secondary" onClick={() => setView("landing")}>
+<button className="btn-land-secondary" onClick={() => setView("dashboard")}>
   Sign in
 </button>
 
