@@ -531,7 +531,7 @@ function LoginPage({ ctx }) {
         <Fi label="Email" value={email} onChange={setEmail} type="email" />
         <Fi label="Password" value={pass} onChange={setPass} type="password" />
         {err && <Err>{err}</Err>}
-        <button className="btn-primary btn-full mb3" onClick={() => setView("register")} disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
+        <button className="btn-primary btn-full mb3" onClick={go} disabled={busy}>{busy ? "Signing in…" : "Sign in"}</button>
         <p className="tmuted tsm" style={{ textAlign: "center", marginBottom: 10 }}>
           <span className="tgold" style={{ cursor: "pointer" }} onClick={() => setView("forgot-password")}>Forgot password?</span>
         </p>
