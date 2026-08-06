@@ -1001,7 +1001,7 @@ function Dashboard({ ctx }) {
       className="btn-land-primary"
       onClick={() => setView("landing")}
     >
-      Sign In
+      SignIn
     </button>
   </div>
 )}
