@@ -175,8 +175,15 @@ useEffect(() => {
       setView("landing");
     }
   });
+const handleUnload = async () => {
+  await authSignOut();
+};
 
-  return () => subscription.unsubscribe();
+window.addEventListener("beforeunload", handleUnload);
+  return () => {
+  window.removeEventListener("beforeunload", handleUnload);
+  subscription.unsubscribe();
+};
 }, []);
 
   /* ── Theme ─────────────────────────────────────────────────────── */
