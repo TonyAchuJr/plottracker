@@ -175,13 +175,7 @@ useEffect(() => {
       setView("landing");
     }
   });
-const handleUnload = async () => {
-  await authSignOut();
-};
-
-window.addEventListener("beforeunload", handleUnload);
-  return () => {
-  window.removeEventListener("beforeunload", handleUnload);
+return () => {
   subscription.unsubscribe();
 };
 }, []);
