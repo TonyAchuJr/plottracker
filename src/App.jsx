@@ -1786,7 +1786,7 @@ function PlotView({ plot, proj, ctx }) {
 
       {isOwnerRole && (
         <div className="flex g2 fw">
-          {plot.status !== "sold" && <button className="btn-primary" onClick={() => setModal({ type: "create-project", plot, proj })}>Update Status</button>}
+          {plot.status !== "sold" && <button className="btn-primary" onClick={() => setModal({ type: "update-plot", plot, proj })}>Update Status</button>}
           <button className="btn-secondary" onClick={() => setModal({ type: "edit-plot", plot, proj })}>Edit Details</button>
         </div>
       )}
@@ -2733,10 +2733,13 @@ const handleSaveDetails = async () => {
     }}
   />
         <button
-  className="btn-secondary"
-  onClick={() => setView("login")}
+    className="btn-secondary"
+    onClick={() => setModal({
+        type: "layout-editor",
+        proj
+    })}
 >
-  🎨 Paint Layout
+    🎨 Paint Layout
 </button>
 </div>
       {editErr && <Err>{editErr}</Err>}
