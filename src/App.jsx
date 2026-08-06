@@ -863,7 +863,7 @@ function RegisterPage({ ctx }) {
           Have an account? <span style={{
   color: "var(--text)",
   cursor: "pointer"
-}} onClick={() => setView("landing")}>Sign in</span>
+}} onClick={() => setView("landing")}>Sign  in</span>
         </p>
       </div>
     </div>
